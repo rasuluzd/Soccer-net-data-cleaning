@@ -1,0 +1,110 @@
+{
+  "de maria": {
+    "correct": "Angel Di Maria",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 73.75
+  },
+  "ashley young.": {
+    "correct": "Ashley Young",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.0
+  },
+  "jefferson monteiro": {
+    "correct": "Jefferson Montero",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.57142857142857
+  },
+  "monteiro": {
+    "correct": "Jefferson Montero",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 76.66666666666666
+  },
+  "stirling": {
+    "correct": "Raheem Sterling",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 73.75
+  },
+  "wan-yama": {
+    "correct": "Victor Wanyama",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 76.66666666666666
+  },
+  "brendan rogers": {
+    "correct": "Brendan Rodgers",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.27586206896552
+  },
+  "glenn johnson": {
+    "correct": "Glen Johnson",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 78.0
+  },
+  "conor wickham": {
+    "correct": "Connor Wickham",
+    "confidence": 0.8333333333333334,
+    "seen_count": 5,
+    "fuzzy_score_avg": 78.14814814814815
+  },
+  "zuma": {
+    "correct": "Kurt Zouma",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 74.44444444444444
+  },
+  "suare": {
+    "correct": "Pape Souare",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 75.45454545454545
+  },
+  "wayne hennessy": {
+    "correct": "Wayne Hennessey",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.27586206896552
+  },
+  "connor wickham.": {
+    "correct": "Connor Wickham",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.27586206896552
+  },
+  "ruben loftus-cheek.": {
+    "correct": "Ruben Loftus-Cheek",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.64864864864865
+  },
+  "radamel falcao!": {
+    "correct": "Radamel Falcao",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 78.27586206896552
+  },
+  "creswell": {
+    "correct": "Aaron Cresswell",
+    "confidence": 0.8333333333333334,
+    "seen_count": 5,
+    "fuzzy_score_avg": 77.05882352941177
+  },
+  "bonny": {
+    "correct": "Wilfried Bony",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 74.44444444444444
+  },
+  "boney": {
+    "correct": "Wilfried Bony",
+    "confidence": 0.875,
+    "seen_count": 7,
+    "fuzzy_score_avg": 74.44444444444444
+  }
+}
