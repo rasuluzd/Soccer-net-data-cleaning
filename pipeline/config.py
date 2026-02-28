@@ -44,21 +44,37 @@ DUPLICATE_SIMILARITY_THRESHOLD = 95
 # ─── Fuzzy Matching ─────────────────────────────────────────────────
 # Combined scoring weights for the multi-signal matcher.
 # These sum to 1.0 and determine how much each signal contributes.
-FUZZY_WEIGHT = 0.50       # RapidFuzz string similarity
-PHONETIC_WEIGHT = 0.30    # Metaphone/Soundex phonetic match
-CONTEXT_WEIGHT = 0.20     # Bonus for matching team/match context
+#
+# ASR errors are fundamentally SOUND-BASED — Whisper hears phonemes
+# and maps them to wrong spellings. So phonetic similarity deserves
+# the highest weight: names that sound alike are very likely the same
+# person even if the spelling looks completely different.
+#
+# Examples showing why phonetic weight matters:
+#   "Kohlerhoff" ≈ "Kolarov"  (fuzzy=59, but phonetically similar)
+#   "Sacco" ≈ "Sakho"         (fuzzy=60, but both → "SK" phonetically)
+#   "Guanyama" ≈ "Wanyama"    (fuzzy=80, phonetically close)
+FUZZY_WEIGHT = 0.45       # RapidFuzz string similarity
+PHONETIC_WEIGHT = 0.40    # Metaphone/Soundex phonetic match (primary signal for ASR)
+CONTEXT_WEIGHT = 0.15     # Bonus for matching team/match context
 
 # Adaptive threshold: short names get a lower bar because there's
 # less string data to compare, making fuzzy scores naturally lower.
+#
+# These thresholds are calibrated against real ASR errors:
+#   "Kohlerhoff"→Kolarov scores ~67 (long, fuzzy=59, phonetic=yes)
+#   "Aspilicueta"→Azpilicueta scores ~81 (long, fuzzy=91, phonetic=yes)
+#   "Sacco"→Sakho scores ~59 (medium, fuzzy=60, phonetic=yes)
+#   "Winston Ritu"→Winston Reid scores ~78 (long, fuzzy=83, phonetic=yes)
 def get_fuzzy_threshold(entity_text: str) -> int:
     """Return the minimum combined score needed to accept a correction."""
     length = len(entity_text)
     if length <= 4:
-        return 68   # short names like "Turi" → Touré
+        return 48   # short names like "Turi" → Touré, "Zuma" → Zouma
     elif length <= 8:
-        return 73   # medium names like "Sacco" → Sakho
+        return 55   # medium names like "Sacco" → Sakho
     else:
-        return 78   # long names like "Aspilicueta" → Azpilicueta
+        return 55   # long names like "Kohlerhoff" → Kolarov
 
 
 # ─── NER ─────────────────────────────────────────────────────────────

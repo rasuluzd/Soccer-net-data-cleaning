@@ -100,18 +100,46 @@ def clean_match(
         # Try learned dictionary first for each entity
         learned_applied = False
         for entity in entities:
+            entity_text = entity.text.strip()
+
+            # Strip possessive before lookup
+            trailing_possessive = ""
+            if entity_text.endswith("'s") or entity_text.endswith("\u2019s"):
+                trailing_possessive = entity_text[-2:]
+                entity_text = entity_text[:-2]
+
+            # Strip punctuation
+            while entity_text and entity_text[-1] in ".,!?;:":
+                entity_text = entity_text[:-1]
+
+            if not entity_text:
+                continue
+
             # Skip common English words — they should never be corrected
-            if entity.text.lower() in COMMON_WORDS_EXCLUDE:
+            if entity_text.lower() in COMMON_WORDS_EXCLUDE:
                 continue
             # Skip very short entities
-            if len(entity.text.strip()) <= 2:
+            if len(entity_text.strip()) <= 2:
                 continue
-            learned_correction = lookup_learned(entity.text)
+
+            learned_correction = lookup_learned(entity_text)
             if learned_correction:
-                text = text.replace(entity.text, learned_correction)
+                # Apply single-word logic: if entity is 1 word,
+                # don't replace with full name
+                entity_word_count = len(entity_text.split())
+                if entity_word_count == 1 and " " in learned_correction:
+                    # Extract just the surname from the full name
+                    corrected_name = learned_correction.split()[-1]
+                else:
+                    corrected_name = learned_correction
+
+                # Re-append possessive if present
+                replacement = corrected_name + trailing_possessive
+
+                text = text.replace(entity.text, replacement)
                 all_corrections.append(Correction(
                     original=entity.text,
-                    corrected=learned_correction,
+                    corrected=corrected_name,
                     combined_score=100.0,
                     fuzzy_score=100.0,
                     phonetic_match=True,

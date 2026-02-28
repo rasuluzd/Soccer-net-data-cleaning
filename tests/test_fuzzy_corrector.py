@@ -73,34 +73,34 @@ class TestFindBestMatch:
         assert match.corrected == "Connor Wickham"
 
     def test_corrects_zuma_to_zouma(self):
-        """'Zuma' should correct to 'Kurt Zouma'."""
+        """'Zuma' should correct to 'Zouma' (single word → surname only)."""
         match = find_best_match("Zuma", SAMPLE_GAZETTEER)
         assert match is not None
-        assert match.corrected == "Kurt Zouma"
+        assert match.corrected == "Zouma"
 
     def test_corrects_boney_to_bony(self):
-        """'Boney' should correct to 'Wilfried Bony'."""
+        """'Boney' should correct to 'Bony' (single word → surname only)."""
         match = find_best_match("Boney", SAMPLE_GAZETTEER)
         assert match is not None
-        assert match.corrected == "Wilfried Bony"
+        assert match.corrected == "Bony"
 
     def test_corrects_stirling_to_sterling(self):
-        """'Stirling' should correct to 'Raheem Sterling'."""
+        """'Stirling' should correct to 'Sterling' (single word → surname only)."""
         match = find_best_match("Stirling", SAMPLE_GAZETTEER)
         assert match is not None
-        assert match.corrected == "Raheem Sterling"
+        assert match.corrected == "Sterling"
 
     def test_corrects_monteiro_to_montero(self):
-        """'Monteiro' should correct to 'Jefferson Montero'."""
+        """'Monteiro' should correct to 'Montero' (single word → surname only)."""
         match = find_best_match("Monteiro", SAMPLE_GAZETTEER)
         assert match is not None
-        assert match.corrected == "Jefferson Montero"
+        assert match.corrected == "Montero"
 
     def test_corrects_creswell_to_cresswell(self):
-        """'Creswell' should correct to 'Aaron Cresswell'."""
+        """'Creswell' should correct to 'Cresswell' (single word → surname only)."""
         match = find_best_match("Creswell", SAMPLE_GAZETTEER)
         assert match is not None
-        assert match.corrected == "Aaron Cresswell"
+        assert match.corrected == "Cresswell"
 
     def test_skips_already_correct_name(self):
         """Names already in the gazetteer should NOT be 'corrected'."""
@@ -183,7 +183,6 @@ class TestCorrectSegmentText:
                 source="spacy",
             )
         ]
-        text = "What a goal, Conor Wickham!"
         corrected, corrections = correct_segment_text(
             text, entities, SAMPLE_GAZETTEER, "0"
         )
@@ -224,9 +223,9 @@ class TestCorrectSegmentText:
         corrected, corrections = correct_segment_text(
             text, entities, SAMPLE_GAZETTEER, "0"
         )
-        # Both should be corrected
-        assert "Raheem Sterling" in corrected
-        assert "Wilfried Bony" in corrected
+        # Both should be corrected to surname-only form
+        assert "Sterling" in corrected
+        assert "Bony" in corrected
         assert len(corrections) == 2
 
 

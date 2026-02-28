@@ -112,7 +112,11 @@ def extract_names_from_labels(labels: dict) -> dict[str, str]:
     # ── Venue ────────────────────────────────────────────────────────
     for venue in labels.get("venue", []):
         if venue:
-            add_name(venue)
+            # Strip parenthetical suffixes: "Stamford Bridge (London)" → "Stamford Bridge"
+            import re
+            venue_clean = re.sub(r"\s*\(.*?\)\s*$", "", venue).strip()
+            if venue_clean:
+                add_name(venue_clean)
 
     return gazetteer
 

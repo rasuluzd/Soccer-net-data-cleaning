@@ -25,23 +25,28 @@ from pipeline.ner_extractor import DetectedEntity
 
 
 # ─── Common English words that should NEVER be corrected ────────────
-# These are real English words or names that fuzzy matching might
+# These are real English words or names that fuzz matching might
 # incorrectly "correct" to a player name.
 COMMON_WORDS_EXCLUDE = {
-    # Common English words that resemble player names
+    # Common first names (often valid on their own in commentary)
     "target", "dan", "davies", "will", "young", "long", "ward",
     "allen", "paul", "mark", "jones", "parker", "walker", "kennedy",
     "martin", "alex", "jack", "joe", "tom", "nick", "mike", "john",
     "james", "ryan", "adam", "ben", "sam", "matt", "chris", "lee",
     "tony", "gary", "steven", "frank", "henry", "barry", "terry",
     "wayne", "dean", "carl", "dave", "rob", "phil", "gordon",
+    "jose", "diego", "alan", "scott", "kurt", "adrian", "pedro",
+    "william", "bia", "kael",
     # Soccer terms that might fuzzy-match names
     "corner", "cross", "header", "pass", "shot", "goal", "foul",
     "ball", "match", "kick", "play", "side", "team", "half",
     "free", "throw", "card", "yellow", "red", "penalty",
     "manager", "referee", "striker", "keeper", "defender",
-    # Other common words
-    "falco", "pele",  # these are ambiguous — could be misheard names or words
+    # Common English words that phonetically resemble player names
+    "poor", "poured", "punch", "wall", "kale", "kyle",
+    "chile", "marino", "falco", "pele",
+    # Geographic names that aren't player misspellings
+    "stamford bridge",
 }
 
 
@@ -79,9 +84,10 @@ def compute_phonetic_score(entity: str, candidate: str) -> float:
         if entity_code == candidate_code:
             return 100.0
 
-        # Partial match: one is a prefix of the other
+        # Partial match: one is a prefix of the other (e.g., KLRF ⊂ KLRHF)
+        # This is very common in ASR errors where extra syllables are added
         if entity_code.startswith(candidate_code) or candidate_code.startswith(entity_code):
-            return 50.0
+            return 75.0
 
         # Also try Soundex for a second opinion
         try:
@@ -168,9 +174,15 @@ def find_best_match(
 
     entity_clean = entity_text.strip()
 
-    # Strip trailing punctuation before matching — spaCy sometimes includes
-    # sentence-ending punctuation in the entity span (e.g. "Connor Wickham.")
-    # We preserve it and re-append after replacement in correct_segment_text.
+    # Strip trailing possessive and punctuation before matching.
+    # spaCy sometimes includes these in the entity span.
+    # We preserve them and re-append after replacement in correct_segment_text.
+    # Handle possessive first ("'s" or "\u2019s")
+    trailing_possessive = ""
+    if entity_clean.endswith("'s") or entity_clean.endswith("\u2019s"):
+        trailing_possessive = entity_clean[-2:]
+        entity_clean = entity_clean[:-2]
+
     while entity_clean and entity_clean[-1] in ".,!?;:":
         entity_clean = entity_clean[:-1]
     while entity_clean and entity_clean[0] in ".,!?;:":
@@ -221,9 +233,26 @@ def find_best_match(
         if combined > best_score:
             best_score = combined
             canonical = gazetteer[candidate_text]
+
+            # Decide replacement form: match the "level" of the input.
+            # If commentator says "Zuma" (single word), correct to "Zouma"
+            # (the matched variant), not "Kurt Zouma" (the full name).
+            # If they say "Winston Ritu" (multi-word), use "Winston Reid".
+            entity_word_count = len(entity_clean.split())
+            if entity_word_count == 1:
+                # Single word input → use the closest single-word variant
+                # from the gazetteer, not the full canonical name
+                if " " not in candidate_text:
+                    corrected_name = candidate_text   # e.g. "Zouma"
+                else:
+                    # Matched a full name variant; extract the surname
+                    corrected_name = canonical.split()[-1]
+            else:
+                corrected_name = canonical             # e.g. "Winston Reid"
+
             best_correction = Correction(
                 original=entity_clean,
-                corrected=canonical,
+                corrected=corrected_name,
                 combined_score=combined,
                 fuzzy_score=fuzzy_score,
                 phonetic_match=phonetic_match,
@@ -275,21 +304,27 @@ def correct_segment_text(
         if match:
             match.segment_id = segment_id
 
-            # Preserve any punctuation attached to the entity span
+            # Preserve any possessive/punctuation attached to the entity span
             original_text = entity.text.strip()
-            trailing_punct = ""
+
+            # Check for possessive first
+            trailing_possessive = ""
             temp = original_text
+            if temp.endswith("'s") or temp.endswith("\u2019s"):
+                trailing_possessive = temp[-2:]
+                temp = temp[:-2]
+
+            trailing_punct = ""
             while temp and temp[-1] in ".,!?;:":
                 trailing_punct = temp[-1] + trailing_punct
                 temp = temp[:-1]
             leading_punct = ""
-            temp = original_text
             while temp and temp[0] in ".,!?;:":
                 leading_punct += temp[0]
                 temp = temp[1:]
 
-            # Replace entity text, re-appending any stripped punctuation
-            replacement = leading_punct + match.corrected + trailing_punct
+            # Replace entity text, re-appending any stripped punctuation/possessive
+            replacement = leading_punct + match.corrected + trailing_punct + trailing_possessive
             before = corrected_text[:entity.start_char]
             after = corrected_text[entity.end_char:]
             corrected_text = before + replacement + after
