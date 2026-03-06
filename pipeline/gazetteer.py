@@ -13,7 +13,7 @@ from typing import Optional
 from pipeline.config import LEARNED_CORRECTIONS_PATH
 
 
-def extract_names_from_labels(labels: dict) -> dict[str, str]:
+def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, str]]:
     """
     Extract all proper names from a Labels-caption.json and build a
     gazetteer mapping every variant to its canonical form.
@@ -29,18 +29,22 @@ def extract_names_from_labels(labels: dict) -> dict[str, str]:
         labels: parsed Labels-caption.json dict
 
     Returns:
-        Dict mapping name variants -> canonical name.
-        Example: {"De Bruyne": "Kevin De Bruyne", "Kevin De Bruyne": "Kevin De Bruyne"}
+        Tuple of:
+            - Dict mapping name variants -> canonical name
+            - Dict mapping canonical name -> entity type
+              ("player", "coach", "referee", "team", "venue")
     """
     gazetteer: dict[str, str] = {}
+    entity_types: dict[str, str] = {}  # canonical_name → type
 
-    def add_name(canonical: str, *variants: str):
+    def add_name(canonical: str, *variants: str, entity_type: str = "player"):
         """Register a canonical name and all its variants."""
         canonical = canonical.strip()
         if not canonical:
             return
         # The canonical name maps to itself
         gazetteer[canonical] = canonical
+        entity_types[canonical] = entity_type
         for v in variants:
             v = v.strip()
             if v:
@@ -71,9 +75,9 @@ def extract_names_from_labels(labels: dict) -> dict[str, str]:
 
             if long_name:
                 surname = extract_surname(long_name)
-                add_name(long_name, short_name, name, surname)
+                add_name(long_name, short_name, name, surname, entity_type="player")
             elif short_name:
-                add_name(short_name, name)
+                add_name(short_name, name, entity_type="player")
 
         # Coaches
         coaches = lineup.get("coach", [])
@@ -83,31 +87,32 @@ def extract_names_from_labels(labels: dict) -> dict[str, str]:
             name = coach.get("name", "")
             if long_name:
                 surname = extract_surname(long_name)
-                add_name(long_name, short_name, name, surname)
+                add_name(long_name, short_name, name, surname, entity_type="coach")
 
     # ── Referees ─────────────────────────────────────────────────────
     for ref_name in labels.get("referee_matched", labels.get("referee", [])):
         if ref_name:
             surname = extract_surname(ref_name)
-            add_name(ref_name, surname)
+            add_name(ref_name, surname, entity_type="referee")
 
     # ── Teams ────────────────────────────────────────────────────────
     home_team = labels.get("gameHomeTeam", "")
     away_team = labels.get("gameAwayTeam", "")
     if home_team:
-        add_name(home_team)
+        add_name(home_team, entity_type="team")
     if away_team:
-        add_name(away_team)
+        add_name(away_team, entity_type="team")
 
     # Also add team name variants from the "home"/"away" objects
     for side in ("home", "away"):
         team_obj = labels.get(side, {})
         main_name = team_obj.get("name", "")
         if main_name:
-            add_name(main_name)
+            add_name(main_name, entity_type="team")
         for alt_name in team_obj.get("names", []):
             if alt_name:
                 gazetteer[alt_name] = main_name or alt_name
+                entity_types[main_name or alt_name] = "team"
 
     # ── Venue ────────────────────────────────────────────────────────
     for venue in labels.get("venue", []):
@@ -116,9 +121,9 @@ def extract_names_from_labels(labels: dict) -> dict[str, str]:
             import re
             venue_clean = re.sub(r"\s*\(.*?\)\s*$", "", venue).strip()
             if venue_clean:
-                add_name(venue_clean)
+                add_name(venue_clean, entity_type="venue")
 
-    return gazetteer
+    return gazetteer, entity_types
 
 
 def load_learned_corrections() -> dict[str, dict]:
@@ -142,10 +147,43 @@ def save_learned_corrections(corrections: dict[str, dict]) -> None:
         json.dump(corrections, f, indent=2, ensure_ascii=False)
 
 
+def get_team_words(
+    entity_types: dict[str, str],
+    gazetteer: dict[str, str],
+) -> set[str]:
+    """
+    Extract all individual words from team-type gazetteer entries.
+
+    Used for detecting team name fragments in entities, e.g. 'Palace'
+    from 'Crystal Palace', 'Ham' from 'West Ham'.
+
+    Args:
+        entity_types: canonical name → type mapping
+        gazetteer: variant → canonical mapping
+
+    Returns:
+        Set of lowercase words that appear in any team name.
+        Only words with 3+ characters are included.
+    """
+    team_words: set[str] = set()
+    for canonical, etype in entity_types.items():
+        if etype == "team":
+            for word in canonical.split():
+                if len(word) >= 3:
+                    team_words.add(word.lower())
+    # Also include venue words (stadiums should not be corrected to players)
+    for canonical, etype in entity_types.items():
+        if etype == "venue":
+            for word in canonical.split():
+                if len(word) >= 3:
+                    team_words.add(word.lower())
+    return team_words
+
+
 def build_gazetteer(
     labels: Optional[dict],
     include_learned: bool = True
-) -> dict[str, str]:
+) -> tuple[dict[str, str], dict[str, str]]:
     """
     Build the complete gazetteer for a match.
 
@@ -158,13 +196,16 @@ def build_gazetteer(
         include_learned: whether to merge the learned correction dictionary
 
     Returns:
-        Complete gazetteer dict: variant -> canonical name
+        Tuple of:
+            - Complete gazetteer dict: variant -> canonical name
+            - Entity types dict: canonical name -> type
     """
     gazetteer = {}
+    entity_types = {}
 
     # Step 1: Match-specific names from Labels
     if labels:
-        gazetteer = extract_names_from_labels(labels)
+        gazetteer, entity_types = extract_names_from_labels(labels)
 
     # Step 2: Merge learned corrections
     if include_learned:
@@ -174,7 +215,7 @@ def build_gazetteer(
             if correct and misspelling not in gazetteer:
                 gazetteer[misspelling] = correct
 
-    return gazetteer
+    return gazetteer, entity_types
 
 
 if __name__ == "__main__":
@@ -185,8 +226,9 @@ if __name__ == "__main__":
     if matches:
         m = matches[0]
         print(f"Building gazetteer for: {m.match_name}\n")
-        gaz = build_gazetteer(m.labels)
+        gaz, etypes = build_gazetteer(m.labels)
         print(f"Total entries: {len(gaz)}\n")
+        print(f"Entity types: {len(etypes)} canonical names typed\n")
         print("Sample entries:")
         for variant, canonical in sorted(gaz.items())[:20]:
             if variant != canonical:

@@ -1,51 +1,129 @@
 {
-  "saka": {
-    "correct": "Sako",
+  "ratledge": {
+    "correct": "Routledge",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 77.05882352941177
+  },
+  "marcus rojo": {
+    "correct": "Marcos Rojo",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.9090909090909
+  },
+  "gary monk": {
+    "correct": "Garry Monk",
     "confidence": 0.9090909090909091,
     "seen_count": 10,
-    "fuzzy_score_avg": 73.75
+    "fuzzy_score_avg": 82.63157894736842
   },
-  "balassi": {
-    "correct": "Bolasie",
-    "confidence": 0.9333333333333333,
-    "seen_count": 14,
-    "fuzzy_score_avg": 72.14285714285712
+  "daily blind": {
+    "correct": "Daley Blind",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.9090909090909
+  },
+  "angel de maria": {
+    "correct": "Angel Di Maria",
+    "confidence": 0.8333333333333334,
+    "seen_count": 5,
+    "fuzzy_score_avg": 81.78571428571429
+  },
+  "de maria": {
+    "correct": "Angel Di Maria",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 79.375
+  },
+  "dele blinde": {
+    "correct": "Daley Blind",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 76.81818181818181
+  },
+  "fabiansky": {
+    "correct": "Fabianski",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.0
+  },
+  "gomes": {
+    "correct": "Gomis",
+    "confidence": 0.75,
+    "seen_count": 3,
+    "fuzzy_score_avg": 76.0
+  },
+  "fernandes": {
+    "correct": "Fernandez",
+    "confidence": 0.75,
+    "seen_count": 3,
+    "fuzzy_score_avg": 80.0
+  },
+  "jefferson monteiro": {
+    "correct": "Jefferson Montero",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 83.71428571428572
+  },
+  "monteiro": {
+    "correct": "Montero",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 82.0
+  },
+  "matt target": {
+    "correct": "Matt Targett",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 83.04347826086956
+  },
+  "pella": {
+    "correct": "Pelle",
+    "confidence": 0.9230769230769231,
+    "seen_count": 12,
+    "fuzzy_score_avg": 76.0
+  },
+  "stirling": {
+    "correct": "Sterling",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 79.375
+  },
+  "ricky lambert": {
+    "correct": "Rickie Lambert",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.0
+  },
+  "wan-yama": {
+    "correct": "Wanyama",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 82.0
+  },
+  "skrtle": {
+    "correct": "Skrtel",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 77.5
+  },
+  "brendan rogers": {
+    "correct": "Brendan Rodgers",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 83.44827586206897
+  },
+  "glenn johnson": {
+    "correct": "Glen Johnson",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 83.2
   },
   "yannick balassi": {
     "correct": "Yannick Bolasie",
     "confidence": 0.6666666666666667,
     "seen_count": 2,
     "fuzzy_score_avg": 79.0
-  },
-  "wickham palace": {
-    "correct": "Connor Wickham",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 60.0
-  },
-  "kabay": {
-    "correct": "Cabaye",
-    "confidence": 0.875,
-    "seen_count": 7,
-    "fuzzy_score_avg": 62.72727272727274
-  },
-  "pedro willian": {
-    "correct": "Pedro",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 55.0
-  },
-  "stanford bridge": {
-    "correct": "Stamford Bridge",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 72.0
-  },
-  "weka": {
-    "correct": "Wickham",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 54.54545454545455
   },
   "alon pardew": {
     "correct": "Alan Pardew",
@@ -65,47 +143,11 @@
     "seen_count": 5,
     "fuzzy_score_avg": 83.33333333333334
   },
-  "sacco": {
-    "correct": "Sako",
-    "confidence": 0.9090909090909091,
-    "seen_count": 10,
-    "fuzzy_score_avg": 60.0
-  },
   "zuma": {
     "correct": "Zouma",
     "confidence": 0.8,
     "seen_count": 4,
     "fuzzy_score_avg": 80.0
-  },
-  "ivanovich": {
-    "correct": "Ivanovic",
-    "confidence": 0.8333333333333334,
-    "seen_count": 5,
-    "fuzzy_score_avg": 72.35294117647058
-  },
-  "connor wick": {
-    "correct": "Connor Wickham",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 69.6
-  },
-  "matich": {
-    "correct": "Matic",
-    "confidence": 0.6666666666666667,
-    "seen_count": 2,
-    "fuzzy_score_avg": 70.9090909090909
-  },
-  "zaha zaha": {
-    "correct": "Wilfried Zaha",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 58.125
-  },
-  "yann kabay": {
-    "correct": "Yohan Cabaye",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 62.727272727272734
   },
   "alain pardieu": {
     "correct": "Alan Pardew",
@@ -113,47 +155,11 @@
     "seen_count": 1,
     "fuzzy_score_avg": 77.5
   },
-  "zahar": {
-    "correct": "Zaha",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 70.0
-  },
   "suare": {
     "correct": "Souare",
     "confidence": 0.5,
     "seen_count": 1,
     "fuzzy_score_avg": 80.9090909090909
-  },
-  "stamford": {
-    "correct": "Bridge",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 61.30434782608695
-  },
-  "mattis": {
-    "correct": "Matic",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 62.727272727272734
-  },
-  "kurtz": {
-    "correct": "Courtois",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 60.769230769230774
-  },
-  "pardew gala": {
-    "correct": "Alan Pardew",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 61.76470588235294
-  },
-  "suarez": {
-    "correct": "Souare",
-    "confidence": 0.8333333333333334,
-    "seen_count": 5,
-    "fuzzy_score_avg": 67.5
   },
   "jason punchin": {
     "correct": "Jason Puncheon",
@@ -191,42 +197,6 @@
     "seen_count": 1,
     "fuzzy_score_avg": 83.44827586206897
   },
-  "ivanovic zouma": {
-    "correct": "Branislav Ivanovic",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 62.727272727272734
-  },
-  "bakere saka": {
-    "correct": "Bakary Sako",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 72.72727272727273
-  },
-  "suwari": {
-    "correct": "Souare",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 60.0
-  },
-  "alampardieu": {
-    "correct": "Pardew",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 62.727272727272734
-  },
-  "sahar": {
-    "correct": "Zaha",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 60.0
-  },
-  "bakere sacco": {
-    "correct": "Bakary Sako",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 61.30434782608695
-  },
   "aspilicueta": {
     "correct": "Azpilicueta",
     "confidence": 0.6666666666666667,
@@ -239,28 +209,118 @@
     "seen_count": 1,
     "fuzzy_score_avg": 78.57142857142858
   },
-  "sakho": {
-    "correct": "Sako",
-    "confidence": 0.75,
-    "seen_count": 3,
-    "fuzzy_score_avg": 70.0
-  },
-  "falkauer": {
-    "correct": "Falcao",
-    "confidence": 0.5,
-    "seen_count": 1,
-    "fuzzy_score_avg": 56.470588235294116
-  },
   "bakary saka": {
     "correct": "Bakary Sako",
     "confidence": 0.5,
     "seen_count": 1,
     "fuzzy_score_avg": 80.9090909090909
   },
-  "yohan kabay": {
-    "correct": "Yohan Cabaye",
+  "slavan bilic": {
+    "correct": "Slaven Bilic",
     "confidence": 0.6666666666666667,
     "seen_count": 2,
-    "fuzzy_score_avg": 69.13043478260869
+    "fuzzy_score_avg": 81.25
+  },
+  "creswell": {
+    "correct": "Cresswell",
+    "confidence": 0.8333333333333334,
+    "seen_count": 5,
+    "fuzzy_score_avg": 82.35294117647058
+  },
+  "yaya torre": {
+    "correct": "Yaya Toure",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.5
+  },
+  "kolorov": {
+    "correct": "Kolarov",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 78.57142857142858
+  },
+  "adrián": {
+    "correct": "Adrian",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 77.5
+  },
+  "aaron criswell": {
+    "correct": "Aaron Cresswell",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.3448275862069
+  },
+  "criswell": {
+    "correct": "Cresswell",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 77.05882352941177
+  },
+  "lansini": {
+    "correct": "Lanzini",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 78.57142857142858
+  },
+  "yaya ture": {
+    "correct": "Yaya Toure",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 82.63157894736842
+  },
+  "yaya touré": {
+    "correct": "Yaya Toure",
+    "confidence": 0.8,
+    "seen_count": 4,
+    "fuzzy_score_avg": 80.5
+  },
+  "croswell": {
+    "correct": "Cresswell",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 77.05882352941177
+  },
+  "winston ritu": {
+    "correct": "Winston Reid",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 77.5
+  },
+  "wilfred bonny": {
+    "correct": "Wilfried Bony",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 81.53846153846155
+  },
+  "bonny": {
+    "correct": "Bony",
+    "confidence": 0.5,
+    "seen_count": 1,
+    "fuzzy_score_avg": 80.0
+  },
+  "jelovic": {
+    "correct": "Jelavic",
+    "confidence": 0.8333333333333334,
+    "seen_count": 5,
+    "fuzzy_score_avg": 78.57142857142858
+  },
+  "agüero": {
+    "correct": "Aguero",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 77.5
+  },
+  "boney": {
+    "correct": "Bony",
+    "confidence": 0.875,
+    "seen_count": 7,
+    "fuzzy_score_avg": 80.0
+  },
+  "alexander kolarov": {
+    "correct": "Aleksandar Kolarov",
+    "confidence": 0.6666666666666667,
+    "seen_count": 2,
+    "fuzzy_score_avg": 78.57142857142858
   }
 }

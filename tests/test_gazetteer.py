@@ -46,62 +46,64 @@ class TestExtractNamesFromLabels:
     """Tests for extract_names_from_labels()."""
 
     def test_extracts_player_long_names(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert "Kevin De Bruyne" in gaz
         assert "Sergio Agüero" in gaz
         assert "Dimitri Payet" in gaz
 
     def test_extracts_player_short_names(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         # Short names should map to the canonical (long) name
         assert gaz.get("De Bruyne") == "Kevin De Bruyne"
         assert gaz.get("Sterling") == "Raheem Sterling"
         assert gaz.get("Payet") == "Dimitri Payet"
 
     def test_extracts_surnames(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         # Surnames extracted from long_name should also be in gazetteer
         assert gaz.get("Agüero") == "Sergio Agüero"
         assert gaz.get("Reid") == "Winston Reid"
 
     def test_extracts_coaches(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert "Manuel Pellegrini" in gaz
         assert gaz.get("Pellegrini") == "Manuel Pellegrini"
         assert "Slaven Bilić" in gaz
 
     def test_extracts_referees(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert "Craig Pawson" in gaz
         assert gaz.get("Pawson") == "Craig Pawson"
 
     def test_extracts_teams(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert "Manchester City" in gaz
         assert "West Ham" in gaz
 
     def test_extracts_venue(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert "Etihad Stadium" in gaz
 
     def test_canonical_maps_to_itself(self):
-        gaz = extract_names_from_labels(SAMPLE_LABELS)
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
         assert gaz["Kevin De Bruyne"] == "Kevin De Bruyne"
         assert gaz["Winston Reid"] == "Winston Reid"
 
     def test_empty_labels(self):
-        gaz = extract_names_from_labels({})
+        gaz, etypes = extract_names_from_labels({})
         assert gaz == {}
+        assert etypes == {}
 
 
 class TestBuildGazetteer:
     """Tests for build_gazetteer()."""
 
     def test_builds_from_labels(self):
-        gaz = build_gazetteer(SAMPLE_LABELS, include_learned=False)
+        gaz, etypes = build_gazetteer(SAMPLE_LABELS, include_learned=False)
         assert len(gaz) > 0
         assert "Kevin De Bruyne" in gaz
 
     def test_handles_none_labels(self):
-        gaz = build_gazetteer(None, include_learned=False)
+        gaz, etypes = build_gazetteer(None, include_learned=False)
         assert gaz == {}
+        assert etypes == {}

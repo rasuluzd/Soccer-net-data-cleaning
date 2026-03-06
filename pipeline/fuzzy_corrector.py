@@ -20,6 +20,7 @@ from pipeline.config import (
     PHONETIC_WEIGHT,
     CONTEXT_WEIGHT,
     get_fuzzy_threshold,
+    TIER2_ACCEPT_THRESHOLD,
 )
 from pipeline.ner_extractor import DetectedEntity
 
@@ -61,6 +62,7 @@ class Correction:
     context_match: bool     # whether team context matched
     segment_id: str         # which segment this correction belongs to
     method: str             # description of matching method
+    confidence_band: str = "accepted"  # "accepted" (≥75) or "uncertain" (48-74)
 
 
 def compute_phonetic_score(entity: str, candidate: str) -> float:
@@ -154,6 +156,8 @@ def find_best_match(
     entity_text: str,
     gazetteer: dict[str, str],
     context_names: Optional[set[str]] = None,
+    entity_types: Optional[dict[str, str]] = None,
+    team_words: Optional[set[str]] = None,
 ) -> Optional[Correction]:
     """
     Find the best matching gazetteer entry for a detected entity.
@@ -209,6 +213,28 @@ def find_best_match(
         if variant.lower() == entity_lower:
             return None
 
+    # Skip multi-name entities where each word is already a valid name.
+    # spaCy sometimes merges adjacent names into one entity:
+    #   "Ivanovic Zouma" → both are correct player surnames
+    #   "Wickham Palace" → player name + team name
+    # Correcting these would overwrite one valid name with another.
+    entity_words = entity_clean.split()
+    if len(entity_words) >= 2:
+        gazetteer_lower = {k.lower() for k in gazetteer}
+        words_in_gazetteer = sum(
+            1 for w in entity_words if w.lower() in gazetteer_lower
+        )
+        if words_in_gazetteer >= 2:
+            return None  # Both words are known names — don't "correct"
+
+    # Skip entities that contain a team/venue word fragment.
+    # "Wickham Palace" → skip because "palace" is a team word.
+    # "pardew gala" → not skipped ("gala" isn't a team word), handled by scoring.
+    if team_words and len(entity_words) >= 2:
+        entity_lower_words = {w.lower() for w in entity_words}
+        if entity_lower_words & team_words:
+            return None
+
     # ── Step 1: Pre-filter with RapidFuzz to get top 5 candidates ────
     all_variants = list(gazetteer.keys())
     top_candidates = process.extract(
@@ -245,8 +271,19 @@ def find_best_match(
                 if " " not in candidate_text:
                     corrected_name = candidate_text   # e.g. "Zouma"
                 else:
-                    # Matched a full name variant; extract the surname
-                    corrected_name = canonical.split()[-1]
+                    # Matched a full name variant; find the word from the
+                    # canonical name that's MOST SIMILAR to the entity.
+                    # This prevents "Stamford"→"Bridge" (venue) while
+                    # properly handling "Zuma"→"Zouma" (player surname).
+                    canonical_words = canonical.split()
+                    best_word = canonical_words[-1]  # default to surname
+                    best_word_sim = 0
+                    for cw in canonical_words:
+                        wsim = fuzz.ratio(entity_clean.lower(), cw.lower())
+                        if wsim > best_word_sim:
+                            best_word_sim = wsim
+                            best_word = cw
+                    corrected_name = best_word
             else:
                 corrected_name = canonical             # e.g. "Winston Reid"
 
@@ -265,6 +302,20 @@ def find_best_match(
     if best_correction:
         threshold = get_fuzzy_threshold(entity_clean)
         if best_correction.combined_score >= threshold:
+            # Reject self-corrections (entity → same text)
+            if best_correction.corrected.lower() == entity_clean.lower():
+                return None
+            # Reject corrections that target a team or venue name.
+            # A player-entity should never be "corrected" to a team name.
+            if entity_types:
+                target_type = entity_types.get(canonical, "")
+                if target_type in ("team", "venue"):
+                    return None
+            # Tag confidence band: ≥75 = accepted, <75 = uncertain
+            if best_correction.combined_score >= TIER2_ACCEPT_THRESHOLD:
+                best_correction.confidence_band = "accepted"
+            else:
+                best_correction.confidence_band = "uncertain"
             return best_correction
 
     return None
@@ -276,6 +327,8 @@ def correct_segment_text(
     gazetteer: dict[str, str],
     segment_id: str,
     context_names: Optional[set[str]] = None,
+    entity_types: Optional[dict[str, str]] = None,
+    team_words: Optional[set[str]] = None,
 ) -> tuple[str, list[Correction]]:
     """
     Correct all detected entities in a segment's text.
@@ -300,7 +353,10 @@ def correct_segment_text(
     sorted_entities = sorted(entities, key=lambda e: e.start_char, reverse=True)
 
     for entity in sorted_entities:
-        match = find_best_match(entity.text, gazetteer, context_names)
+        match = find_best_match(
+            entity.text, gazetteer, context_names,
+            entity_types=entity_types, team_words=team_words,
+        )
         if match:
             match.segment_id = segment_id
 

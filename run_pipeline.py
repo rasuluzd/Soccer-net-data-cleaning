@@ -50,6 +50,18 @@ Examples:
         action="store_true",
         help="Save the cleaning report to cleaning_report.txt",
     )
+    parser.add_argument(
+        "--tier",
+        type=int,
+        default=3,
+        choices=[1, 2, 3],
+        help="Maximum correction tier (1=rules only, 2=+fuzzy/phonetic, 3=+AI context). Default: 3",
+    )
+    parser.add_argument(
+        "--enrich-wikidata",
+        action="store_true",
+        help="Expand gazetteer with Wikidata EPL squad data (queries API on first use, then caches)",
+    )
 
     args = parser.parse_args()
 
@@ -57,6 +69,8 @@ Examples:
     results = run_pipeline(
         match_filter=args.match,
         dry_run=args.dry_run,
+        enrich_wikidata=args.enrich_wikidata,
+        max_tier=args.tier,
     )
 
     if not results:

@@ -77,6 +77,13 @@ def get_fuzzy_threshold(entity_text: str) -> int:
         return 55   # long names like "Kohlerhoff" → Kolarov
 
 
+# Confidence band for Tier 2 → Tier 3 routing.
+# Corrections scoring >= this threshold are accepted immediately by Tier 2.
+# Corrections scoring below this (but above get_fuzzy_threshold) are
+# "uncertain" — they are routed to Tier 3 for context validation.
+TIER2_ACCEPT_THRESHOLD = 75
+
+
 # ─── NER ─────────────────────────────────────────────────────────────
 # spaCy model to use for Named Entity Recognition.
 # en_core_web_trf = transformer-based (most accurate, ~500MB)
@@ -95,3 +102,21 @@ SOCCER_ACTION_VERBS = {
     "assists", "assisted", "substituted", "replaced", "booked",
     "kicks", "kicked", "wins", "won", "loses", "lost",
 }
+
+
+# ─── Tier 3: AI-Enhanced Correction ─────────────────────────────────
+# Wikidata SPARQL endpoint for fetching squad lists
+WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
+
+# Local cache for Wikidata results (avoids re-fetching)
+WIKIDATA_CACHE_PATH = PROJECT_ROOT / "data" / "wikidata_cache.json"
+
+# Sentence-transformer model for contextual disambiguation
+# all-MiniLM-L6-v2: 80MB, 384-dim, fast — best speed/quality tradeoff
+CONTEXT_MODEL_NAME = "all-MiniLM-L6-v2"
+
+# Minimum cosine similarity to accept a contextual disambiguation
+CONTEXT_SIMILARITY_THRESHOLD = 0.50
+
+# Number of surrounding segments to include as context window
+CONTEXT_WINDOW_SIZE = 2
