@@ -38,7 +38,7 @@ def get_nlp():
         except OSError:
             print(f"[WARNING] spaCy model '{SPACY_MODEL}' not found.")
             print(f"          Install it with: python -m spacy download {SPACY_MODEL}")
-            print(f"          Falling back to en_core_web_sm...")
+            print("          Falling back to en_core_web_sm...")
             try:
                 _nlp = spacy.load("en_core_web_sm")
             except OSError:
@@ -201,7 +201,6 @@ def extract_entities_batch(segments: list[Segment]) -> dict[str, list[DetectedEn
 
     # Prepare texts and segment references
     texts = [seg.text.strip() for seg in segments]
-    segment_ids = [seg.segment_id for seg in segments]
 
     results: dict[str, list[DetectedEntity]] = {}
 

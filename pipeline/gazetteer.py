@@ -7,7 +7,6 @@ This is what the fuzzy matcher compares ASR entities against.
 """
 
 import json
-from pathlib import Path
 from typing import Optional
 
 from pipeline.config import LEARNED_CORRECTIONS_PATH

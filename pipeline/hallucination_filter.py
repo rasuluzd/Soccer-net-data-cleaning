@@ -106,7 +106,7 @@ def filter_segment(segment: Segment) -> tuple[bool, Optional[str]]:
 
     # ── Rule 2: Contains non-Latin characters ────────────────────────
     if has_non_latin_characters(text):
-        return False, f"non_latin_characters"
+        return False, "non_latin_characters"
 
     # ── Rule 3: Low ASCII-alpha ratio ────────────────────────────────
     alpha_ratio = compute_alpha_ratio(text)

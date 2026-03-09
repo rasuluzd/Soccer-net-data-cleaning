@@ -5,7 +5,6 @@ Verifies that names are correctly extracted from Labels-caption.json
 and that surname variants are properly generated.
 """
 
-import pytest
 from pipeline.gazetteer import extract_names_from_labels, build_gazetteer
 
 

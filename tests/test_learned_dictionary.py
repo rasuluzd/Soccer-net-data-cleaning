@@ -5,9 +5,7 @@ Verifies that corrections are stored, confidence grows with repeated
 sightings, and high-confidence entries are retrieved correctly.
 """
 
-import json
 import pytest
-from pathlib import Path
 from unittest.mock import patch
 
 from pipeline.learned_dictionary import (

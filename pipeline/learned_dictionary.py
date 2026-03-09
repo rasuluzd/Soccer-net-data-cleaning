@@ -10,7 +10,6 @@ gets faster and more accurate because it "remembers" past corrections.
 """
 
 import json
-from pathlib import Path
 from typing import Optional
 
 from pipeline.config import LEARNED_CORRECTIONS_PATH

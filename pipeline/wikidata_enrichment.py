@@ -10,9 +10,6 @@ caches the results locally, and merges them into the gazetteer.
 """
 
 import json
-import time
-from pathlib import Path
-from typing import Optional
 
 import requests
 

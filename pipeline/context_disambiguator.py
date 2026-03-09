@@ -12,6 +12,8 @@ and phonetics, but context says "fantastic ball from Zurich" implies
 a player, not a city).
 """
 
+import importlib.util
+
 import numpy as np
 from typing import Optional
 from dataclasses import dataclass
@@ -35,10 +37,8 @@ def _check_model_available() -> bool:
     global _model_available
     if _model_available is not None:
         return _model_available
-    try:
-        from sentence_transformers import SentenceTransformer
-        _model_available = True
-    except ImportError:
+    _model_available = importlib.util.find_spec("sentence_transformers") is not None
+    if not _model_available:
         _model_available = False
         print("  ⚠ sentence-transformers not installed — Tier 3 contextual disambiguation disabled")
     return _model_available

@@ -5,7 +5,6 @@ Verifies that consecutive identical/near-identical segments are merged
 correctly, preserving the first occurrence and extending time spans.
 """
 
-import pytest
 from pipeline.loader import Segment
 from pipeline.deduplicator import deduplicate_segments
 

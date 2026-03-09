@@ -20,8 +20,7 @@ Processing order per match:
 """
 
 import json
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
 
 from pipeline.config import CLEANED_OUTPUT_DIR
 from pipeline.loader import MatchData, Segment, discover_matches
@@ -30,16 +29,20 @@ from pipeline.hallucination_filter import filter_segments
 from pipeline.deduplicator import deduplicate_segments
 from pipeline.ner_extractor import extract_entities
 from pipeline.fuzzy_corrector import (
-    correct_segment_text, find_best_match, Correction, COMMON_WORDS_EXCLUDE,
+    correct_segment_text,
+    Correction,
+    COMMON_WORDS_EXCLUDE,
+    extract_entity_core,
+    extract_and_rebuild_entity,
 )
 from pipeline.learned_dictionary import (
     lookup_learned,
     update_learned_dictionary,
+    load_learned_dictionary,
 )
 from pipeline.wikidata_enrichment import enrich_gazetteer
 from pipeline.context_disambiguator import (
     batch_disambiguate,
-    DisambiguationResult,
 )
 
 
@@ -120,6 +123,17 @@ def clean_match(
 
     # ── Step 3: De-duplicate ─────────────────────────────────────────
     deduped_segments, removed_duplicates = deduplicate_segments(valid_segments)
+
+    for i, seg in enumerate(deduped_segments):
+        collapsed = _collapse_repeated_words(seg.text)
+        if collapsed != seg.text:
+            deduped_segments[i] = Segment(
+                segment_id=seg.segment_id,
+                start_time=seg.start_time,
+                end_time=seg.end_time,
+                text=collapsed,
+                half=seg.half,
+            )
     print(f"  Duplicates removed: {len(removed_duplicates)}")
 
     # ── Step 4: NER + Correction ─────────────────────────────────────
@@ -127,6 +141,10 @@ def clean_match(
     uncertain_corrections: list[Correction] = []  # Tier 2 corrections needing Tier 3 validation
     corrected_segments: list[Segment] = []
     total_entities = 0
+
+    saved_entities_for_step5 = []
+
+    learned_dict=load_learned_dictionary()  # Load once to avoid repeated disk I/O
 
     for seg in deduped_segments:
         # First check the learned dictionary for instant corrections
@@ -136,20 +154,15 @@ def clean_match(
         entities = extract_entities(seg)
         total_entities += len(entities)
 
+        saved_entities_for_step5.append(entities)
+
         # Try learned dictionary first for each entity
         learned_applied = False
-        for entity in entities:
-            entity_text = entity.text.strip()
 
-            # Strip possessive before lookup
-            trailing_possessive = ""
-            if entity_text.endswith("'s") or entity_text.endswith("\u2019s"):
-                trailing_possessive = entity_text[-2:]
-                entity_text = entity_text[:-2]
+        sorted_entities = sorted(entities, key=lambda e: e.start_char, reverse=True)
 
-            # Strip punctuation
-            while entity_text and entity_text[-1] in ".,!?;:":
-                entity_text = entity_text[:-1]
+        for entity in sorted_entities:
+            entity_text = extract_entity_core(entity.text)
 
             if not entity_text:
                 continue
@@ -161,7 +174,7 @@ def clean_match(
             if len(entity_text.strip()) <= 2:
                 continue
 
-            learned_correction = lookup_learned(entity_text)
+            learned_correction = lookup_learned(entity_text, learned_dict)
             if learned_correction:
                 # Apply single-word logic: if entity is 1 word,
                 # don't replace with full name
@@ -172,10 +185,12 @@ def clean_match(
                 else:
                     corrected_name = learned_correction
 
-                # Re-append possessive if present
-                replacement = corrected_name + trailing_possessive
+                replacement = extract_and_rebuild_entity(entity.text, corrected_name)
 
-                text = text.replace(entity.text, replacement)
+                before = text[:entity.start_char]
+                after = text[entity.end_char:]
+                text = before + replacement + after
+
                 all_corrections.append(Correction(
                     original=entity.text,
                     corrected=corrected_name,
@@ -208,9 +223,6 @@ def clean_match(
                 # Apply only high-confidence corrections to the text
                 # Re-run correction with only accepted entities
                 text = corrected_text  # Use the corrected text (has all corrections)
-                # But undo uncertain corrections in text
-                for uc in reversed(uncertain):
-                    text = text.replace(uc.corrected, uc.original)
                 all_corrections.extend(accepted)
             else:
                 # No accepted corrections — keep original text
@@ -227,19 +239,6 @@ def clean_match(
             half=seg.half,
         ))
 
-    # ── Step 4b: Collapse repeated words ──────────────────────────────
-    # ASR sometimes repeats words: "Zaha Zaha" → should be just "Zaha"
-    for i, seg in enumerate(corrected_segments):
-        collapsed = _collapse_repeated_words(seg.text)
-        if collapsed != seg.text:
-            corrected_segments[i] = Segment(
-                segment_id=seg.segment_id,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                text=collapsed,
-                half=seg.half,
-            )
-
     print(f"  Entities detected (Tier 2): {total_entities}")
     print(f"  Entities corrected (Tier 2 accepted): {len(all_corrections)}")
     print(f"  Uncertain corrections (routed to Tier 3): {len(uncertain_corrections)}")
@@ -253,12 +252,17 @@ def clean_match(
         corrected_set = {
             (c.segment_id, c.original) for c in all_corrections
         }
+        lower_gazetteer = {k.lower() for k in gazetteer}
+        team_names = [
+            canon for canon, etype in entity_types.items()
+            if etype == "team"
+        ]
 
-        for seg_idx, seg in enumerate(corrected_segments):
-            entities = extract_entities(seg)
+        for seg_idx, (seg, entities) in enumerate(zip(corrected_segments, saved_entities_for_step5)):
             for entity in entities:
-                entity_text = entity.text.strip()
-
+                entity_text = extract_entity_core(entity.text)
+                if not entity_text:
+                    continue
                 # ── Strict filtering for Tier 3 ──
                 # Only PERSON entities should be disambiguated
                 if entity.label != "PERSON":
@@ -270,16 +274,11 @@ def clean_match(
                 if not entity_text[0].isupper():
                     continue
                 # Skip possessives
-                if entity_text.endswith("'s") or entity_text.endswith("\u2019s"):
-                    continue
                 # Skip if already in gazetteer (no correction needed)
                 # Strip trailing punctuation first — spaCy often
                 # includes sentence-ending punctuation in the entity span
                 # e.g. "Joel Ward." should match "Joel Ward" in gazetteer
                 entity_cleaned = entity_text
-                while entity_cleaned and entity_cleaned[-1] in ".,!?;:":
-                    entity_cleaned = entity_cleaned[:-1]
-                lower_gazetteer = {k.lower() for k in gazetteer}
                 if entity_cleaned in gazetteer or entity_cleaned.lower() in lower_gazetteer:
                     continue
                 # Skip if Tier 2 already corrected this
@@ -294,10 +293,6 @@ def clean_match(
                 # Skip entities that contain a full team name as substring
                 # Fixes: "West Ham United" being sent for correction
                 entity_lower = entity_cleaned.lower()
-                team_names = [
-                    canon for canon, etype in entity_types.items()
-                    if etype == "team"
-                ]
                 if any(tn.lower() in entity_lower for tn in team_names):
                     continue
                 # Skip multi-word entities where each word is a known name
@@ -375,7 +370,7 @@ def clean_match(
 
             print(f"  Tier 3 corrections: {tier3_corrections}")
         else:
-            print(f"  Tier 3: no unresolved entities")
+            print("  Tier 3: no unresolved entities")
 
     # ── Step 6: Update learned dictionary ────────────────────────────
     # Only save Tier 1/2 corrections — Tier 3 context_similarity

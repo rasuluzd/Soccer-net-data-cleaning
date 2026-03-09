@@ -8,13 +8,13 @@ Verifies that:
 - Multi-signal scoring works correctly
 """
 
-import pytest
 from pipeline.fuzzy_corrector import (
     find_best_match,
     correct_segment_text,
     compute_phonetic_score,
-    compute_combined_score,
     COMMON_WORDS_EXCLUDE,
+    extract_and_rebuild_entity,
+    extract_entity_core,
 )
 from pipeline.ner_extractor import DetectedEntity
 
@@ -227,6 +227,22 @@ class TestCorrectSegmentText:
         assert "Sterling" in corrected
         assert "Bony" in corrected
         assert len(corrections) == 2
+
+
+class TestEntityTextHelpers:
+    """Tests for reusable entity strip/rebuild helpers."""
+
+    def test_rebuild_preserves_possessive_before_period(self):
+        rebuilt = extract_and_rebuild_entity("Ward's.", "Wickham")
+        assert rebuilt == "Wickham's."
+
+    def test_rebuild_preserves_unicode_possessive_before_period(self):
+        rebuilt = extract_and_rebuild_entity("Ward’s.", "Wickham")
+        assert rebuilt == "Wickham’s."
+
+    def test_extract_core_handles_possessive_with_punctuation(self):
+        core = extract_entity_core("Ward's.")
+        assert core == "Ward"
 
 
 class TestCommonWordsExclude:

@@ -65,6 +65,43 @@ class Correction:
     confidence_band: str = "accepted"  # "accepted" (≥75) or "uncertain" (48-74)
 
 
+def _split_entity_parts(original_text: str) -> tuple[str, str, str, str]:
+    """Split entity text into (core, leading_punct, trailing_possessive, trailing_punct)."""
+    temp = original_text.strip()
+
+    # 1) Strip trailing punctuation first (important for cases like "Ward's.")
+    trailing_punct = ""
+    while temp and temp[-1] in ".,!?;:":
+        trailing_punct = temp[-1] + trailing_punct
+        temp = temp[:-1]
+
+    # 2) Strip possessive
+    trailing_possessive = ""
+    if temp.endswith("'s") or temp.endswith("\u2019s"):
+        trailing_possessive = temp[-2:]
+        temp = temp[:-2]
+
+    # 3) Strip leading punctuation
+    leading_punct = ""
+    while temp and temp[0] in ".,!?;:":
+        leading_punct += temp[0]
+        temp = temp[1:]
+
+    return temp, leading_punct, trailing_possessive, trailing_punct
+
+
+def extract_entity_core(original_text: str) -> str:
+    """Extract normalized entity text used for lookup/matching."""
+    core, _, _, _ = _split_entity_parts(original_text)
+    return core
+
+
+def extract_and_rebuild_entity(original_text: str, corrected_name: str) -> str:
+    """Safely strips punctuation/possessives, swaps the name, and rebuilds the string."""
+    _, leading_punct, trailing_possessive, trailing_punct = _split_entity_parts(original_text)
+    return leading_punct + corrected_name + trailing_possessive + trailing_punct
+
+
 def compute_phonetic_score(entity: str, candidate: str) -> float:
     """
     Compare two strings phonetically using Double Metaphone.
@@ -176,21 +213,7 @@ def find_best_match(
     if not entity_text or not gazetteer:
         return None
 
-    entity_clean = entity_text.strip()
-
-    # Strip trailing possessive and punctuation before matching.
-    # spaCy sometimes includes these in the entity span.
-    # We preserve them and re-append after replacement in correct_segment_text.
-    # Handle possessive first ("'s" or "\u2019s")
-    trailing_possessive = ""
-    if entity_clean.endswith("'s") or entity_clean.endswith("\u2019s"):
-        trailing_possessive = entity_clean[-2:]
-        entity_clean = entity_clean[:-2]
-
-    while entity_clean and entity_clean[-1] in ".,!?;:":
-        entity_clean = entity_clean[:-1]
-    while entity_clean and entity_clean[0] in ".,!?;:":
-        entity_clean = entity_clean[1:]
+    entity_clean = extract_entity_core(entity_text)
 
     if not entity_clean:
         return None
@@ -360,30 +383,11 @@ def correct_segment_text(
         if match:
             match.segment_id = segment_id
 
-            # Preserve any possessive/punctuation attached to the entity span
-            original_text = entity.text.strip()
-
-            # Check for possessive first
-            trailing_possessive = ""
-            temp = original_text
-            if temp.endswith("'s") or temp.endswith("\u2019s"):
-                trailing_possessive = temp[-2:]
-                temp = temp[:-2]
-
-            trailing_punct = ""
-            while temp and temp[-1] in ".,!?;:":
-                trailing_punct = temp[-1] + trailing_punct
-                temp = temp[:-1]
-            leading_punct = ""
-            while temp and temp[0] in ".,!?;:":
-                leading_punct += temp[0]
-                temp = temp[1:]
-
-            # Replace entity text, re-appending any stripped punctuation/possessive
-            replacement = leading_punct + match.corrected + trailing_punct + trailing_possessive
-            before = corrected_text[:entity.start_char]
-            after = corrected_text[entity.end_char:]
-            corrected_text = before + replacement + after
+            if match.confidence_band == "accepted":
+                replacement = extract_and_rebuild_entity(entity.text, match.corrected)
+                before = corrected_text[:entity.start_char]
+                after = corrected_text[entity.end_char:]
+                corrected_text = before + replacement + after
 
             corrections.append(match)
 

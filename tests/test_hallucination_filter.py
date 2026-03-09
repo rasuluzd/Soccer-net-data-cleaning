@@ -5,7 +5,6 @@ Verifies that garbled/non-English/single-word segments are correctly
 flagged while valid English commentary is preserved.
 """
 
-import pytest
 from pipeline.loader import Segment
 from pipeline.hallucination_filter import (
     filter_segment,

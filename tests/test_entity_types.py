@@ -215,7 +215,6 @@ class TestLearnedDictFiltering:
 
     def test_filters_team_corrections(self, gaz_and_types, tmp_path, monkeypatch):
         from pipeline.learned_dictionary import update_learned_dictionary
-        from pipeline.config import LEARNED_CORRECTIONS_PATH
         import pipeline.config
 
         # Point the learned corrections to a temp file
