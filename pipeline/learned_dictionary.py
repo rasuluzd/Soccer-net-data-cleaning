@@ -10,6 +10,7 @@ gets faster and more accurate because it "remembers" past corrections.
 """
 
 import json
+from pathlib import Path
 from typing import Optional
 
 from pipeline.config import LEARNED_CORRECTIONS_PATH
@@ -110,7 +111,7 @@ def update_learned_dictionary(
     return dictionary
 
 
-def lookup_learned(entity_text: str) -> Optional[str]:
+def lookup_learned(entity_text: str, dictionary: dict[str, dict]) -> Optional[str]:
     """
     Check if a misspelling has been seen before and has high enough confidence.
 
@@ -119,11 +120,11 @@ def lookup_learned(entity_text: str) -> Optional[str]:
 
     Args:
         entity_text: the entity text to look up
+        dictionary: the learned corrections dictionary
 
     Returns:
         The canonical name if found with sufficient confidence, else None.
     """
-    dictionary = load_learned_dictionary()
     key = entity_text.lower()
 
     if key in dictionary:
