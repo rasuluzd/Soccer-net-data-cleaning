@@ -27,7 +27,7 @@ from pipeline.loader import MatchData, Segment, discover_matches
 from pipeline.gazetteer import build_gazetteer, get_team_words
 from pipeline.hallucination_filter import filter_segments
 from pipeline.deduplicator import deduplicate_segments
-from pipeline.ner_extractor import extract_entities
+from pipeline.ner_extractor import extract_entities, extract_entities_batch
 from pipeline.fuzzy_corrector import (
     correct_segment_text,
     Correction,
@@ -146,12 +146,15 @@ def clean_match(
 
     learned_dict=load_learned_dictionary()  # Load once to avoid repeated disk I/O
 
+    print("  Extracting entities in batch mode...")
+    segment_entities_map = extract_entities_batch(deduped_segments)
+
     for seg in deduped_segments:
         # First check the learned dictionary for instant corrections
         text = seg.text
 
         # Detect entities
-        entities = extract_entities(seg)
+        entities = segment_entities_map.get(seg.segment_id, [])
         total_entities += len(entities)
 
         saved_entities_for_step5.append(entities)
