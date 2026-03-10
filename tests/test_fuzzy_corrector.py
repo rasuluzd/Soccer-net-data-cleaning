@@ -228,6 +228,25 @@ class TestCorrectSegmentText:
         assert "Bony" in corrected
         assert len(corrections) == 2
 
+    def test_accepts_debug_parameter(self):
+        """correct_segment_text() should accept a debug parameter without crashing."""
+        text = "A great goal from Conor Wickham."
+        entities = [
+            DetectedEntity(
+                text="Conor Wickham.",
+                label="PERSON",
+                start_char=18,
+                end_char=32,
+                source="spacy",
+            )
+        ]
+        # Should not raise TypeError
+        corrected, corrections = correct_segment_text(
+            text, entities, SAMPLE_GAZETTEER, "0", debug=True
+        )
+        assert corrected == "A great goal from Connor Wickham."
+        assert len(corrections) == 1
+
 
 class TestEntityTextHelpers:
     """Tests for reusable entity strip/rebuild helpers."""

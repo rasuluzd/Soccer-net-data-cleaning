@@ -352,6 +352,7 @@ def correct_segment_text(
     context_names: Optional[set[str]] = None,
     entity_types: Optional[dict[str, str]] = None,
     team_words: Optional[set[str]] = None,
+    debug: bool = False,
 ) -> tuple[str, list[Correction]]:
     """
     Correct all detected entities in a segment's text.
