@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from pipeline.config import LEARNED_CORRECTIONS_PATH
+from pipeline.config import LEARNED_CORRECTIONS_PATH, LEARNED_MIN_SEEN_COUNT, LEARNED_MIN_CONFIDENCE
 from pipeline.fuzzy_corrector import Correction
 
 
@@ -129,8 +129,8 @@ def lookup_learned(entity_text: str, dictionary: dict[str, dict]) -> Optional[st
 
     if key in dictionary:
         entry = dictionary[key]
-        # Require at least 2 sightings and 0.6 confidence for instant correction
-        if entry["seen_count"] >= 2 and entry["confidence"] >= 0.6:
+        # Require sufficient sightings and confidence for instant correction
+        if entry["seen_count"] >= LEARNED_MIN_SEEN_COUNT and entry["confidence"] >= LEARNED_MIN_CONFIDENCE:
             return entry["correct"]
 
     return None

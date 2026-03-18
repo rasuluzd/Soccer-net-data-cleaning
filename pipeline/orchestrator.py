@@ -22,18 +22,20 @@ Processing order per match:
 import json
 from dataclasses import dataclass
 
-from pipeline.config import CLEANED_OUTPUT_DIR
+from pipeline.config import CLEANED_OUTPUT_DIR, get_fuzzy_threshold
 from pipeline.loader import MatchData, Segment, discover_matches
-from pipeline.gazetteer import build_gazetteer, get_team_words
+from pipeline.gazetteer import build_gazetteer, get_team_words, build_firstname_map
 from pipeline.hallucination_filter import filter_segments
 from pipeline.deduplicator import deduplicate_segments
 from pipeline.ner_extractor import extract_entities, extract_entities_batch
 from pipeline.fuzzy_corrector import (
     correct_segment_text,
+    compute_combined_score,
     Correction,
     COMMON_WORDS_EXCLUDE,
     extract_entity_core,
     extract_and_rebuild_entity,
+    _entity_contains_multiple_gazetteer_names,
 )
 from pipeline.learned_dictionary import (
     lookup_learned,
@@ -102,6 +104,7 @@ def clean_match(
     # ── Step 1: Build gazetteer ──────────────────────────────────────
     gazetteer, entity_types = build_gazetteer(match.labels)
     team_words = get_team_words(entity_types, gazetteer)
+    firstname_map = build_firstname_map(gazetteer, entity_types)
     print(f"  Gazetteer: {len(gazetteer)} name entries")
     print(f"  Entity types: {len(entity_types)} typed | Team words: {team_words}")
 
@@ -208,11 +211,27 @@ def clean_match(
 
         # If learned dict didn't handle everything, do fuzzy matching
         if entities and not learned_applied:
+            # Build context_names from first names found in the segment text.
+            # If "Yannick" appears in text, add "Bolasie" (the surname) to
+            # context_names so the fuzzy matcher gives it a context bonus.
+            context_names: set[str] = set()
+            seg_words = {w.lower() for w in text.split()}
+            for fname, canonicals in firstname_map.items():
+                if fname in seg_words:
+                    for canonical in canonicals:
+                        # Add the surname variant so context scoring matches
+                        parts = canonical.split()
+                        if len(parts) >= 2:
+                            surname = " ".join(parts[1:])
+                            context_names.add(surname)
+                        context_names.add(canonical)
+
             corrected_text, corrections = correct_segment_text(
                 text=text,
                 entities=entities,
                 gazetteer=gazetteer,
                 segment_id=seg.segment_id,
+                context_names=context_names if context_names else None,
                 entity_types=entity_types,
                 team_words=team_words,
             )
@@ -308,14 +327,92 @@ def clean_match(
                     )
                     if words_in_gaz >= 2:
                         continue
+                    # Also check for multi-word gazetteer substrings.
+                    # "Di Maria Rooney" contains "Di Maria" + "Rooney" — two
+                    # valid names merged by spaCy, not a single misspelling.
+                    if _entity_contains_multiple_gazetteer_names(
+                        entity_cleaned, lower_gazetteer
+                    ):
+                        continue
+
+                # ── Fuzzy similarity gate ──
+                # Only route to Tier 3 if the entity has meaningful
+                # string/phonetic similarity to at least one gazetteer
+                # candidate. This prevents correctly transcribed names
+                # from other clubs (e.g. "Coutinho") from being wrongly
+                # remapped to match-roster players.
+                # When the gate passes, attach the best Tier 2 candidate
+                # so Tier 3 validates it rather than doing an unconstrained
+                # search (which could pick an unrelated name).
+                from rapidfuzz import process as rfprocess, fuzz as rffuzz
+                top_candidates = rfprocess.extract(
+                    entity_cleaned, list(gazetteer.keys()),
+                    scorer=rffuzz.token_sort_ratio, limit=1,
+                )
+                proposed_correction = None
+                proposed_score = None
+                if top_candidates:
+                    best_candidate = top_candidates[0][0]
+                    best_t2_score, _, _, _ = compute_combined_score(
+                        entity_cleaned, best_candidate,
+                    )
+                    if best_t2_score < get_fuzzy_threshold(entity_cleaned):
+                        continue  # Too dissimilar — not an ASR error
+                    # Derive the corrected name the same way Tier 2 would
+                    canonical = gazetteer[best_candidate]
+                    entity_word_count = len(entity_cleaned.split())
+                    if entity_word_count == 1:
+                        canonical_words = canonical.split()
+                        if len(canonical_words) == 1:
+                            proposed_correction = canonical
+                        else:
+                            best_word = canonical_words[-1]
+                            best_word_sim = 0
+                            for cw in canonical_words:
+                                wsim = rffuzz.ratio(entity_cleaned.lower(), cw.lower())
+                                if wsim > best_word_sim:
+                                    best_word_sim = wsim
+                                    best_word = cw
+                            proposed_correction = best_word
+                    else:
+                        # Multi-word entity — use surname-only form if the
+                        # entity doesn't match the canonical first name.
+                        # "De Michelis" matched "Demichelis" → canonical
+                        # "Martin Demichelis" → use "Demichelis" not full.
+                        canonical_words = canonical.split()
+                        candidate_word_count = len(best_candidate.split())
+                        is_surname_variant = (
+                            len(canonical_words) > candidate_word_count
+                            or (len(canonical_words) > entity_word_count
+                                and entity_word_count <= 2)
+                        )
+                        if is_surname_variant:
+                            entity_first = entity_cleaned.split()[0].lower()
+                            canon_first = canonical_words[0].lower()
+                            first_name_sim = rffuzz.ratio(
+                                entity_first, canon_first
+                            )
+                            if first_name_sim < 60:
+                                proposed_correction = " ".join(
+                                    canonical_words[1:]
+                                )
+                            else:
+                                proposed_correction = canonical
+                        else:
+                            proposed_correction = canonical
+                    proposed_score = best_t2_score
 
                 # This entity is a plausible name that Tier 2 couldn't
                 # resolve — send to Tier 3 for contextual disambiguation
-                unresolved.append({
+                entry = {
                     "text": entity_text,
                     "segment_id": seg.segment_id,
                     "segment_idx": seg_idx,
-                })
+                }
+                if proposed_correction:
+                    entry["proposed_correction"] = proposed_correction
+                    entry["proposed_score"] = proposed_score
+                unresolved.append(entry)
 
         # Also route uncertain Tier 2 corrections to Tier 3.
         # These scored 48-74 and need context validation.

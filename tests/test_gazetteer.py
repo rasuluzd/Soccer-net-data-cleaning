@@ -5,7 +5,13 @@ Verifies that names are correctly extracted from Labels-caption.json
 and that surname variants are properly generated.
 """
 
-from pipeline.gazetteer import extract_names_from_labels, build_gazetteer
+from unittest.mock import patch
+
+from pipeline.gazetteer import (
+    extract_names_from_labels,
+    build_gazetteer,
+    build_firstname_map,
+)
 
 
 # ─── Sample Labels fixture (mirrors real Labels-caption.json structure) ───
@@ -106,3 +112,77 @@ class TestBuildGazetteer:
         gaz, etypes = build_gazetteer(None, include_learned=False)
         assert gaz == {}
         assert etypes == {}
+
+
+class TestBuildFirstnameMap:
+    """Tests for build_firstname_map()."""
+
+    def test_maps_first_names_to_canonical(self):
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
+        fmap = build_firstname_map(gaz, etypes)
+        # "kevin" (5 chars, >=4) should map to Kevin De Bruyne
+        assert "kevin" in fmap
+        assert "Kevin De Bruyne" in fmap["kevin"]
+
+    def test_skips_short_first_names(self):
+        """First names with <4 characters should be excluded."""
+        labels = {
+            "lineup": {
+                "home": {
+                    "players": [
+                        {"long_name": "Mo Salah", "short_name": "Salah", "name": "Salah"},
+                    ],
+                    "coach": [],
+                },
+                "away": {"players": [], "coach": []},
+            },
+        }
+        gaz, etypes = extract_names_from_labels(labels)
+        fmap = build_firstname_map(gaz, etypes)
+        assert "mo" not in fmap  # too short (2 chars)
+
+    def test_excludes_teams_and_venues(self):
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
+        fmap = build_firstname_map(gaz, etypes)
+        # Team/venue words should not appear as first name keys
+        assert "manchester" not in fmap
+        assert "etihad" not in fmap
+
+    def test_includes_coaches(self):
+        gaz, etypes = extract_names_from_labels(SAMPLE_LABELS)
+        fmap = build_firstname_map(gaz, etypes)
+        assert "manuel" in fmap
+        assert "Manuel Pellegrini" in fmap["manuel"]
+
+
+class TestLearnedCorrectionFiltering:
+    """Tests that low-confidence learned corrections don't pollute the gazetteer."""
+
+    def test_rejects_low_confidence_learned_entries(self):
+        """Learned corrections with seen_count=1 should NOT be merged."""
+        low_conf_learned = {
+            "blassie": {
+                "correct": "Bolasie",
+                "confidence": 0.5,
+                "seen_count": 1,
+                "fuzzy_score_avg": 78.6,
+            },
+        }
+        with patch("pipeline.gazetteer.load_learned_corrections", return_value=low_conf_learned):
+            gaz, _ = build_gazetteer(SAMPLE_LABELS, include_learned=True)
+        assert "blassie" not in gaz
+
+    def test_accepts_high_confidence_learned_entries(self):
+        """Learned corrections with seen_count>=2 and confidence>=0.6 should be merged."""
+        high_conf_learned = {
+            "aspilicueta": {
+                "correct": "Azpilicueta",
+                "confidence": 0.9,
+                "seen_count": 11,
+                "fuzzy_score_avg": 96.5,
+            },
+        }
+        with patch("pipeline.gazetteer.load_learned_corrections", return_value=high_conf_learned):
+            gaz, _ = build_gazetteer(SAMPLE_LABELS, include_learned=True)
+        assert "aspilicueta" in gaz
+        assert gaz["aspilicueta"] == "Azpilicueta"

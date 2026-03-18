@@ -15,6 +15,7 @@ from pipeline.fuzzy_corrector import (
     COMMON_WORDS_EXCLUDE,
     extract_and_rebuild_entity,
     extract_entity_core,
+    _entity_contains_multiple_gazetteer_names,
 )
 from pipeline.ner_extractor import DetectedEntity
 
@@ -286,3 +287,131 @@ class TestCommonWordsExclude:
         assert "corner" in COMMON_WORDS_EXCLUDE
         assert "penalty" in COMMON_WORDS_EXCLUDE
         assert "referee" in COMMON_WORDS_EXCLUDE
+
+
+class TestCanonicalNotKey:
+    """Regression: fuzzy corrector must use canonical value, not gazetteer key."""
+
+    def test_corrects_to_canonical_not_misspelling_key(self):
+        """When a learned misspelling is in the gazetteer as a key,
+        the corrector should return the canonical value (Bolasie),
+        not the key itself (blassie)."""
+        gaz = {
+            "blassie": "Bolasie",
+            "Bolasie": "Yannick Bolasie",
+            "Yannick Bolasie": "Yannick Bolasie",
+        }
+        match = find_best_match("Balassi", gaz)
+        assert match is not None
+        assert match.corrected == "Bolasie", (
+            f"Expected 'Bolasie' but got '{match.corrected}' — "
+            f"corrector used gazetteer key instead of canonical value"
+        )
+
+    def test_single_word_entity_gets_surname_from_canonical(self):
+        """Single-word entity matched to multi-word canonical should
+        get the most similar word from the canonical name."""
+        gaz = {
+            "Kurt Zouma": "Kurt Zouma",
+            "Zouma": "Kurt Zouma",
+        }
+        match = find_best_match("Zuma", gaz)
+        assert match is not None
+        assert match.corrected == "Zouma"  # surname, not "Kurt"
+
+
+# ─── Regression: multi-word gazetteer substring guard ─────────────────
+
+class TestMultiWordGazetteerGuard:
+    """Fix 1: 'Di Maria Rooney' should NOT be corrected to 'Angel Di Maria'.
+
+    spaCy sometimes merges adjacent names into one entity. When the entity
+    contains multiple gazetteer names (including multi-word keys like
+    'Di Maria'), the corrector should reject it rather than mapping it
+    to a single player.
+    """
+
+    def test_di_maria_rooney_rejected(self):
+        """'Di Maria Rooney' contains 'Di Maria' + 'Rooney' — two valid names."""
+        gaz = {
+            "Angel Di Maria": "Angel Di Maria",
+            "Di Maria": "Angel Di Maria",
+            "Wayne Rooney": "Wayne Rooney",
+            "Rooney": "Wayne Rooney",
+        }
+        match = find_best_match("Di Maria Rooney", gaz)
+        assert match is None
+
+    def test_helper_detects_multiword_plus_single(self):
+        """'Di Maria Rooney' decomposes into ['Di Maria', 'Rooney']."""
+        gazetteer_lower = {"angel di maria", "di maria", "wayne rooney", "rooney"}
+        assert _entity_contains_multiple_gazetteer_names(
+            "Di Maria Rooney", gazetteer_lower
+        ) is True
+
+    def test_helper_rejects_single_name(self):
+        """'Di Maria' alone is just one gazetteer entry, not two names."""
+        gazetteer_lower = {"angel di maria", "di maria", "wayne rooney", "rooney"}
+        assert _entity_contains_multiple_gazetteer_names(
+            "Di Maria", gazetteer_lower
+        ) is False
+
+    def test_single_misspelled_name_still_corrected(self):
+        """'De Maria' (single misspelling) should still get corrected."""
+        gaz = {
+            "Angel Di Maria": "Angel Di Maria",
+            "Di Maria": "Angel Di Maria",
+        }
+        match = find_best_match("De Maria", gaz)
+        assert match is not None
+        assert match.corrected == "Di Maria"
+
+
+# ─── Regression: surname-only multi-word replacement ──────────────────
+
+class TestSurnameOnlyReplacement:
+    """Fix 2: 'De Michelis' should correct to 'Demichelis', not 'Martin Demichelis'.
+
+    When a multi-word entity is a surname variant (not first+last), the
+    replacement should use just the surname from the canonical name.
+    """
+
+    def test_de_michelis_gets_surname_only(self):
+        """'De Michelis' → 'Demichelis' (not 'Martin Demichelis')."""
+        gaz = {
+            "Martin Demichelis": "Martin Demichelis",
+            "Demichelis": "Martin Demichelis",
+        }
+        match = find_best_match("De Michelis", gaz)
+        assert match is not None
+        assert match.corrected == "Demichelis"
+
+    def test_full_name_entity_keeps_full_canonical(self):
+        """'Winston Ritu' → 'Winston Reid' (first name matches, keep full)."""
+        gaz = {
+            "Winston Reid": "Winston Reid",
+            "Reid": "Winston Reid",
+        }
+        match = find_best_match("Winston Ritu", gaz)
+        assert match is not None
+        assert match.corrected == "Winston Reid"
+
+
+# ─── Regression: ASR word-split collapsing ────────────────────────────
+
+class TestASRWordSplitCollapsing:
+    """Fix 3: 'John Joe Shelby' should match 'Jonjo Shelvey'.
+
+    ASR splits single names into multiple words ('Jonjo' → 'John Joe').
+    The corrector should try collapsing adjacent words before matching.
+    """
+
+    def test_john_joe_shelby_matches_jonjo_shelvey(self):
+        """'John Joe Shelby' should correct to 'Shelvey' or 'Jonjo Shelvey'."""
+        gaz = {
+            "Jonjo Shelvey": "Jonjo Shelvey",
+            "Shelvey": "Jonjo Shelvey",
+        }
+        match = find_best_match("John Joe Shelby", gaz)
+        assert match is not None
+        assert "Shelvey" in match.corrected

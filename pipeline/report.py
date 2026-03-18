@@ -10,6 +10,8 @@ After the pipeline runs, this module creates a summary report showing:
 - Low-confidence corrections flagged for manual review
 """
 
+import sys
+
 from pipeline.orchestrator import CleaningResult
 
 
@@ -81,27 +83,31 @@ def generate_report(results: list[CleaningResult]) -> str:
         low_conf = [c for c in all_corrections if c["score"] < 70]
 
         if high_conf:
-            lines.append(f"\n  HIGH CONFIDENCE (score ≥ 80) — {len(high_conf)} corrections:")
+            lines.append(f"\n  HIGH CONFIDENCE (score >= 80) — {len(high_conf)} corrections:")
             for c in sorted(high_conf, key=lambda x: -x["score"]):
                 lines.append(
-                    f"    [{c['score']:5.1f}] \"{c['original']}\" → \"{c['corrected']}\""
+                    f"    [{c['score']:5.1f}] \"{c['original']}\" -> \"{c['corrected']}\""
                     f"  ({c['method']})"
+                    f"  [seg {c['segment_id']} | {c['match']}]"
                 )
 
         if medium_conf:
-            lines.append(f"\n  MEDIUM CONFIDENCE (70 ≤ score < 80) — {len(medium_conf)} corrections:")
+            lines.append(f"\n  MEDIUM CONFIDENCE (70 <= score < 80) — {len(medium_conf)} corrections:")
             for c in sorted(medium_conf, key=lambda x: -x["score"]):
                 lines.append(
-                    f"    [{c['score']:5.1f}] \"{c['original']}\" → \"{c['corrected']}\""
+                    f"    [{c['score']:5.1f}] \"{c['original']}\" -> \"{c['corrected']}\""
                     f"  ({c['method']})"
+                    f"  [seg {c['segment_id']} | {c['match']}]"
                 )
 
         if low_conf:
-            lines.append(f"\n  ⚠ LOW CONFIDENCE (score < 70) — REVIEW THESE — {len(low_conf)} corrections:")
+            lines.append(f"\n  ! LOW CONFIDENCE (score < 70) — REVIEW THESE — {len(low_conf)} corrections:")
             for c in sorted(low_conf, key=lambda x: -x["score"]):
                 lines.append(
-                    f"    [{c['score']:5.1f}] \"{c['original']}\" → \"{c['corrected']}\""
-                    f"  ({c['method']}) ← REVIEW"
+                    f"    [{c['score']:5.1f}] \"{c['original']}\" -> \"{c['corrected']}\""
+                    f"  ({c['method']})"
+                    f"  [seg {c['segment_id']} | {c['match']}]"
+                    f"  <- REVIEW"
                 )
 
         lines.append("")
@@ -147,7 +153,7 @@ def generate_report(results: list[CleaningResult]) -> str:
 def print_report(results: list[CleaningResult]) -> None:
     """Generate and print the cleaning report."""
     report = generate_report(results)
-    print(report)
+    sys.stdout.buffer.write((report + "\n").encode("utf-8"))
 
 
 def save_report(results: list[CleaningResult], filepath: str = "cleaning_report.txt") -> None:

@@ -9,7 +9,7 @@ This is what the fuzzy matcher compares ASR entities against.
 import json
 from typing import Optional
 
-from pipeline.config import LEARNED_CORRECTIONS_PATH
+from pipeline.config import LEARNED_CORRECTIONS_PATH, LEARNED_MIN_SEEN_COUNT, LEARNED_MIN_CONFIDENCE
 
 
 def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, str]]:
@@ -179,6 +179,53 @@ def get_team_words(
     return team_words
 
 
+def build_firstname_map(
+    gazetteer: dict[str, str],
+    entity_types: dict[str, str],
+) -> dict[str, list[str]]:
+    """
+    Build a mapping from first names to their player canonical names.
+
+    Used by the orchestrator to enrich context_names: if "Yannick" appears
+    in a segment, we know "Bolasie" is likely nearby and can boost it.
+
+    Only includes player/coach entries (not teams/venues/referees) and
+    only first names with 4+ characters to avoid common-word collisions.
+
+    Args:
+        gazetteer: variant → canonical mapping
+        entity_types: canonical name → entity type
+
+    Returns:
+        Dict mapping lowercase first name → list of canonical full names.
+        e.g. {"yannick": ["Yannick Bolasie"], "eden": ["Eden Hazard"]}
+    """
+    firstname_map: dict[str, list[str]] = {}
+    seen_canonicals: set[str] = set()
+
+    for canonical, etype in entity_types.items():
+        if etype not in ("player", "coach"):
+            continue
+        if canonical in seen_canonicals:
+            continue
+        seen_canonicals.add(canonical)
+
+        parts = canonical.split()
+        if len(parts) < 2:
+            continue
+
+        first_name = parts[0].lower()
+        # Skip very short first names (collision risk: "Ed", "Mo", etc.)
+        if len(first_name) < 4:
+            continue
+
+        if first_name not in firstname_map:
+            firstname_map[first_name] = []
+        firstname_map[first_name].append(canonical)
+
+    return firstname_map
+
+
 def build_gazetteer(
     labels: Optional[dict],
     include_learned: bool = True
@@ -206,12 +253,17 @@ def build_gazetteer(
     if labels:
         gazetteer, entity_types = extract_names_from_labels(labels)
 
-    # Step 2: Merge learned corrections
+    # Step 2: Merge learned corrections (only high-confidence entries)
     if include_learned:
         learned = load_learned_corrections()
         for misspelling, info in learned.items():
             correct = info.get("correct", "")
-            if correct and misspelling not in gazetteer:
+            seen = info.get("seen_count", 0)
+            conf = info.get("confidence", 0.0)
+            if (correct
+                    and misspelling not in gazetteer
+                    and seen >= LEARNED_MIN_SEEN_COUNT
+                    and conf >= LEARNED_MIN_CONFIDENCE):
                 gazetteer[misspelling] = correct
 
     return gazetteer, entity_types

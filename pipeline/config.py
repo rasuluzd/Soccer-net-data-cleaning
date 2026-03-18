@@ -20,6 +20,12 @@ CLEANED_OUTPUT_DIR = PROJECT_ROOT / "cleaned_data"
 # Learned corrections dictionary (grows automatically over time)
 LEARNED_CORRECTIONS_PATH = PROJECT_ROOT / "data" / "learned_corrections.json"
 
+# ─── Learned Dictionary ────────────────────────────────────────────
+# Minimum sightings and confidence before a learned correction is
+# trusted enough for instant lookup OR merging into the gazetteer.
+LEARNED_MIN_SEEN_COUNT = 2
+LEARNED_MIN_CONFIDENCE = 0.6
+
 
 # ─── Hallucination Filter ───────────────────────────────────────────
 # Minimum ratio of ASCII-alpha characters (a-z, A-Z) in a segment's text.
@@ -117,6 +123,12 @@ CONTEXT_MODEL_NAME = "all-MiniLM-L6-v2"
 
 # Minimum cosine similarity to accept a contextual disambiguation
 CONTEXT_SIMILARITY_THRESHOLD = 0.50
+
+# Validation threshold for uncertain corrections from Tier 2.
+# Lower than CONTEXT_SIMILARITY_THRESHOLD because Tier 2 already verified
+# string/phonetic similarity — Tier 3 just confirms the context doesn't
+# contradict it.
+TIER3_VALIDATION_THRESHOLD = 0.35
 
 # Number of surrounding segments to include as context window
 CONTEXT_WINDOW_SIZE = 2

@@ -18,10 +18,13 @@ import numpy as np
 from typing import Optional
 from dataclasses import dataclass
 
+from rapidfuzz import fuzz as rfuzz
+
 from pipeline.config import (
     CONTEXT_MODEL_NAME,
     CONTEXT_SIMILARITY_THRESHOLD,
     CONTEXT_WINDOW_SIZE,
+    TIER3_VALIDATION_THRESHOLD,
 )
 
 
@@ -208,6 +211,42 @@ def disambiguate_entity(
     return None
 
 
+def _find_canonical_for_proposed(
+    proposed: str,
+    candidate_embeddings: dict[str, np.ndarray],
+) -> Optional[str]:
+    """Map a Tier 2 proposed correction (often a surname) back to the
+    canonical name used as a key in candidate_embeddings.
+
+    e.g. proposed="Souare" → canonical="Pape Souare"
+
+    Uses fuzzy matching to handle accent differences
+    (e.g. "Souaré" vs "Souare").
+    """
+    proposed_lower = proposed.lower()
+
+    # Exact match first
+    if proposed in candidate_embeddings:
+        return proposed
+
+    # Check if proposed appears as a word in any canonical name
+    best_name = None
+    best_score = 0
+    for name in candidate_embeddings:
+        # Try surname match: compare proposed against last word(s)
+        name_parts = name.split()
+        surname = name_parts[-1] if name_parts else name
+        score = rfuzz.ratio(proposed_lower, surname.lower())
+        if score > best_score:
+            best_score = score
+            best_name = name
+
+    # Require strong match (handles minor accent differences)
+    if best_score >= 80:
+        return best_name
+    return None
+
+
 def batch_disambiguate(
     unresolved_entities: list[dict],
     all_segments: list,
@@ -280,6 +319,39 @@ def batch_disambiguate(
     # Step 3: Disambiguate each entity
     results = []
     for i, ue in enumerate(unresolved_entities):
+        proposed = ue.get("proposed_correction")
+
+        # ── Path A: Validate a Tier 2 proposed correction ──────────
+        # Tier 2 already found a strong fuzzy+phonetic match.  Tier 3's
+        # job is only to check that the context doesn't contradict it,
+        # NOT to do an unconstrained search that might pick a completely
+        # unrelated candidate (e.g. "Costa" instead of "Souare").
+        if proposed:
+            # Find the canonical name matching the proposed correction
+            proposed_canonical = _find_canonical_for_proposed(
+                proposed, candidate_embeddings,
+            )
+            if proposed_canonical and proposed_canonical in candidate_embeddings:
+                emb = candidate_embeddings[proposed_canonical]
+                ctx_sim = _cosine_similarity(context_embeddings[i], emb)
+                ent_sim = _cosine_similarity(entity_embeddings[i], emb)
+                combined = 0.6 * ctx_sim + 0.4 * ent_sim
+
+                if combined >= TIER3_VALIDATION_THRESHOLD:
+                    result = DisambiguationResult(
+                        entity_text=ue["text"],
+                        corrected=proposed,
+                        similarity=combined,
+                        segment_id=ue["segment_id"],
+                    )
+                    # Apply single-word logic: if entity is 1 word, use surname
+                    entity_words = ue["text"].split()
+                    if len(entity_words) == 1 and " " in result.corrected:
+                        result.corrected = result.corrected.split()[-1]
+                    results.append(result)
+            continue  # Never fall through to unconstrained search
+
+        # ── Path B: Unconstrained search for NER-only entities ─────
         result = disambiguate_entity(
             entity_text=ue["text"],
             context=context_texts[i],

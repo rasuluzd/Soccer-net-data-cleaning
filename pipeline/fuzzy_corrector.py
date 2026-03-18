@@ -189,6 +189,78 @@ def compute_combined_score(
     return combined, fuzzy_score, phonetic_match, context_match
 
 
+def _entity_contains_multiple_gazetteer_names(
+    entity_text: str,
+    gazetteer_lower: set[str],
+) -> bool:
+    """
+    Check if a multi-word entity contains multiple gazetteer names as substrings.
+
+    Handles multi-word gazetteer keys like "Di Maria" inside "Di Maria Rooney":
+    finds the longest gazetteer match starting at each position, then checks if
+    the remaining words also form a gazetteer entry.
+
+    Returns True if the entity can be decomposed into 2+ gazetteer names.
+    """
+    words = entity_text.split()
+    n = len(words)
+    if n < 2:
+        return False
+
+    names_found = 0
+    i = 0
+    while i < n:
+        # Try longest match first (e.g., "Di Maria" before "Di")
+        matched = False
+        for length in range(n - i, 0, -1):
+            candidate = " ".join(words[i:i + length]).lower()
+            if candidate in gazetteer_lower:
+                names_found += 1
+                if names_found >= 2:
+                    return True
+                i += length
+                matched = True
+                break
+        if not matched:
+            i += 1
+
+    return False
+
+
+def _get_collapsed_candidates(
+    entity_text: str,
+    all_variants: list[str],
+) -> list[tuple[str, float, int]]:
+    """
+    Generate collapsed forms of a multi-word entity and find fuzzy matches.
+
+    ASR sometimes splits a single name into multiple words:
+        "Jonjo" → "John Joe" or "Jonjoe"
+    This function tries collapsing adjacent word pairs:
+        "John Joe Shelby" → queries "JohnJoe Shelby" and "John JoeShelby"
+    and returns any new candidates with higher scores.
+    """
+    words = entity_text.split()
+    if len(words) < 2:
+        return []
+
+    best_candidates = []
+    # Try collapsing each adjacent pair
+    for i in range(len(words) - 1):
+        collapsed_words = words[:i] + [words[i] + words[i + 1]] + words[i + 2:]
+        collapsed = " ".join(collapsed_words)
+        results = process.extract(
+            collapsed,
+            all_variants,
+            scorer=fuzz.token_sort_ratio,
+            limit=3,
+        )
+        if results:
+            best_candidates.extend(results)
+
+    return best_candidates
+
+
 def find_best_match(
     entity_text: str,
     gazetteer: dict[str, str],
@@ -250,6 +322,13 @@ def find_best_match(
         if words_in_gazetteer >= 2:
             return None  # Both words are known names — don't "correct"
 
+        # Also check for multi-word gazetteer substrings inside the entity.
+        # Example: "Di Maria Rooney" contains "Di Maria" (a gazetteer key)
+        # AND "Rooney" (another gazetteer key) — this is two names merged,
+        # not a single misspelling.
+        if _entity_contains_multiple_gazetteer_names(entity_clean, gazetteer_lower):
+            return None
+
     # Skip entities that contain a team/venue word fragment.
     # "Wickham Palace" → skip because "palace" is a team word.
     # "pardew gala" → not skipped ("gala" isn't a team word), handled by scoring.
@@ -266,6 +345,22 @@ def find_best_match(
         scorer=fuzz.token_sort_ratio,
         limit=5,
     )
+
+    # For multi-word entities, also try collapsed forms to handle ASR
+    # word-splitting: "John Joe Shelby" → "Jonjo Shelvey" works better
+    # when we also query "JohnJoe Shelby" and "JohnJoeShelby".
+    collapsed_form = None
+    if len(entity_words) >= 2:
+        collapsed_candidates = _get_collapsed_candidates(
+            entity_clean, all_variants
+        )
+        if collapsed_candidates:
+            # Merge with original candidates, keeping top 5 overall
+            seen = {c[0] for c in top_candidates} if top_candidates else set()
+            for cc in collapsed_candidates:
+                if cc[0] not in seen:
+                    top_candidates.append(cc)
+                    seen.add(cc[0])
 
     if not top_candidates:
         return None
@@ -285,20 +380,21 @@ def find_best_match(
 
             # Decide replacement form: match the "level" of the input.
             # If commentator says "Zuma" (single word), correct to "Zouma"
-            # (the matched variant), not "Kurt Zouma" (the full name).
+            # (the surname from canonical), not "Kurt Zouma" (the full name).
             # If they say "Winston Ritu" (multi-word), use "Winston Reid".
+            #
+            # Always derive from the canonical VALUE, never the matched key.
+            # Learned corrections have misspellings as keys (e.g. "blassie"),
+            # using the key would produce error-to-error corrections.
             entity_word_count = len(entity_clean.split())
             if entity_word_count == 1:
-                # Single word input → use the closest single-word variant
-                # from the gazetteer, not the full canonical name
-                if " " not in candidate_text:
-                    corrected_name = candidate_text   # e.g. "Zouma"
+                canonical_words = canonical.split()
+                if len(canonical_words) == 1:
+                    corrected_name = canonical  # e.g. "Bolasie"
                 else:
-                    # Matched a full name variant; find the word from the
-                    # canonical name that's MOST SIMILAR to the entity.
-                    # This prevents "Stamford"→"Bridge" (venue) while
-                    # properly handling "Zuma"→"Zouma" (player surname).
-                    canonical_words = canonical.split()
+                    # Multi-word canonical — pick the word most similar
+                    # to the entity. This handles "Zuma"→"Zouma" (surname
+                    # from "Kurt Zouma") correctly.
                     best_word = canonical_words[-1]  # default to surname
                     best_word_sim = 0
                     for cw in canonical_words:
@@ -308,7 +404,34 @@ def find_best_match(
                             best_word = cw
                     corrected_name = best_word
             else:
-                corrected_name = canonical             # e.g. "Winston Reid"
+                # Multi-word entity → multi-word canonical.
+                # Default: use full canonical (e.g. "Winston Ritu" → "Winston Reid").
+                # But if the entity is a surname variant (not first+last), use
+                # just the surname portion from the canonical.
+                # Detection: the best matched KEY is shorter than the canonical,
+                # meaning the entity matched a surname-only variant (e.g.
+                # "De Michelis" matched key "Demichelis" → canonical "Martin Demichelis").
+                canonical_words = canonical.split()
+                candidate_word_count = len(candidate_text.split())
+                is_surname_variant = (
+                    len(canonical_words) > candidate_word_count
+                    or (len(canonical_words) > entity_word_count
+                        and entity_word_count <= 2)
+                )
+                if is_surname_variant:
+                    # Check if entity shares a first-name token with canonical
+                    entity_first = entity_clean.split()[0].lower()
+                    canon_first = canonical_words[0].lower()
+                    first_name_sim = fuzz.ratio(entity_first, canon_first)
+                    if first_name_sim < 60:
+                        # Entity doesn't match the canonical first name, so it's
+                        # surname-only. Use the surname portion of canonical.
+                        surname_part = " ".join(canonical_words[1:])
+                        corrected_name = surname_part
+                    else:
+                        corrected_name = canonical
+                else:
+                    corrected_name = canonical
 
             best_correction = Correction(
                 original=entity_clean,

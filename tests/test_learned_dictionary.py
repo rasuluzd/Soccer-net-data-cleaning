@@ -80,7 +80,8 @@ class TestLearnedDictionary:
     def test_lookup_returns_none_for_low_confidence(self, mock_dict_path):
         """Single-sighting corrections should NOT be returned by lookup."""
         update_learned_dictionary([_correction("Boney", "Wilfried Bony")])
-        result = lookup_learned("Boney")
+        dictionary = load_learned_dictionary()
+        result = lookup_learned("Boney", dictionary)
         assert result is None  # needs at least 2 sightings
 
     def test_lookup_returns_correction_after_multiple_sightings(self, mock_dict_path):
@@ -88,13 +89,15 @@ class TestLearnedDictionary:
         c = _correction("Boney", "Wilfried Bony")
         update_learned_dictionary([c])
         update_learned_dictionary([c])
-        result = lookup_learned("Boney")
+        dictionary = load_learned_dictionary()
+        result = lookup_learned("Boney", dictionary)
         assert result == "Wilfried Bony"
 
     def test_lookup_is_case_insensitive(self, mock_dict_path):
         c = _correction("Boney", "Wilfried Bony")
         update_learned_dictionary([c])
         update_learned_dictionary([c])
+        dictionary = load_learned_dictionary()
         # Should find regardless of case
-        assert lookup_learned("boney") == "Wilfried Bony"
-        assert lookup_learned("BONEY") == "Wilfried Bony"
+        assert lookup_learned("boney", dictionary) == "Wilfried Bony"
+        assert lookup_learned("BONEY", dictionary) == "Wilfried Bony"

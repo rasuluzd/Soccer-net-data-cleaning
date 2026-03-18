@@ -1,0 +1,7155 @@
+{
+  "2014-2015": [
+    {
+      "name": "Tom Cleverley",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Thomas William Cleverley"
+      ]
+    },
+    {
+      "name": "David Henen",
+      "team": "Everton F.C.",
+      "aliases": [
+        "David Boris Philippe Henen"
+      ]
+    },
+    {
+      "name": "Samuel Eto'o",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Samuel Eto'o Fils"
+      ]
+    },
+    {
+      "name": "Felipe Mattioni",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Felipe Mattioni Rohde"
+      ]
+    },
+    {
+      "name": "Gerard Deulofeu",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Muhamed Bešić",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Muhamed Besic"
+      ]
+    },
+    {
+      "name": "Ramiro Funes Mori",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Romelu Lukaku",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Romelu Lukaku Bolingoli"
+      ]
+    },
+    {
+      "name": "Aiden McGeady",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Aiden John McGeady"
+      ]
+    },
+    {
+      "name": "Mateusz Taudul",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam Walsh",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Callum Connolly",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Callum Alexander Connolly"
+      ]
+    },
+    {
+      "name": "Sam Byrne",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Sam John Byrne"
+      ]
+    },
+    {
+      "name": "Ryan Ledson",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Ryan Graham Ledson"
+      ]
+    },
+    {
+      "name": "Aaron Lennon",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Aaron Justin Lennon"
+      ]
+    },
+    {
+      "name": "Leandro Joaquín Rodríguez",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Leandro Rodríguez"
+      ]
+    },
+    {
+      "name": "Jonjoe Kenny",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Courtney Duffus",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gethin Jones",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Gethin Wynne Jones"
+      ]
+    },
+    {
+      "name": "Kieran Dowell",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Kieran O'Neill Dowell"
+      ]
+    },
+    {
+      "name": "Mason Holgate",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Mason Anthony Holgate"
+      ]
+    },
+    {
+      "name": "Gareth Barry",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lacina Traoré",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Lacina Emeghara Traore",
+        "Lacina Emeghara Traoré"
+      ]
+    },
+    {
+      "name": "Asmir Begović",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Asmir Begovic"
+      ]
+    },
+    {
+      "name": "Diego Costa",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Diego da Silva Costa"
+      ]
+    },
+    {
+      "name": "Jackie Groenen",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Jackie Noëlle Groenen"
+      ]
+    },
+    {
+      "name": "Didier Drogba",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Didier Yves Drogba Tebily",
+        "Didier Yves Drogba Tébily",
+        "Gbagbadè",
+        "Dahizoko"
+      ]
+    },
+    {
+      "name": "Ji So-Yun",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "So-Yun Ji"
+      ]
+    },
+    {
+      "name": "Luke Brattan",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Nathan Luke Brattan"
+      ]
+    },
+    {
+      "name": "Michael Hector",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Michael Anthony James Hector"
+      ]
+    },
+    {
+      "name": "Loïc Rémy",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Loic Remy",
+        "Loic Alex Teliere Hubert Remy",
+        "Loïc Alex Teliére Hubert Rémy"
+      ]
+    },
+    {
+      "name": "Christian Atsu",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Juan Cuadrado",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Juan Guillermo Cuadrado",
+        "Juan Guillermo Cuadrado Bello"
+      ]
+    },
+    {
+      "name": "Raheem Sterling",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Raheem Shaquille Sterling"
+      ]
+    },
+    {
+      "name": "Kevin De Bruyne",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "KDB"
+      ]
+    },
+    {
+      "name": "Bruno Zuculini",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Zucudios"
+      ]
+    },
+    {
+      "name": "Wilfried Bony",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Brendan Galloway",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Brendan Joel Zibusiso Galloway"
+      ]
+    },
+    {
+      "name": "Frank Lampard",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Frank James Lampard"
+      ]
+    },
+    {
+      "name": "Willy Caballero",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Wilfredo Daniel Caballero Lazcano"
+      ]
+    },
+    {
+      "name": "Emma Kete",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Emma Jillian Kete"
+      ]
+    },
+    {
+      "name": "João Virgínia",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "João Manuel Neves Virgínia"
+      ]
+    },
+    {
+      "name": "Jindřich Staněk",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Jindrich Stanek"
+      ]
+    },
+    {
+      "name": "Bertrand Traoré",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Andreas Christensen",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Elpepe",
+        "Andreas Bødtker Christensen"
+      ]
+    },
+    {
+      "name": "Jordi Osei-Tutu",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Jordi Martin Emmanuel Osei-Tutu"
+      ]
+    },
+    {
+      "name": "Betsy Hassett",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Fernando Reges",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Fernando",
+        "Fernando Francisco Reges"
+      ]
+    },
+    {
+      "name": "Mohamed Salah",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Mohamed Salah Hamed Mahrous Ghaly",
+        "Mo Salah"
+      ]
+    },
+    {
+      "name": "Radamel Falcao",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Mario Pašalić",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kenedy",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Robert Kenedy",
+        "Robert Kenedy Nunes do Nascimento"
+      ]
+    },
+    {
+      "name": "Lewis Baker",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Lewis Renard Baker"
+      ]
+    },
+    {
+      "name": "Danilo Pantić",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nathan",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Nathan Allan de Souza"
+      ]
+    },
+    {
+      "name": "John Swift",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Enes Ünal",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Enes Unal"
+      ]
+    },
+    {
+      "name": "Kelechi Iheanacho",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Kelechi Promise Iheanacho"
+      ]
+    },
+    {
+      "name": "Siobhan Chamberlain",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Siobhan Rebecca Chamberlain"
+      ]
+    },
+    {
+      "name": "Charlie Patino",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Charlie Patiño"
+      ]
+    },
+    {
+      "name": "Ruby Grant",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yael Averbuch West",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Yael Averbuch"
+      ]
+    },
+    {
+      "name": "Patrick Roberts",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Patrick John Joseph Roberts"
+      ]
+    },
+    {
+      "name": "Rubén Sobrino",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Devante Cole",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Fabian Delph",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kathleen Radtke",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jason Denayer",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Jason Grégory Denayer",
+        "Jason Gregory Denayer"
+      ]
+    },
+    {
+      "name": "Greg Leigh",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Gregory Alex Leigh",
+        "Gregory Leigh"
+      ]
+    },
+    {
+      "name": "José Ángel Pozo",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nicolás Otamendi",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Nicolás Hernán Gonzalo Otamendi"
+      ]
+    },
+    {
+      "name": "Gabriel Paulista",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Gabriel Armando de Abreu"
+      ]
+    },
+    {
+      "name": "Chioma Ubogagu",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alexis Sánchez",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Alexis Alejandro Sánchez Sánchez",
+        "Alexis Sanchez",
+        "Alexis Alejandro Sanchez Sanchez"
+      ]
+    },
+    {
+      "name": "Krystian Bielik",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ainsley Maitland-Niles",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Ainsley Cory Maitland-Niles"
+      ]
+    },
+    {
+      "name": "Stefan O'Connor",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Stefan Ramone Sewell O'Connor"
+      ]
+    },
+    {
+      "name": "Danny Welbeck",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Daniel Nii Tackie Mensah Welbeck",
+        "Daniel Welbeck"
+      ]
+    },
+    {
+      "name": "Mathieu Debuchy",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jeff Reine-Adélaïde",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Jeff Reine-Adelaide",
+        "Jeff Jason Reine-Adelaide",
+        "Jeff Jason Reine-Adélaïde"
+      ]
+    },
+    {
+      "name": "Ismaël Bennacer",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Ismael Bennacer"
+      ]
+    },
+    {
+      "name": "Daniel Crowley",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Daniel Patrick Crowley"
+      ]
+    },
+    {
+      "name": "Hugo Keto",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Hugo Oliver Keto"
+      ]
+    },
+    {
+      "name": "Alex Iwobi",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kim Källström",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Giuseppe Bellusci",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nicky Ajose",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Connor Wickham",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tommaso Bianchi",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Botaka",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Jordan Rolly Botaka"
+      ]
+    },
+    {
+      "name": "Cesc Fàbregas",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Cesc Fabregas",
+        "Francesc Fabregas Soler",
+        "Francesc Fàbregas Soler"
+      ]
+    },
+    {
+      "name": "Pedro",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Pedro Eliezer Rodriguez Ledesma",
+        "Pedro Rodríguez",
+        "Pedro Eliezer Rodríguez Ledesma",
+        "Pedro Rodriguez"
+      ]
+    },
+    {
+      "name": "Dominic Solanke",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Dominic Ayodele Solanke-Mitchell"
+      ]
+    },
+    {
+      "name": "Ruben Loftus-Cheek",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Ruben Ira Loftus-Cheek",
+        "RLC"
+      ]
+    },
+    {
+      "name": "Alex Kiwomya",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Andrew Alexander \"Alex\" Kiwomya",
+        "Andrew Alexander Kiwomya"
+      ]
+    },
+    {
+      "name": "Victorien Angban",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Bekanty Victorien Angban"
+      ]
+    },
+    {
+      "name": "Kurt Zouma",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Kurt Happy Zouma"
+      ]
+    },
+    {
+      "name": "Ander Herrera",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "miAu"
+      ]
+    },
+    {
+      "name": "Andy Kellett",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Andrew Paul Kellett"
+      ]
+    },
+    {
+      "name": "James Wilson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "James Antony Wilson"
+      ]
+    },
+    {
+      "name": "Juan Mata",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Juan Manuel Mata Garcia",
+        "Juan Manuel Mata García"
+      ]
+    },
+    {
+      "name": "Vanja Milinković-Savić",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Saidy Janko",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Paddy McNair",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Patrick James Coleman McNair",
+        "Patrick James Coleman \"Paddy\" McNair"
+      ]
+    },
+    {
+      "name": "Regan Poole",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Regan Leslie Poole"
+      ]
+    },
+    {
+      "name": "Memphis Depay",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sadiq El Fitouri",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ben Pearson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Benjamin David Pearson"
+      ]
+    },
+    {
+      "name": "Joel Pereira",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Joel Dinis Castro Pereira",
+        "Joel Castro Pereira"
+      ]
+    },
+    {
+      "name": "Žan Benedičič",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lee Erwin",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Lee Harry Erwin"
+      ]
+    },
+    {
+      "name": "Lewis Cook",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Lewis John Cook"
+      ]
+    },
+    {
+      "name": "Cameron Stewart",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kalvin Phillips",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Kalvin Mark Phillips"
+      ]
+    },
+    {
+      "name": "Daley Blind",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Morgan Schneiderlin",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Morgan Fernand Gerard Schneiderlin",
+        "Morgan Fernand Gérard Schneiderlin"
+      ]
+    },
+    {
+      "name": "Bacary Sagna",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aleix García",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Aleix García Serrano"
+      ]
+    },
+    {
+      "name": "Angeliño",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "José Ángel Esmorís Tasende"
+      ]
+    },
+    {
+      "name": "Florian Lejeune",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Florian Gregoire Claude Lejeune",
+        "Florian Grégoire Claude Lejeune"
+      ]
+    },
+    {
+      "name": "Olivier Ntcham",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Jules Olivier Ntcham"
+      ]
+    },
+    {
+      "name": "Thierry Ambrose",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Thierry Winston Jordan Ambrose"
+      ]
+    },
+    {
+      "name": "Manu García",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Manuel García Alonso"
+      ]
+    },
+    {
+      "name": "Jack Byrne",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Agyepong",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "James Horsfield",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Brandon Barker",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Brandon Lee Colin Barker"
+      ]
+    },
+    {
+      "name": "Anthony Martial",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Anthony Jordan Martial"
+      ]
+    },
+    {
+      "name": "Liam Grimshaw",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Liam David Grimshaw"
+      ]
+    },
+    {
+      "name": "Cameron Borthwick-Jackson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Cameron Jake Borthwick-Jackson"
+      ]
+    },
+    {
+      "name": "Sergio Romero",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "DESDE EL 5/10 GIGANTE ROMERO",
+        "Sergio Germán Romero"
+      ]
+    },
+    {
+      "name": "Ashley Fletcher",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Rashford",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kieran O'Hara",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Kieran Michael O'Hara"
+      ]
+    },
+    {
+      "name": "Sean Goss",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Sean Richard Goss"
+      ]
+    },
+    {
+      "name": "Ángel Di María",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Ángel Fabián Di María"
+      ]
+    },
+    {
+      "name": "Anouk Hoogendijk",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Anouk Anna Hoogendijk"
+      ]
+    },
+    {
+      "name": "Axel Tuanzebe",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dean Henderson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Dean Bradley Henderson"
+      ]
+    },
+    {
+      "name": "Matty Willock",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Matthew Anthony Willock"
+      ]
+    },
+    {
+      "name": "Will Buckley",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "William Edward \"Will\" Buckley",
+        "William Edward Buckley"
+      ]
+    },
+    {
+      "name": "Liam Bridcutt",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Liam Robert Bridcutt"
+      ]
+    },
+    {
+      "name": "Lewie Coyle",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Bailey Peacock-Farrell",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ross Turnbull",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jimmy Kébé",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Jimmy Boubou Kébé",
+        "Jimmy Boubou Kebe",
+        "Jimmy Kebe"
+      ]
+    },
+    {
+      "name": "Edgar Çani",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Edgar Junior Çani",
+        "Edgar Cani"
+      ]
+    },
+    {
+      "name": "Yassin Fortuné",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Yassin Fortune",
+        "Yassin Enzo Fortuné"
+      ]
+    },
+    {
+      "name": "Turid Knaak",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chloe Kelly",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Chloe Maggie Kelly"
+      ]
+    },
+    {
+      "name": "Tom Thorpe",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Thomas Joseph Thorpe",
+        "Thomas Joseph \"Tom\" Thorpe",
+        "Thomas Thorpe"
+      ]
+    },
+    {
+      "name": "Suliman Doukara",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Souleymane Doukara"
+      ]
+    },
+    {
+      "name": "Jack Butland",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Stuart Taylor",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Stuart James Taylor"
+      ]
+    },
+    {
+      "name": "Sol Bamba",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nemanja Matić",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Baba Rahman",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Abdul Rahman Baba"
+      ]
+    },
+    {
+      "name": "Islam Feruz",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Islam Salieh Feruz"
+      ]
+    },
+    {
+      "name": "Papy Djilobodji",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "El Hadji Papy Mison Djilobodji"
+      ]
+    },
+    {
+      "name": "Filipe Luís",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Filipe Luís Kasmirski"
+      ]
+    },
+    {
+      "name": "Charlie Wakefield",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joel Campbell",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Joel Nathaniel Campbell Samuels"
+      ]
+    },
+    {
+      "name": "Ben Sheaf",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Benjamin David Sheaf"
+      ]
+    },
+    {
+      "name": "David Ospina",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "David Ospina Ramírez"
+      ]
+    },
+    {
+      "name": "Calum Chambers",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Charly Musonda",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Charles Musonda",
+        "Charles \"Charly\" Musonda",
+        "Charly Musonda jr."
+      ]
+    },
+    {
+      "name": "Marco Amelia",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dario Del Fabro",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gaetano Berardi",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sakari Mattila",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jazz Richards",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Eisfeld",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Andy Lonergan",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pablo Maffeo",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Pablo Carmine Maffeo Becerra"
+      ]
+    },
+    {
+      "name": "David Faupala",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "David Gabriel Fabrice Faupala"
+      ]
+    },
+    {
+      "name": "Ashley Smith-Brown",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Ashley Jordan Smith-Brown"
+      ]
+    },
+    {
+      "name": "Bastian Schweinsteiger",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matteo Darmian",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Víctor Valdés",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Victor Valdes"
+      ]
+    },
+    {
+      "name": "Brian Montenegro",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Calzon Alzado"
+      ]
+    },
+    {
+      "name": "Stuart Dallas",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tom Adeyemi",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Eliaquim Mangala",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Eliaquim Hans Mangala"
+      ]
+    },
+    {
+      "name": "Granddi N'Goyi",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Granddi N'Goyi Majundu",
+        "Ngoyi"
+      ]
+    },
+    {
+      "name": "Petr Čech",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Cech",
+        "Petr Cech"
+      ]
+    },
+    {
+      "name": "Marcos Rojo",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Marquitos Rojo",
+        "Marquitos",
+        "marquiñoooo"
+      ]
+    },
+    {
+      "name": "Joe Cole",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Joseph John \"Joe\" Cole",
+        "Joseph John Cole"
+      ]
+    },
+    {
+      "name": "Philippe Senderos",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Philippe Sylvain Senderos"
+      ]
+    },
+    {
+      "name": "Aly Cissokho",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rushian Hepburn-Murphy",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Rushian Marcus Amori Hepburn-Murphy"
+      ]
+    },
+    {
+      "name": "Micah Richards",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Micah Lincoln Richards"
+      ]
+    },
+    {
+      "name": "Riccardo Calder",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joleon Lescott",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Joleon Patrick Lescott"
+      ]
+    },
+    {
+      "name": "Jordan Lyden",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Brister",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Alexander Keith Brister"
+      ]
+    },
+    {
+      "name": "Tom Richards",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Tom Oliver Richards"
+      ]
+    },
+    {
+      "name": "Liam Donnelly",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Liam Francis Peadar Donnelly"
+      ]
+    },
+    {
+      "name": "Cameron Burgess",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Cameron Robert Burgess"
+      ]
+    },
+    {
+      "name": "Emerson Hyndman",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Emerson Schellas Hyndman"
+      ]
+    },
+    {
+      "name": "Sean Kavanagh",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tom Cairney",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Thomas Cairney"
+      ]
+    },
+    {
+      "name": "Luke Shaw",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Luke Paul Hoare Shaw"
+      ]
+    },
+    {
+      "name": "Casper Sloth",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Casper Bisgaard Sloth"
+      ]
+    },
+    {
+      "name": "Marco Silvestri",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Mario Balotelli",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Mario Balotelli Barwuah"
+      ]
+    },
+    {
+      "name": "Libby Stout",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Elizabeth Stout"
+      ]
+    },
+    {
+      "name": "Ryan McLaughlin",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rosie White",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Rosemary Eleanor Florence White"
+      ]
+    },
+    {
+      "name": "Seko Fofana",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Seko Mohamed Fofana",
+        "Sékou Fofana"
+      ]
+    },
+    {
+      "name": "Nikolay Bodurov",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Nikolay Georgiev Bodurov"
+      ]
+    },
+    {
+      "name": "Clint Dempsey",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Clinton Drew \"Clint\" Dempsey"
+      ]
+    },
+    {
+      "name": "Jordan Evans",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Jordan Anthony John Evans"
+      ]
+    },
+    {
+      "name": "Mattias Käit",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "William Kvist",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "William Vitved Kvist"
+      ]
+    },
+    {
+      "name": "Kostas Stafylidis",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lewis Holtby",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Lewis Harry Holtby"
+      ]
+    },
+    {
+      "name": "Kostas Mitroglou",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Danny Guthrie",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Danny Sean Guthrie"
+      ]
+    },
+    {
+      "name": "Bryan Ruiz",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Comadreja",
+        "Bryan Jafet Ruiz González"
+      ]
+    },
+    {
+      "name": "Mark Fotheringham",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Mark McKay Fotheringham"
+      ]
+    },
+    {
+      "name": "Adam Taggart",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Veretout",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Marcel Gilbert Veretout"
+      ]
+    },
+    {
+      "name": "Kay Voser",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Larnell Cole",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Larnell James Cole"
+      ]
+    },
+    {
+      "name": "Kieran Richardson",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Kieran Edward Richardson"
+      ]
+    },
+    {
+      "name": "Scott Sinclair",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Scott Andrew Sinclair"
+      ]
+    },
+    {
+      "name": "Grant Holt",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Ayew",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Pierre Ayew"
+      ]
+    },
+    {
+      "name": "Alberto Moreno",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "muk"
+      ]
+    },
+    {
+      "name": "Rickie Lambert",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Rickie Lee Lambert"
+      ]
+    },
+    {
+      "name": "Matt Smith",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Mathieu James Patrick Smith"
+      ]
+    },
+    {
+      "name": "Tim Ream",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Luke Garbutt",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Luke Samuel Garbutt"
+      ]
+    },
+    {
+      "name": "Ryan Fredericks",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Ryan Marlowe Fredericks"
+      ]
+    },
+    {
+      "name": "Kevin Stewart",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Kevin Linford Levi Stewart"
+      ]
+    },
+    {
+      "name": "Mirco Antenucci",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Mirko Antenucci"
+      ]
+    },
+    {
+      "name": "Facundo Ferreyra",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jack Colback",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Danny Ings",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Daniel William John Ings"
+      ]
+    },
+    {
+      "name": "Richard Stearman",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gábor Király",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Gábor Ferenc Király"
+      ]
+    },
+    {
+      "name": "Richard Lee",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Richard Anthony Lee"
+      ]
+    },
+    {
+      "name": "Jamie O'Hara",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Jamie Darryl O'Hara"
+      ]
+    },
+    {
+      "name": "Andrew Dawber",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Andrew John Dawber"
+      ]
+    },
+    {
+      "name": "Ben Pringle",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Benjamin Philip Pringle"
+      ]
+    },
+    {
+      "name": "Abbey-Leigh Stringer",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Bertrand",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Ryan Dominic Bertrand"
+      ]
+    },
+    {
+      "name": "Divock Origi",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Carles Gil",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "José Ángel Crespo",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "José Ángel Crespo Rincón",
+        "Jose Angel Crespo"
+      ]
+    },
+    {
+      "name": "Rudy Gestede",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Rudy Philippe Michel Camille Gestede"
+      ]
+    },
+    {
+      "name": "Billy Sharp",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chris Wood",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Christopher Grant Wood"
+      ]
+    },
+    {
+      "name": "Adryan",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam Cooper",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Emmanuel Rivière",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Emmanuel José Rivière",
+        "Emmanuel Jose Riviere",
+        "Emmanuel Riviere"
+      ]
+    },
+    {
+      "name": "Shaun Hutchinson",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Tunnicliffe",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joe Lewis",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Joseph Peter Lewis"
+      ]
+    },
+    {
+      "name": "Adam Lallana",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Adam David Lallana"
+      ]
+    },
+    {
+      "name": "Roberto Firmino",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Roberto Firmino Barbosa de Oliveira"
+      ]
+    },
+    {
+      "name": "Christian Benteke",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Christian Benteke Liolo"
+      ]
+    },
+    {
+      "name": "Pedro Chirivella",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Pedro Chirivella Burgos"
+      ]
+    },
+    {
+      "name": "Joe Maguire",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Joseph Daniel Patrick Maguire"
+      ]
+    },
+    {
+      "name": "Ryan Kent",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ashley Hodson",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Satara Murray",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Satara Melonie Murray"
+      ]
+    },
+    {
+      "name": "Harry Wilson",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lawrence Vigouroux",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Lawrence Ian Vigouroux"
+      ]
+    },
+    {
+      "name": "Sam Hart",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Samuel James Hart"
+      ]
+    },
+    {
+      "name": "Emre Can",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tiago Ilori",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Mark Bunn",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Mark John Bunn"
+      ]
+    },
+    {
+      "name": "Carlos Sánchez",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Carlos Alberto Sánchez Moreno"
+      ]
+    },
+    {
+      "name": "John Heitinga",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "John Gijsbert Alan Heitinga"
+      ]
+    },
+    {
+      "name": "Ádám Bogdán",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nathaniel Clyne",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Amavi",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Kevin Amavi",
+        "Jordan Kévin Amavi"
+      ]
+    },
+    {
+      "name": "Adama Traoré",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Adama Traoré i Diarra"
+      ]
+    },
+    {
+      "name": "Idrissa Gueye (toti)",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Idrissa Gana Gueye"
+      ]
+    },
+    {
+      "name": "Jeremain Lens",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jeremain Marciano Lens"
+      ]
+    },
+    {
+      "name": "Keanan Bennetts",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Keanan Chidozie Bennetts",
+        "Keanan Chidozie Mbaeri Bennetts"
+      ]
+    },
+    {
+      "name": "Joe Gomez",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Joseph Dave Gomez"
+      ]
+    },
+    {
+      "name": "Rafael Páez",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Rafael Páez Cardona"
+      ]
+    },
+    {
+      "name": "Jordan Rossiter",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Jordan Bernard Rossiter"
+      ]
+    },
+    {
+      "name": "MJ Williams",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Michael Jordan Williams"
+      ]
+    },
+    {
+      "name": "Jack Dunn",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Jack Anthony Dunn"
+      ]
+    },
+    {
+      "name": "Nina Frausing Pedersen",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sheyi Ojo",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Oluwaseyi Babajide Ojo"
+      ]
+    },
+    {
+      "name": "James Milner",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "James Philip Milner"
+      ]
+    },
+    {
+      "name": "Connor Randall",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Connor Steven Randall"
+      ]
+    },
+    {
+      "name": "Jordan Lussey",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Allan",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Allan Rodrigues de Souza"
+      ]
+    },
+    {
+      "name": "Taiwo Awoniyi",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Taiwo Micheal Awoniyi"
+      ]
+    },
+    {
+      "name": "Cameron Brannagan",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Cameron Mark Thomas Brannagan"
+      ]
+    },
+    {
+      "name": "Florian Thauvin",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Florian Tristan Mariano Thauvin"
+      ]
+    },
+    {
+      "name": "Sylvain Marveaux",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Luuk de Jong",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Daryl Janmaat",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Callum Roberts",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Cal Roberts"
+      ]
+    },
+    {
+      "name": "Freddie Woodman",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Frederick John Woodman"
+      ]
+    },
+    {
+      "name": "Alex Gilliead",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Alex Nicholas Gilliead"
+      ]
+    },
+    {
+      "name": "Macaulay Gillesphey",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kyle Cameron",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Kyle Milne Cameron"
+      ]
+    },
+    {
+      "name": "Liam Smith",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Liam Phillip Smith"
+      ]
+    },
+    {
+      "name": "Daniel Barlaser",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Daniel Tan Barlaser"
+      ]
+    },
+    {
+      "name": "Jermain Defoe",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jermain Colin Defoe"
+      ]
+    },
+    {
+      "name": "Anthony Réveillère",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Anthony Guy Marie Réveillère",
+        "Anthony Reveillere",
+        "Anthony Guy Marie Reveillere"
+      ]
+    },
+    {
+      "name": "Yann M'Vila",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Yann Gérard M'Vila",
+        "Yann Gerard M'Vila"
+      ]
+    },
+    {
+      "name": "Liam Agnew",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Liam John Agnew"
+      ]
+    },
+    {
+      "name": "Lynden Gooch",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Lynden Jack Gooch"
+      ]
+    },
+    {
+      "name": "George Honeyman",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "George Christopher Honeyman"
+      ]
+    },
+    {
+      "name": "Ola Toivonen",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Nils Ola Toivonen"
+      ]
+    },
+    {
+      "name": "Rémy Cabella",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Remy Cabella",
+        "Remy Joseph Cabella",
+        "Rémy Joseph Cabella"
+      ]
+    },
+    {
+      "name": "Ayoze Pérez",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Ayoze Pérez Gutiérrez"
+      ]
+    },
+    {
+      "name": "Adam Armstrong",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Adam James Armstrong"
+      ]
+    },
+    {
+      "name": "Ivan Toney",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Ivan Benjamin Elijah Toney"
+      ]
+    },
+    {
+      "name": "Jamaal Lascelles",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Karl Darlow",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ľubomír Šatka",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Lubomir Satka"
+      ]
+    },
+    {
+      "name": "Kenny McEvoy",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Kenneth McEvoy"
+      ]
+    },
+    {
+      "name": "Harry Winks",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Harry Billy Winks"
+      ]
+    },
+    {
+      "name": "Josh Onomah",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Joshua Onomah",
+        "Joshua Oghenetega Peter Onomah",
+        "Joshua Oghenetega Peter \"Josh\" Onomah"
+      ]
+    },
+    {
+      "name": "Dominic Ball",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Dominic Martin Ball"
+      ]
+    },
+    {
+      "name": "Nathan Oduwa",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Emmanuel Sonupe",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Emmanuel Olukolade Sonupe"
+      ]
+    },
+    {
+      "name": "Rúben Lameiras",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Musa Yahaya",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Musa Auwal Yahaya"
+      ]
+    },
+    {
+      "name": "Stephanie Roche",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sebastián Coates",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Sebastián Coates Nion",
+        "Sebastian Coates",
+        "Sebastian Coates Nion"
+      ]
+    },
+    {
+      "name": "Clinton Njie",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Clinton Mua Njie"
+      ]
+    },
+    {
+      "name": "Niki Mäenpää",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michael Turner",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Michael Thomas Turner"
+      ]
+    },
+    {
+      "name": "Ross McCormack",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "James Husband",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tim Hoogland",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Tim Klaus Hoogland"
+      ]
+    },
+    {
+      "name": "Adil Chihi",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "DeAndre Yedlin",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "DeAndre Roselle Yedlin"
+      ]
+    },
+    {
+      "name": "João Carlos Teixeira",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "João Carlos Vilaça Teixeira"
+      ]
+    },
+    {
+      "name": "Mauro Zárate",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Mauro Zarate",
+        "Mauro Matías Zárate"
+      ]
+    },
+    {
+      "name": "Javier Manquillo",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dejan Lovren",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Fabio Borini",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Oscar Ustari",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Oscar Alfredo Ustari",
+        "Óscar Ustari"
+      ]
+    },
+    {
+      "name": "Jack Rodwell",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jack Christian Rodwell"
+      ]
+    },
+    {
+      "name": "Valentin Roberge",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Valentin Sébastien Roger Roberge"
+      ]
+    },
+    {
+      "name": "Younes Kaboul",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Patrick van Aanholt",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Patrick John Miguel van Aanholt"
+      ]
+    },
+    {
+      "name": "Chancel Mbemba",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Chancel Mangulu Mbemba",
+        "Justice de Dieu",
+        "Chancel",
+        "Chancel Mbemba Mangulu"
+      ]
+    },
+    {
+      "name": "Siem de Jong",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Siem Stefan de Jong"
+      ]
+    },
+    {
+      "name": "Georginio Wijnaldum",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Georginio Gregion Emile Wijnaldum"
+      ]
+    },
+    {
+      "name": "Diafra Sakho",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Manuel Lanzini",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Reece Burke",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Reece Frederick James Burke"
+      ]
+    },
+    {
+      "name": "Shayon Harrison",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Shayon Adam Harrison"
+      ]
+    },
+    {
+      "name": "Federico Fazio",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Diego Poyet",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Diego Poyet González"
+      ]
+    },
+    {
+      "name": "Luka Belić",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jamie Harney",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Jamie Joseph Harney"
+      ]
+    },
+    {
+      "name": "Alex Song",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Alexandre Dimitri Song Billong",
+        "Alexandre Song"
+      ]
+    },
+    {
+      "name": "Elliott Bennett",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Vitālijs Maksimenko",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Uwe Hünemeier",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ignacio Scocco",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Nacho Scocco",
+        "Ignacio Martín Scocco"
+      ]
+    },
+    {
+      "name": "Jamie Murphy",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "James Murphy"
+      ]
+    },
+    {
+      "name": "Danny Holla",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Christian Walton",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Vahid Hambo",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "James Tilley",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "James Alexander David Tilley"
+      ]
+    },
+    {
+      "name": "Elvis Manu",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Elvis Kofi Okyere Wiafe Manu"
+      ]
+    },
+    {
+      "name": "Sam Baldock",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Samuel Edward Thomas \"Sam\" Baldock"
+      ]
+    },
+    {
+      "name": "David Rodríguez Sánchez",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "David Rodriguez Sanchez"
+      ]
+    },
+    {
+      "name": "Darren Bent",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Darren Ashley Bent"
+      ]
+    },
+    {
+      "name": "Joe Bennett",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Joe Bennett (footballer)",
+        "Joseph \"Joe\" Bennett"
+      ]
+    },
+    {
+      "name": "Kevin Wimmer",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dele Alli",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Bamidele Jermaine Alli"
+      ]
+    },
+    {
+      "name": "Kieran Trippier",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Kieran John Trippier"
+      ]
+    },
+    {
+      "name": "Toby Alderweireld",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Toby Albertine Maurits Alderweireld"
+      ]
+    },
+    {
+      "name": "Eric Dier",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ashley Barnes",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matthew Lowton",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Matthew John Lowton"
+      ]
+    },
+    {
+      "name": "Leon Best",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gaëtan Bong",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam Rosenior",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Liam James Rosenior"
+      ]
+    },
+    {
+      "name": "Bobby Zamora",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Robert Lester \"Bobby\" Zamora"
+      ]
+    },
+    {
+      "name": "Greg Halford",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Gregory Halford"
+      ]
+    },
+    {
+      "name": "Rolando Aarons",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aleksandar Mitrovic",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "شاورما الحلوين"
+      ]
+    },
+    {
+      "name": "Haris Vučkić",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michail Antonio",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Michail Gregory Antonio"
+      ]
+    },
+    {
+      "name": "Reece Oxford",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Reece Joel Oxford"
+      ]
+    },
+    {
+      "name": "Lewis Page",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Lewis Robert Page"
+      ]
+    },
+    {
+      "name": "Pedro Obiang",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Pedro Mba Obiang Avomo",
+        "Pedro Mba",
+        "Pedro Mba Obiang"
+      ]
+    },
+    {
+      "name": "Martin Samuelsen",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Brown",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kyle Knoyle",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Pike",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Alexander George Pike"
+      ]
+    },
+    {
+      "name": "Antonio Nocerino",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Josh Pask",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Joshua David Pask"
+      ]
+    },
+    {
+      "name": "Nikica Jelavić",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sam Westley",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Samuel Edward Westley"
+      ]
+    },
+    {
+      "name": "Abdul Razak",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Stephen Hendrie",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Fredrik Ulvestad",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joey Barton",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Joseph Anthony \"Joey\" Barton",
+        "Joseph Anthony Barton"
+      ]
+    },
+    {
+      "name": "Luke Hendrie",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Luke John Hendrie"
+      ]
+    },
+    {
+      "name": "Ntumba Massanka",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matt Gilks",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michel Vorm",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Michel Armand Vorm"
+      ]
+    },
+    {
+      "name": "Connor Ogilvie",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Connor Stuart Ogilvie"
+      ]
+    },
+    {
+      "name": "Cameron Carter-Vickers",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Cameron Robert Carter-Vickers"
+      ]
+    },
+    {
+      "name": "Benjamin Stambouli",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Benjamin Fernand Lucien François Stambouli",
+        "Benjamin Fernand Lucien Francois Stambouli"
+      ]
+    },
+    {
+      "name": "Tendayi Darikwa",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "David Stockdale",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gary Gardner",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Paddy McCourt",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Patrick James McCourt",
+        "Patrick James \"Paddy\" McCourt",
+        "Pat McCourt"
+      ]
+    },
+    {
+      "name": "Nenê",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Nene"
+      ]
+    },
+    {
+      "name": "Aaron Cresswell",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pablo Armero",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Pablo Estifer Armero",
+        "Miñía"
+      ]
+    },
+    {
+      "name": "Doneil Henry",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Doneil Jor-Dee Ashley Henry"
+      ]
+    },
+    {
+      "name": "Roger Johnson",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dimitri Payet",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ben Davies",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Benjamin Davies",
+        "Benjamin Thomas Davies"
+      ]
+    },
+    {
+      "name": "Lazar Marković",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chris Kettings",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Christopher David Kettings"
+      ]
+    },
+    {
+      "name": "Zeki Fryers",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Ezekiel David \"Zeki\" Fryers"
+      ]
+    },
+    {
+      "name": "Ricky Álvarez",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Adam Matthews",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Adam James Matthews"
+      ]
+    },
+    {
+      "name": "Billy Jones",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Santiago Vergini",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Mariscal"
+      ]
+    },
+    {
+      "name": "Costel Pantilimon",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marcos Alonso Mendoza",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordi Gómez",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jordi Gomez"
+      ]
+    },
+    {
+      "name": "Rajiv van La Parra",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Rajiv Ramon van La Parra"
+      ]
+    },
+    {
+      "name": "Aaron Hughes",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Aaron William Hughes"
+      ]
+    },
+    {
+      "name": "Ali Al-Habsi",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Ali Abdullah Harib Al-Habsi"
+      ]
+    },
+    {
+      "name": "Jonathan Obika",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Jonathan Chiedozie Obika"
+      ]
+    },
+    {
+      "name": "Adrián Colunga",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Adrian Colunga"
+      ]
+    },
+    {
+      "name": "Morgan Amalfitano",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Morgan Henri Rene Amalfitano",
+        "Morgan Henri René Amalfitano"
+      ]
+    },
+    {
+      "name": "Marco Borriello",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chris O'Grady",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Christopher James \"Chris\" O'Grady",
+        "Christopher James O'Grady"
+      ]
+    },
+    {
+      "name": "Connor Goldson",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Connor Lambert Goldson"
+      ]
+    },
+    {
+      "name": "Dale Stephens",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Dale Christopher Stephens"
+      ]
+    },
+    {
+      "name": "Emmanuel Ledesma",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Emmanuel Jorge Ledesma"
+      ]
+    },
+    {
+      "name": "Daniel Pappoe",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Daniel Mills Pappoe"
+      ]
+    },
+    {
+      "name": "James McArthur",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "James McFarlane McArthur"
+      ]
+    },
+    {
+      "name": "Fraizer Campbell",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Wayne Hennessey",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam Trotter",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Modou Barrow",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tomer Hemed",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Son Heung-min",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Heung-min Son",
+        "Heung-Min Son"
+      ]
+    },
+    {
+      "name": "Ryan Mason",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Pritchard",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Enner Valencia",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Carl Jenkinson",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Carl Daniel Jenkinson"
+      ]
+    },
+    {
+      "name": "Victor Moses",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Raphael Spiegel",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Raphael Simon Spiegel"
+      ]
+    },
+    {
+      "name": "Declan Rice",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Darren Randolph",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Darren Edward Andrew Randolph"
+      ]
+    },
+    {
+      "name": "Angelo Ogbonna",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Obinze Angelo Ogbonna",
+        "Angelo Obinze Ogbonna"
+      ]
+    },
+    {
+      "name": "Stephen Ward",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steven Reid",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chris Baird",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Andre Gray",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Andre Anthony Gray"
+      ]
+    },
+    {
+      "name": "Cheikhou Kouyaté",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Cheikhou Kouyate"
+      ]
+    },
+    {
+      "name": "Keshi Anderson",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Keshi Stuart Oluyinka Adetokunboh Anderson"
+      ]
+    },
+    {
+      "name": "Luke Croll",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Luke Alan Croll"
+      ]
+    },
+    {
+      "name": "Christian Scales",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Christian Stephen Scales"
+      ]
+    },
+    {
+      "name": "Lee Chung-yong",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Lee Cheong-yong"
+      ]
+    },
+    {
+      "name": "Yaya Sanogo",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jason Puncheon",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sam Magri",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nzuzi Toko",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Nzuzi Bundebele Toko"
+      ]
+    },
+    {
+      "name": "Wilfried Zaha",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joe Ledley",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Bakary Sako",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Scott Dann",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pape Souaré",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Pape N'Diaye Souaré"
+      ]
+    },
+    {
+      "name": "George Boyd",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "George Jan Boyd"
+      ]
+    },
+    {
+      "name": "Marvin Sordell",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Marvin Anthony Sordell"
+      ]
+    },
+    {
+      "name": "Nathaniel Chalobah",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Nathaniel Nyakie Chalobah"
+      ]
+    },
+    {
+      "name": "Christopher Long",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Chris Long"
+      ]
+    },
+    {
+      "name": "Matthew Taylor",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Josh Ginnelly",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Joshua Lloyd Ginnelly"
+      ]
+    },
+    {
+      "name": "Michael Keane",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Michael Vincent Keane"
+      ]
+    },
+    {
+      "name": "Mustapha Carayol",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Mustapha Soon Carayol"
+      ]
+    },
+    {
+      "name": "Beram Kayal",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Berams Kajals",
+        "Biram Keyal"
+      ]
+    },
+    {
+      "name": "Chris Burke",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Christopher Robert \"Chris\" Burke",
+        "Christopher Robert Burke"
+      ]
+    },
+    {
+      "name": "Nicolae Carnat",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "James Henry",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "George Saville",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "George Alan Saville"
+      ]
+    },
+    {
+      "name": "Jed Wallace",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michael Kightly",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Michael John Kightly"
+      ]
+    },
+    {
+      "name": "Adam Smith",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Adam James Smith"
+      ]
+    },
+    {
+      "name": "Tyrone Mings",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Tyrone Deon Mings"
+      ]
+    },
+    {
+      "name": "Josh O'Hanlon",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Joshua O'Hanlon"
+      ]
+    },
+    {
+      "name": "Filippo Costa",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Artur Boruc",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Tomás Andrade",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Joe Quigley",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Joseph Richard Quigley"
+      ]
+    },
+    {
+      "name": "Matt Butcher",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Matthew David Butcher"
+      ]
+    },
+    {
+      "name": "Yohan Cabaye",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jelle Vossen",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lukas Jutkiewicz",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Lukas Isaac Paul Jutkiewicz"
+      ]
+    },
+    {
+      "name": "Rouwen Hennings",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tom Ince",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Thomas Christopher Ince"
+      ]
+    },
+    {
+      "name": "Tyler Walker",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Tyler J. Andrew Walker"
+      ]
+    },
+    {
+      "name": "Jonny Williams",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jonathan Williams",
+        "Jonathan Peter Williams"
+      ]
+    },
+    {
+      "name": "Gerry McDonagh",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Gerry Luke McDonagh"
+      ]
+    },
+    {
+      "name": "Joe Worrall",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Joseph Adrian Worrall"
+      ]
+    },
+    {
+      "name": "Matty Cash",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Matthew Stuart Cash"
+      ]
+    },
+    {
+      "name": "Lars Veldwijk",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matty Fryatt",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Matthew Charles \"Matty\" Fryatt",
+        "Matthew Charles Fryatt"
+      ]
+    },
+    {
+      "name": "Danny Graham",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Daniel Anthony William Graham"
+      ]
+    },
+    {
+      "name": "Jordon Mutch",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Jordon James Edward Sydney Mutch"
+      ]
+    },
+    {
+      "name": "Kwesi Appiah",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Danny Fox",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Daniel Fox"
+      ]
+    },
+    {
+      "name": "Jack Hunt",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jack Paul Hunt"
+      ]
+    },
+    {
+      "name": "Jake Wholey",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jake Anthony Wholey"
+      ]
+    },
+    {
+      "name": "Todd Kane",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Louis Laing",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Louis Mark Laing"
+      ]
+    },
+    {
+      "name": "Kévin Gomis",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Kevin Gomis"
+      ]
+    },
+    {
+      "name": "Matt Mills",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Matthew Claude \"Matt\" Mills"
+      ]
+    },
+    {
+      "name": "Nélson Oliveira",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Nelson Oliveira"
+      ]
+    },
+    {
+      "name": "Michael Mancienne",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Michael Ian Mancienne"
+      ]
+    },
+    {
+      "name": "Rafik Djebbour",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Rafik Zoheir Djebbour"
+      ]
+    },
+    {
+      "name": "Kyle Ebecilio",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Kyle Stephen Joel Ebecilio"
+      ]
+    },
+    {
+      "name": "Jamie Ward",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jamie John Ward"
+      ]
+    },
+    {
+      "name": "Ben Hamer",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Benjamin John Hamer",
+        "Benjamin John \"Ben\" Hamer"
+      ]
+    },
+    {
+      "name": "Jeffrey Monakana",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jesse Lingard",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Jesse Ellis Lingard"
+      ]
+    },
+    {
+      "name": "Kortney Hause",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Kortney Paul Duncan Hause"
+      ]
+    },
+    {
+      "name": "Michael Jacobs",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nathan Byrne",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yann Kermorgant",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Yann Alain Kermorgant"
+      ]
+    },
+    {
+      "name": "Stéphane Zubar",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Kenwyne Jones",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Kenwyne Joel Jones"
+      ]
+    },
+    {
+      "name": "Sylvain Distin",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Dan Gosling",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Daniel Gosling"
+      ]
+    },
+    {
+      "name": "Lee Tomlin",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Lee Marc Tomlin"
+      ]
+    },
+    {
+      "name": "Adam Federici",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Yoann Barbet",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Konstantin Kerschbaumer",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Josh Laurent",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sergi Canós",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Sergi Canós Tenés"
+      ]
+    },
+    {
+      "name": "Jermaine Udumaga",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Chinaemerem Jermaine Udumaga"
+      ]
+    },
+    {
+      "name": "Robert Tesche",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Britt Assombalonga",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Britt Curtis Assombalonga"
+      ]
+    },
+    {
+      "name": "Jaanai Gordon",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Jaanai Derece Gordon"
+      ]
+    },
+    {
+      "name": "Alan Judge",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Alan Christopher Judge"
+      ]
+    },
+    {
+      "name": "Li Ke",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Nicholas Yennaris",
+        "Nicholas Harry \"Nico\" Yennaris",
+        "Nicholas \"Nico\" Yennaris"
+      ]
+    },
+    {
+      "name": "Maxime Colin",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Maxime Jean-Yves Colin"
+      ]
+    },
+    {
+      "name": "James Tarkowski",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Martin Kelly",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Martin Ronald Kelly"
+      ]
+    },
+    {
+      "name": "Andrew Johnson",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Andy Johnson"
+      ]
+    },
+    {
+      "name": "Kevin Doyle",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Kevin Edward Doyle"
+      ]
+    },
+    {
+      "name": "Brede Hangeland",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Brede Paulsen Hangeland"
+      ]
+    },
+    {
+      "name": "Shola Ameobi",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Foluwashola \"Shola\" Ameobi",
+        "Foluwashola Ameobi"
+      ]
+    },
+    {
+      "name": "Patrick Bamford",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Patrick James Bamford"
+      ]
+    },
+    {
+      "name": "Björn Bergmann Sigurðarson",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Björn Bergmann Sigurdarson",
+        "Björn Sigurðarson",
+        "Bjorn Sigurdarson",
+        "Bjorn Bergmann Sigurdarson"
+      ]
+    },
+    {
+      "name": "Alex McCarthy",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ashley Carter",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aaron Hayden",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Aaron Edward-George Hayden"
+      ]
+    },
+    {
+      "name": "Sylvain Deslandes",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Sylvain Boris Nabil Deslandes"
+      ]
+    },
+    {
+      "name": "Bright Enobakhare",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "George Swan",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "George Harry Swan"
+      ]
+    },
+    {
+      "name": "Connor Hunte",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Benik Afobe",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Benik Tunani Afobe"
+      ]
+    },
+    {
+      "name": "Jack O'Connell",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Jack William O'Connell"
+      ]
+    },
+    {
+      "name": "Scott Hogan",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Woods",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Max Gradel",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Max-Alain Gradel"
+      ]
+    },
+    {
+      "name": "Andreas Bjelland",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Akaki Gogia",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nick Proschwitz",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alberto Coelho",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Betinho"
+      ]
+    },
+    {
+      "name": "Jordan Graham",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Jordan Tyler Graham"
+      ]
+    },
+    {
+      "name": "Jordan Allan",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam McAlinden",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Liam James McAlinden"
+      ]
+    },
+    {
+      "name": "David Vaughan",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "David Owen Vaughan"
+      ]
+    },
+    {
+      "name": "Chuba Akpom",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Chuba Amechi Akpom"
+      ]
+    },
+    {
+      "name": "Ryan Mendes da Graça",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Daniel Pinillos",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Oliver Burke",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Oliver Jasen Burke"
+      ]
+    },
+    {
+      "name": "Montell Moore",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marco Djuricin",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joshua King",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Josh King"
+      ]
+    },
+    {
+      "name": "Lee Camp",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Lee Michael John Camp"
+      ]
+    },
+    {
+      "name": "Jack Simpson",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Callum Wilson",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Callum Eddie Graham Wilson"
+      ]
+    },
+    {
+      "name": "Andrew Surman",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Lasse Vibe",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lewis Macleod",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Lewis Kenneth Macleod"
+      ]
+    },
+    {
+      "name": "Liam Moore",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Liam Simon Moore"
+      ]
+    },
+    {
+      "name": "Lee Peltier",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Lee Anthony Peltier"
+      ]
+    },
+    {
+      "name": "Jack Hobbs",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Daniel O'Shaughnessy",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Daniel Michael O'Shaughnessy"
+      ]
+    },
+    {
+      "name": "Junior Stanislas",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Felix Junior Stanislas"
+      ]
+    },
+    {
+      "name": "Courtney Senior",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Courtney Fitzroy Senior"
+      ]
+    },
+    {
+      "name": "Conor Coady",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Răzvan Oaidă",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Răzvan Constantin Oaidă"
+      ]
+    },
+    {
+      "name": "Emiliano Martínez",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Emiliano Martinez",
+        "Emi Martinez",
+        "Damián Emiliano Martínez",
+        "Emi Martínez",
+        "Damian Emiliano Martinez"
+      ]
+    },
+    {
+      "name": "Adam Le Fondre",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Glenville Adam James Le Fondre"
+      ]
+    },
+    {
+      "name": "Tommy Rowe",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Thomas Malcolm Rowe"
+      ]
+    },
+    {
+      "name": "Moses Odubajo",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Moses Adeshina Ayoola Junior Odubajo"
+      ]
+    },
+    {
+      "name": "Ryan Williams",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Ryan Anthony Williams"
+      ]
+    },
+    {
+      "name": "Philipp Hofmann",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marcos Tébar",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Marcos Tebar"
+      ]
+    },
+    {
+      "name": "Zain Westbrooke",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Zain Sam Westbrooke"
+      ]
+    },
+    {
+      "name": "Josh McEachran",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Joshua Mark McEachran"
+      ]
+    },
+    {
+      "name": "José Ignacio Peleteiro",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Jota",
+        "Jose Ignacio Peleteiro"
+      ]
+    },
+    {
+      "name": "Jon Toral",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Jon Miquel Toral Harper"
+      ]
+    },
+    {
+      "name": "Tommy Smith",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Thomas Smith"
+      ]
+    },
+    {
+      "name": "Glenn Murray",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Juan Manuel Iturbe",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Juan Manuel Iturbe Arevalos",
+        "Juan Manuel Iturbe Arévalos"
+      ]
+    },
+    {
+      "name": "Nouha Dicko",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Leon Clarke",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yannick Sagbo",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Yannick Anister Sagbo Latte"
+      ]
+    },
+    {
+      "name": "Mike Williamson",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tomasz Kuszczak",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Tomasz Miroslaw Kuszczak",
+        "Tomasz Mirosław Kuszczak"
+      ]
+    }
+  ],
+  "2015-2016": [
+    {
+      "name": "Enner Valencia",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tom Cleverley",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Thomas William Cleverley"
+      ]
+    },
+    {
+      "name": "David Henen",
+      "team": "Everton F.C.",
+      "aliases": [
+        "David Boris Philippe Henen"
+      ]
+    },
+    {
+      "name": "Aaron Lennon",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Aaron Justin Lennon"
+      ]
+    },
+    {
+      "name": "Leandro Joaquín Rodríguez",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Leandro Rodríguez"
+      ]
+    },
+    {
+      "name": "Shani Tarashaj",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Maarten Stekelenburg",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Mason Holgate",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Mason Anthony Holgate"
+      ]
+    },
+    {
+      "name": "Dominic Calvert-Lewin",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Dominic Nathaniel Calvert-Lewin"
+      ]
+    },
+    {
+      "name": "Liam Walsh",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Callum Connolly",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Callum Alexander Connolly"
+      ]
+    },
+    {
+      "name": "Tom Davies",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Thomas Davies"
+      ]
+    },
+    {
+      "name": "Felipe Mattioni",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Felipe Mattioni Rohde"
+      ]
+    },
+    {
+      "name": "Gerard Deulofeu",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Oumar Niasse",
+      "team": "Everton F.C.",
+      "aliases": [
+        "El Hadji Baye Oumar Niasse",
+        "Baye Oumar Niasse"
+      ]
+    },
+    {
+      "name": "Ramiro Funes Mori",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yannick Bolasie",
+      "team": "Everton F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Idrissa Gueye (toti)",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Idrissa Gana Gueye"
+      ]
+    },
+    {
+      "name": "Lucas Piazón",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Lucas Domingues Piazón"
+      ]
+    },
+    {
+      "name": "Alexandre Pato",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Alexandre Rodrigues da Silva",
+        "Alex Pato"
+      ]
+    },
+    {
+      "name": "Radamel Falcao",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kenedy",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Robert Kenedy Nunes do Nascimento",
+        "Robert Kenedy"
+      ]
+    },
+    {
+      "name": "Danilo Pantić",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matt Miazga",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Matthew Miazga"
+      ]
+    },
+    {
+      "name": "N'Golo Kanté",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Ngolo Kante",
+        "Ngolo Kanté",
+        "N'Golo Kante"
+      ]
+    },
+    {
+      "name": "Nathan",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Nathan Allan de Souza"
+      ]
+    },
+    {
+      "name": "Luke Brattan",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Nathan Luke Brattan"
+      ]
+    },
+    {
+      "name": "Pablo Marí",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Pablo Marí Villar"
+      ]
+    },
+    {
+      "name": "Enes Ünal",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Enes Unal"
+      ]
+    },
+    {
+      "name": "Kelechi Iheanacho",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Kelechi Promise Iheanacho"
+      ]
+    },
+    {
+      "name": "Nolito",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Manuel Agudo Durán"
+      ]
+    },
+    {
+      "name": "Anthony Cáceres",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Anthony Richard Caceres",
+        "Anthony Caceres"
+      ]
+    },
+    {
+      "name": "Ashley Williams",
+      "team": "Everton F.C.",
+      "aliases": [
+        "Ashley Errol Williams"
+      ]
+    },
+    {
+      "name": "Petr Čech",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Cech",
+        "Petr Cech"
+      ]
+    },
+    {
+      "name": "Granit Xhaka",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pedro",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Pedro Rodriguez",
+        "Pedro Rodríguez",
+        "Pedro Eliezer Rodriguez Ledesma",
+        "Pedro Eliezer Rodríguez Ledesma"
+      ]
+    },
+    {
+      "name": "David Luiz",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "David Luiz Moreira Marinho"
+      ]
+    },
+    {
+      "name": "Alex Kiwomya",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Andrew Alexander Kiwomya",
+        "Andrew Alexander \"Alex\" Kiwomya"
+      ]
+    },
+    {
+      "name": "Victorien Angban",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Bekanty Victorien Angban"
+      ]
+    },
+    {
+      "name": "Michael Hector",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Michael Anthony James Hector"
+      ]
+    },
+    {
+      "name": "Hadi Sacko",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sol Bamba",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gabriel Paulista",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Gabriel Armando de Abreu"
+      ]
+    },
+    {
+      "name": "Chioma Ubogagu",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Krystian Bielik",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michy Batshuayi",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marco Amelia",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jake Clarke-Salter",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Jake-Liam Clarke-Salter"
+      ]
+    },
+    {
+      "name": "Fikayo Tomori",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Oluwafikayomi Oluwadamilola Tomori"
+      ]
+    },
+    {
+      "name": "Charlie Patino",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Charlie Patiño"
+      ]
+    },
+    {
+      "name": "Takuma ano",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Asano Takuma"
+      ]
+    },
+    {
+      "name": "İlkay Gündoğan",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Ilkay Gündogan",
+        "Ilkay Gundogan"
+      ]
+    },
+    {
+      "name": "Fabian Delph",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jeff Reine-Adélaïde",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Jeff Jason Reine-Adélaïde",
+        "Jeff Reine-Adelaide",
+        "Jeff Jason Reine-Adelaide"
+      ]
+    },
+    {
+      "name": "Ismaël Bennacer",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Ismael Bennacer"
+      ]
+    },
+    {
+      "name": "Rob Holding",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Iwobi",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Patrick Roberts",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Patrick John Joseph Roberts"
+      ]
+    },
+    {
+      "name": "Rubén Sobrino",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Leroy Penne",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nicolás Otamendi",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Nicolás Hernán Gonzalo Otamendi"
+      ]
+    },
+    {
+      "name": "Josephine Henning",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kelechi Nwakali",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yassin Fortuné",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Yassin Enzo Fortuné",
+        "Yassin Fortune"
+      ]
+    },
+    {
+      "name": "Chloe Kelly",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Chloe Maggie Kelly"
+      ]
+    },
+    {
+      "name": "Lucas Pérez",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marc Bola",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Marc Joel Bola"
+      ]
+    },
+    {
+      "name": "Stephy Mavididi",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Stephy Alvaro Mavididi"
+      ]
+    },
+    {
+      "name": "Juan Cuadrado",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Juan Guillermo Cuadrado",
+        "Juan Guillermo Cuadrado Bello"
+      ]
+    },
+    {
+      "name": "Oleksandr Zinchenko",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Oleksandr Volodymyrovych Zinchenko"
+      ]
+    },
+    {
+      "name": "Aleix García",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Aleix García Serrano"
+      ]
+    },
+    {
+      "name": "John Stones",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Florian Lejeune",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Florian Grégoire Claude Lejeune",
+        "Florian Gregoire Claude Lejeune"
+      ]
+    },
+    {
+      "name": "Thierry Ambrose",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Thierry Winston Jordan Ambrose"
+      ]
+    },
+    {
+      "name": "Marlos Moreno",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Marlos Moreno Durán"
+      ]
+    },
+    {
+      "name": "Manu García",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Manuel García Alonso"
+      ]
+    },
+    {
+      "name": "Jack Byrne",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Agyepong",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tosin Adarabioyo",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo"
+      ]
+    },
+    {
+      "name": "Marko Grujić",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rosie White",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Rosemary Eleanor Florence White"
+      ]
+    },
+    {
+      "name": "João Virgínia",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "João Manuel Neves Virgínia"
+      ]
+    },
+    {
+      "name": "Zech Medley",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Zechariah Joshua Henry Medley"
+      ]
+    },
+    {
+      "name": "Asmir Begović",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Asmir Begovic"
+      ]
+    },
+    {
+      "name": "Marcos Alonso Mendoza",
+      "team": "Chelsea F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Stuart Dallas",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tom Adeyemi",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Mohamed Elneny",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "\"El profeta\"",
+        "\"Ala Egipcio\"",
+        "Mohamed Naser Elsayed Elneny",
+        "\"Jesucristo egipcio\""
+      ]
+    },
+    {
+      "name": "Lee Erwin",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Lee Harry Erwin"
+      ]
+    },
+    {
+      "name": "Jack McKay",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Robert Green",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Robert Paul Green"
+      ]
+    },
+    {
+      "name": "Pedro Chirivella",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Pedro Chirivella Burgos"
+      ]
+    },
+    {
+      "name": "Sadio Mané",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Mane",
+        "sadione"
+      ]
+    },
+    {
+      "name": "Joe Maguire",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Joseph Daniel Patrick Maguire"
+      ]
+    },
+    {
+      "name": "Ryan Kent",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Fulton",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Ryan William Fulton"
+      ]
+    },
+    {
+      "name": "Satara Murray",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Satara Melonie Murray"
+      ]
+    },
+    {
+      "name": "Harry Wilson",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steven Caulker",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Steven Roy Caulker"
+      ]
+    },
+    {
+      "name": "Sam Hart",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Samuel James Hart"
+      ]
+    },
+    {
+      "name": "Ovie Ejaria",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Oviemuno Dominic Ejaria"
+      ]
+    },
+    {
+      "name": "Trent Alexander-Arnold",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Trent John Alexander-Arnold",
+        "TAA"
+      ]
+    },
+    {
+      "name": "Ben Woodburn",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Benjamin Luke Woodburn"
+      ]
+    },
+    {
+      "name": "Eduardo Carvalho",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Eduardo dos Reis Carvalho"
+      ]
+    },
+    {
+      "name": "Baba Rahman",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "Abdul Rahman Baba"
+      ]
+    },
+    {
+      "name": "Papy Djilobodji",
+      "team": "Chelsea F.C.",
+      "aliases": [
+        "El Hadji Papy Mison Djilobodji"
+      ]
+    },
+    {
+      "name": "Granddi N'Goyi",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Granddi N'Goyi Majundu",
+        "Ngoyi"
+      ]
+    },
+    {
+      "name": "Raheem Sterling",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Raheem Shaquille Sterling"
+      ]
+    },
+    {
+      "name": "Claudio Bravo",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Claudio Andrés Bravo Muñoz"
+      ]
+    },
+    {
+      "name": "Kevin De Bruyne",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "KDB"
+      ]
+    },
+    {
+      "name": "Wilfried Bony",
+      "team": "Manchester City F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Cameron Humphreys",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Cameron Lisceous Humphreys-Grant"
+      ]
+    },
+    {
+      "name": "Pablo Maffeo",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Pablo Carmine Maffeo Becerra"
+      ]
+    },
+    {
+      "name": "David Faupala",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "David Gabriel Fabrice Faupala"
+      ]
+    },
+    {
+      "name": "Melissa Lawley",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Mel Lawley"
+      ]
+    },
+    {
+      "name": "Brahim Díaz",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Brahim Diaz",
+        "Brahim Abdelkader Díaz",
+        "Brahim"
+      ]
+    },
+    {
+      "name": "Phil Foden",
+      "team": "Manchester City F.C.",
+      "aliases": [
+        "Philip Walter Foden",
+        "Philip Foden"
+      ]
+    },
+    {
+      "name": "Georginio Wijnaldum",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Georginio Gregion Emile Wijnaldum"
+      ]
+    },
+    {
+      "name": "Ragnar Klavan",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Will Buckley",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "William Edward Buckley",
+        "William Edward \"Will\" Buckley"
+      ]
+    },
+    {
+      "name": "Liam Bridcutt",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Liam Robert Bridcutt"
+      ]
+    },
+    {
+      "name": "Paul McKay",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Bailey Peacock-Farrell",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ross Turnbull",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Edgar Çani",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Edgar Junior Çani",
+        "Edgar Cani"
+      ]
+    },
+    {
+      "name": "Tyler Denton",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Tyler Jake Denton"
+      ]
+    },
+    {
+      "name": "Joe Gomez",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Joseph Dave Gomez"
+      ]
+    },
+    {
+      "name": "Jordan Rossiter",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Jordan Bernard Rossiter"
+      ]
+    },
+    {
+      "name": "Jack Dunn",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Jack Anthony Dunn"
+      ]
+    },
+    {
+      "name": "Sheyi Ojo",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Oluwaseyi Babajide Ojo"
+      ]
+    },
+    {
+      "name": "James Milner",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "James Philip Milner"
+      ]
+    },
+    {
+      "name": "Connor Randall",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Connor Steven Randall"
+      ]
+    },
+    {
+      "name": "Allan",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Allan Rodrigues de Souza"
+      ]
+    },
+    {
+      "name": "Taiwo Awoniyi",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Taiwo Micheal Awoniyi"
+      ]
+    },
+    {
+      "name": "Cameron Brannagan",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Cameron Mark Thomas Brannagan"
+      ]
+    },
+    {
+      "name": "Jordan Botaka",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Jordan Rolly Botaka"
+      ]
+    },
+    {
+      "name": "Paul Pogba",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Paul Labile Pogba"
+      ]
+    },
+    {
+      "name": "Morgan Schneiderlin",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Morgan Fernand Gerard Schneiderlin",
+        "Morgan Fernand Gérard Schneiderlin"
+      ]
+    },
+    {
+      "name": "Joel Campbell",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Joel Nathaniel Campbell Samuels"
+      ]
+    },
+    {
+      "name": "Kemar Roofe",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kevin Braniff",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Kevin Robert Braniff"
+      ]
+    },
+    {
+      "name": "Mustapha Carayol",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Mustapha Soon Carayol"
+      ]
+    },
+    {
+      "name": "Richard Lee",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Richard Anthony Lee"
+      ]
+    },
+    {
+      "name": "Jamie O'Hara",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Jamie Darryl O'Hara"
+      ]
+    },
+    {
+      "name": "Andrew Dawber",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Andrew John Dawber"
+      ]
+    },
+    {
+      "name": "Ben Pringle",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Benjamin Philip Pringle"
+      ]
+    },
+    {
+      "name": "Jordi Osei-Tutu",
+      "team": "Arsenal F.C.",
+      "aliases": [
+        "Jordi Martin Emmanuel Osei-Tutu"
+      ]
+    },
+    {
+      "name": "Shkodran Mustafi",
+      "team": "Arsenal F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michael Turner",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Michael Thomas Turner"
+      ]
+    },
+    {
+      "name": "Rohan Ince",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Rohan Greg Ince"
+      ]
+    },
+    {
+      "name": "James Husband",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Chris Wood",
+      "team": "Leeds United F.C.",
+      "aliases": [
+        "Christopher Grant Wood"
+      ]
+    },
+    {
+      "name": "Toumani Diagouraga",
+      "team": "Leeds United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Loris Karius",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joël Matip",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Job Joel Andre Matip",
+        "Joel Matip",
+        "Job Joël André Matip"
+      ]
+    },
+    {
+      "name": "Andros Townsend",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Andros Darryl Townsend"
+      ]
+    },
+    {
+      "name": "Memphis Depay",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Anthony Martial",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Anthony Jordan Martial"
+      ]
+    },
+    {
+      "name": "Cameron Borthwick-Jackson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Cameron Jake Borthwick-Jackson"
+      ]
+    },
+    {
+      "name": "Sergio Romero",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Sergio Germán Romero",
+        "DESDE EL 5/10 GIGANTE ROMERO"
+      ]
+    },
+    {
+      "name": "Ashley Fletcher",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joe Riley",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Rashford",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Timothy Fosu-Mensah",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Evans Timothy Fosu Fosu-Mensah"
+      ]
+    },
+    {
+      "name": "James Weir",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "James Michael Weir"
+      ]
+    },
+    {
+      "name": "Roberto Firmino",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Roberto Firmino Barbosa de Oliveira"
+      ]
+    },
+    {
+      "name": "Christian Benteke",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Christian Benteke Liolo"
+      ]
+    },
+    {
+      "name": "Ragnar Sigurðsson",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Ragnar Sigurdsson"
+      ]
+    },
+    {
+      "name": "Michael Madl",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joe Lewis",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Joseph Peter Lewis"
+      ]
+    },
+    {
+      "name": "Andy Kellett",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Andrew Paul Kellett"
+      ]
+    },
+    {
+      "name": "Regan Poole",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Regan Leslie Poole"
+      ]
+    },
+    {
+      "name": "Eric Bailly",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Eric Bertrand Bailly"
+      ]
+    },
+    {
+      "name": "Sadiq El Fitouri",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Henrikh Mkhitaryan",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Mkhitaryan",
+        "Henrikh"
+      ]
+    },
+    {
+      "name": "Joel Pereira",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Joel Castro Pereira",
+        "Joel Dinis Castro Pereira"
+      ]
+    },
+    {
+      "name": "Jordan Veretout",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Marcel Gilbert Veretout"
+      ]
+    },
+    {
+      "name": "Jonathan Kodjia",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jonathan Adjo Kodjia"
+      ]
+    },
+    {
+      "name": "Matz Sels",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Matz Willy Els Sels"
+      ]
+    },
+    {
+      "name": "Tom Cairney",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Thomas Cairney"
+      ]
+    },
+    {
+      "name": "Richard Stearman",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ola Toivonen",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Nils Ola Toivonen"
+      ]
+    },
+    {
+      "name": "Grant Hanley",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Grant Campbell Hanley"
+      ]
+    },
+    {
+      "name": "Mohamed Diamé",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Mohamed Diame"
+      ]
+    },
+    {
+      "name": "Danny Guthrie",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Danny Sean Guthrie"
+      ]
+    },
+    {
+      "name": "Chris Baird",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jermain Defoe",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jermain Colin Defoe"
+      ]
+    },
+    {
+      "name": "Yann M'Vila",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Yann Gérard M'Vila",
+        "Yann Gerard M'Vila"
+      ]
+    },
+    {
+      "name": "Emmanuel Eboué",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Emmanuel Eboue"
+      ]
+    },
+    {
+      "name": "Lamine Koné",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Lamine Kone"
+      ]
+    },
+    {
+      "name": "Lynden Gooch",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Lynden Jack Gooch"
+      ]
+    },
+    {
+      "name": "George Honeyman",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "George Christopher Honeyman"
+      ]
+    },
+    {
+      "name": "Jordan Amavi",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Kévin Amavi",
+        "Jordan Kevin Amavi"
+      ]
+    },
+    {
+      "name": "Adama Traoré",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Adama Traoré i Diarra"
+      ]
+    },
+    {
+      "name": "Danny Ings",
+      "team": "Liverpool F.C.",
+      "aliases": [
+        "Daniel William John Ings"
+      ]
+    },
+    {
+      "name": "Sakari Mattila",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jazz Richards",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Denis Odoi",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Dennis Odoi"
+      ]
+    },
+    {
+      "name": "Andy Lonergan",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Gilliead",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Alex Nicholas Gilliead"
+      ]
+    },
+    {
+      "name": "Macaulay Gillesphey",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kyle Cameron",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Kyle Milne Cameron"
+      ]
+    },
+    {
+      "name": "Liam Smith",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Liam Phillip Smith"
+      ]
+    },
+    {
+      "name": "Daniel Barlaser",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Daniel Tan Barlaser"
+      ]
+    },
+    {
+      "name": "Tiago Ilori",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tim Ream",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Luke Garbutt",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Luke Samuel Garbutt"
+      ]
+    },
+    {
+      "name": "Ryan Fredericks",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Ryan Marlowe Fredericks"
+      ]
+    },
+    {
+      "name": "Jan Kirchhoff",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jan Tilman Kirchhoff"
+      ]
+    },
+    {
+      "name": "DeAndre Yedlin",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "DeAndre Roselle Yedlin"
+      ]
+    },
+    {
+      "name": "Ritchie De Laet",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Ritchie Ria Alfons De Laet"
+      ]
+    },
+    {
+      "name": "Scott Sinclair",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Scott Andrew Sinclair"
+      ]
+    },
+    {
+      "name": "Mile Jedinak",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Michael John Jedinak",
+        "Jedinak",
+        "Michael John \"Mile\" Jedinak"
+      ]
+    },
+    {
+      "name": "Jordan Ayew",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jordan Pierre Ayew"
+      ]
+    },
+    {
+      "name": "Andre Green",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Andre Jay Green"
+      ]
+    },
+    {
+      "name": "Abbey-Leigh Stringer",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Albert Adomah",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Albert Danquah Adomah"
+      ]
+    },
+    {
+      "name": "Zakaria Labyad",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Bastian Schweinsteiger",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matteo Darmian",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Zlatan Ibrahimović",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Zlatan Ibrahimovic"
+      ]
+    },
+    {
+      "name": "Víctor Valdés",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Victor Valdes"
+      ]
+    },
+    {
+      "name": "Daryl Murphy",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Florian Thauvin",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Florian Tristan Mariano Thauvin"
+      ]
+    },
+    {
+      "name": "Sylvain Marveaux",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Seydou Doumbia",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Doumbia Seydou"
+      ]
+    },
+    {
+      "name": "Jonjo Shelvey",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lee O'Connor",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Lee Patrick O'Connor"
+      ]
+    },
+    {
+      "name": "Ádám Bogdán",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Isaac Hayden",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Isaac Scot Hayden"
+      ]
+    },
+    {
+      "name": "Achraf Lazaar",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ivan Toney",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Ivan Benjamin Elijah Toney"
+      ]
+    },
+    {
+      "name": "Dame N'Doye",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Adam Matthews",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Adam James Matthews"
+      ]
+    },
+    {
+      "name": "Santiago Vergini",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Mariscal"
+      ]
+    },
+    {
+      "name": "Mark Bunn",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Mark John Bunn"
+      ]
+    },
+    {
+      "name": "Stephanie Roche",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sebastián Coates",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Sebastián Coates Nion",
+        "Sebastian Coates",
+        "Sebastian Coates Nion"
+      ]
+    },
+    {
+      "name": "Victor Anichebe",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Victor Chinedu Anichebe"
+      ]
+    },
+    {
+      "name": "Wahbi Khazri",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steven Pienaar",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "\"Principito\""
+      ]
+    },
+    {
+      "name": "Nathaniel Clyne",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aleksandar Mitrovic",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "شاورما الحلوين"
+      ]
+    },
+    {
+      "name": "Christian Atsu",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Adnan Januzaj",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kylla Sjoman",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Kylla Liisa Sjoman"
+      ]
+    },
+    {
+      "name": "Jason Denayer",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jason Grégory Denayer",
+        "Jason Gregory Denayer"
+      ]
+    },
+    {
+      "name": "James Chester",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jeremain Lens",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Jeremain Marciano Lens"
+      ]
+    },
+    {
+      "name": "Fabio Borini",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Didier Ibrahim Ndong",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Didier Ibrahim N'Dong",
+        "Didier Ndong"
+      ]
+    },
+    {
+      "name": "Valentin Roberge",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Valentin Sébastien Roger Roberge"
+      ]
+    },
+    {
+      "name": "Younes Kaboul",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steve Harper",
+      "team": "Sunderland A.F.C.",
+      "aliases": [
+        "Stephen Alan Harper",
+        "Stephen Alan \"Steve\" Harper"
+      ]
+    },
+    {
+      "name": "Javier Manquillo",
+      "team": "Sunderland A.F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pierluigi Gollini",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rushian Hepburn-Murphy",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Rushian Marcus Amori Hepburn-Murphy"
+      ]
+    },
+    {
+      "name": "Micah Richards",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Micah Lincoln Richards"
+      ]
+    },
+    {
+      "name": "Joleon Lescott",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Joleon Patrick Lescott"
+      ]
+    },
+    {
+      "name": "Jordan Lyden",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Axel Tuanzebe",
+      "team": "Manchester United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dean Henderson",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Dean Bradley Henderson"
+      ]
+    },
+    {
+      "name": "Ro-Shaun Williams",
+      "team": "Manchester United F.C.",
+      "aliases": [
+        "Roshaun Omar Stuart Williams"
+      ]
+    },
+    {
+      "name": "Vincent Janssen",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Vincent Petrus Anna Sebastiaan Janssen"
+      ]
+    },
+    {
+      "name": "Georges-Kévin Nkoudou",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Georges-Kevin Nkoudou Mbida",
+        "Georges-Kevin Nkoudou",
+        "Georges-Kévin Nkoudou Mbida"
+      ]
+    },
+    {
+      "name": "Josh Onomah",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Joshua Onomah",
+        "Joshua Oghenetega Peter Onomah",
+        "Joshua Oghenetega Peter \"Josh\" Onomah"
+      ]
+    },
+    {
+      "name": "Dominic Ball",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Dominic Martin Ball"
+      ]
+    },
+    {
+      "name": "Nathan Oduwa",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Keanan Bennetts",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Keanan Chidozie Mbaeri Bennetts",
+        "Keanan Chidozie Bennetts"
+      ]
+    },
+    {
+      "name": "Moussa Sissoko",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jelle Vossen",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rouwen Hennings",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Clinton Njie",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Clinton Mua Njie"
+      ]
+    },
+    {
+      "name": "Connor Goldson",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Connor Lambert Goldson"
+      ]
+    },
+    {
+      "name": "Emmanuel Ledesma",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Emmanuel Jorge Ledesma"
+      ]
+    },
+    {
+      "name": "Floyd Ayité",
+      "team": "Fulham F.C.",
+      "aliases": [
+        "Floyd Ama Nino Ayité",
+        "Floyd Ama Nino Ayite",
+        "Floyd Ayite"
+      ]
+    },
+    {
+      "name": "Mattias Käit",
+      "team": "Fulham F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Shayon Harrison",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Shayon Adam Harrison"
+      ]
+    },
+    {
+      "name": "Serena Fletcher",
+      "team": "Liverpool F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Carles Gil",
+      "team": "Aston Villa F.C.",
+      "aliases": []
+    },
+    {
+      "name": "José Ángel Crespo",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Jose Angel Crespo",
+        "José Ángel Crespo Rincón"
+      ]
+    },
+    {
+      "name": "Rudy Gestede",
+      "team": "Aston Villa F.C.",
+      "aliases": [
+        "Rudy Philippe Michel Camille Gestede"
+      ]
+    },
+    {
+      "name": "André Ayew",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "André Morgan Rami",
+        "Andre Ayew",
+        "Andre Morgan Rami"
+      ]
+    },
+    {
+      "name": "Chancel Mbemba",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Chancel Mbemba Mangulu",
+        "Chancel",
+        "Justice de Dieu",
+        "Chancel Mangulu Mbemba"
+      ]
+    },
+    {
+      "name": "Henri Saivet",
+      "team": "Newcastle United F.C.",
+      "aliases": [
+        "Henri Grégoire Saivet",
+        "Henri Gregoire Saivet"
+      ]
+    },
+    {
+      "name": "Ciaran Clark",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Matt Ritchie",
+      "team": "Newcastle United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kevin Wimmer",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Dele Alli",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Bamidele Jermaine Alli"
+      ]
+    },
+    {
+      "name": "Kieran Trippier",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Kieran John Trippier"
+      ]
+    },
+    {
+      "name": "Toby Alderweireld",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Toby Albertine Maurits Alderweireld"
+      ]
+    },
+    {
+      "name": "Beram Kayal",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Berams Kajals",
+        "Biram Keyal"
+      ]
+    },
+    {
+      "name": "Manuel Lanzini",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michail Antonio",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Michail Gregory Antonio"
+      ]
+    },
+    {
+      "name": "Reece Oxford",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Reece Joel Oxford"
+      ]
+    },
+    {
+      "name": "Pedro Obiang",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Pedro Mba Obiang Avomo",
+        "Pedro Mba",
+        "Pedro Mba Obiang"
+      ]
+    },
+    {
+      "name": "Martin Samuelsen",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Brown",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Kyle Knoyle",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Pike",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Alexander George Pike"
+      ]
+    },
+    {
+      "name": "Nikica Jelavić",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sam Westley",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Samuel Edward Westley"
+      ]
+    },
+    {
+      "name": "Álvaro Arbeloa",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Alvaro Arbeloa",
+        "Arbeloa"
+      ]
+    },
+    {
+      "name": "Tomer Hemed",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Carl Jenkinson",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Carl Daniel Jenkinson"
+      ]
+    },
+    {
+      "name": "Victor Moses",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Raphael Spiegel",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Raphael Simon Spiegel"
+      ]
+    },
+    {
+      "name": "Declan Rice",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Darren Randolph",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Darren Edward Andrew Randolph"
+      ]
+    },
+    {
+      "name": "Angelo Ogbonna",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Obinze Angelo Ogbonna",
+        "Angelo Obinze Ogbonna"
+      ]
+    },
+    {
+      "name": "Håvard Nordtveit",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Gaëtan Bong",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Stephen Hendrie",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jamie Murphy",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "James Murphy"
+      ]
+    },
+    {
+      "name": "Vahid Hambo",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "James Tilley",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "James Alexander David Tilley"
+      ]
+    },
+    {
+      "name": "Elvis Manu",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Elvis Kofi Okyere Wiafe Manu"
+      ]
+    },
+    {
+      "name": "Shane Duffy",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Cameron Carter-Vickers",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Cameron Robert Carter-Vickers"
+      ]
+    },
+    {
+      "name": "Anton Walkes",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Anton Charles Walkes"
+      ]
+    },
+    {
+      "name": "Matthew Lowton",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Matthew John Lowton"
+      ]
+    },
+    {
+      "name": "Leon Best",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Liam Rosenior",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Liam James Rosenior"
+      ]
+    },
+    {
+      "name": "Bobby Zamora",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Robert Lester \"Bobby\" Zamora"
+      ]
+    },
+    {
+      "name": "Sam Adekugbe",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Samuel Adekugbe",
+        "Samuel Ayomide Adekugbe"
+      ]
+    },
+    {
+      "name": "Henrik Bjørdal",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Henrik Rørvik Bjørdal"
+      ]
+    },
+    {
+      "name": "James Wilson",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "James Antony Wilson"
+      ]
+    },
+    {
+      "name": "James Tarkowski",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Tyler Walker",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Tyler J. Andrew Walker"
+      ]
+    },
+    {
+      "name": "Hildeberto Pereira",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jonny Williams",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jonathan Peter Williams",
+        "Jonathan Williams"
+      ]
+    },
+    {
+      "name": "Federico Macheda",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Federico \"Kiko\" Macheda"
+      ]
+    },
+    {
+      "name": "Damien Perquis",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joe Worrall",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Joseph Adrian Worrall"
+      ]
+    },
+    {
+      "name": "Sam Byram",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Samuel Mark Byram"
+      ]
+    },
+    {
+      "name": "Christopher Long",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Chris Long"
+      ]
+    },
+    {
+      "name": "Nick Pope",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Nicholas David Pope"
+      ]
+    },
+    {
+      "name": "Jóhann Berg Guðmundsson",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Jóhann Berg Gudmundsson",
+        "Johann Gudmundsson",
+        "Johann Berg Gudmundsson"
+      ]
+    },
+    {
+      "name": "Josh Ginnelly",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Joshua Lloyd Ginnelly"
+      ]
+    },
+    {
+      "name": "George Green",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "George William Athelston Green",
+        "George William Green"
+      ]
+    },
+    {
+      "name": "Lloyd Dyer",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Lloyd Richard Dyer"
+      ]
+    },
+    {
+      "name": "Fredrik Ulvestad",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joey Barton",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Joseph Anthony \"Joey\" Barton",
+        "Joseph Anthony Barton"
+      ]
+    },
+    {
+      "name": "Paul Robinson",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Paul William Robinson"
+      ]
+    },
+    {
+      "name": "Luke Hendrie",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Luke John Hendrie"
+      ]
+    },
+    {
+      "name": "Ntumba Massanka",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jon Flanagan",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Jonathon Patrick Flanagan"
+      ]
+    },
+    {
+      "name": "Alex Cochrane",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Niki Mäenpää",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jeff Hendrick",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steven Defour",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Steven Arnold Defour"
+      ]
+    },
+    {
+      "name": "Nenê",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Nene"
+      ]
+    },
+    {
+      "name": "Sofiane Feghouli",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Doneil Henry",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Doneil Jor-Dee Ashley Henry"
+      ]
+    },
+    {
+      "name": "Dimitri Payet",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Simone Zaza",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jiří Skalák",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Jiri Skalak"
+      ]
+    },
+    {
+      "name": "Richie Towell",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Richard Patrick Towell"
+      ]
+    },
+    {
+      "name": "Uwe Hünemeier",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Luka Belić",
+      "team": "West Ham United F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex Song",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Alexandre Dimitri Song Billong",
+        "Alexandre Song"
+      ]
+    },
+    {
+      "name": "Mathieu Flamini",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Mathieu Pierre Flamini"
+      ]
+    },
+    {
+      "name": "Keshi Anderson",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Keshi Stuart Oluyinka Adetokunboh Anderson"
+      ]
+    },
+    {
+      "name": "Christian Scales",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Christian Stephen Scales"
+      ]
+    },
+    {
+      "name": "Lee Chung-yong",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Lee Cheong-yong"
+      ]
+    },
+    {
+      "name": "Yaya Sanogo",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Rico Henry",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Rico Antonio Henry"
+      ]
+    },
+    {
+      "name": "Emiliano Martínez",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Damián Emiliano Martínez",
+        "Emi Martínez",
+        "Emi Martinez",
+        "Emiliano Martinez",
+        "Damian Emiliano Martinez"
+      ]
+    },
+    {
+      "name": "Grant Holt",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Adam Le Fondre",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Glenville Adam James Le Fondre"
+      ]
+    },
+    {
+      "name": "Michał Żyro",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steve Sidwell",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Steven James Sidwell",
+        "Steven James \"Steve\" Sidwell"
+      ]
+    },
+    {
+      "name": "Ben White",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Benjamin White",
+        "Benjamin William White"
+      ]
+    },
+    {
+      "name": "Rajiv van La Parra",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Rajiv Ramon van La Parra"
+      ]
+    },
+    {
+      "name": "Anthony Knockaert",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": [
+        "Anthony Patrick Knockaert"
+      ]
+    },
+    {
+      "name": "Liam Ridgewell",
+      "team": "Brighton & Hove Albion F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Joshua King",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Josh King"
+      ]
+    },
+    {
+      "name": "Ryan Mason",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Jack Simpson",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Shola Ameobi",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Foluwashola Ameobi",
+        "Foluwashola \"Shola\" Ameobi"
+      ]
+    },
+    {
+      "name": "Patrick Bamford",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Patrick James Bamford"
+      ]
+    },
+    {
+      "name": "Tyrone Mings",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Tyrone Deon Mings"
+      ]
+    },
+    {
+      "name": "Lewis Cook",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Lewis John Cook"
+      ]
+    },
+    {
+      "name": "Emerson Hyndman",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Emerson Schellas Hyndman"
+      ]
+    },
+    {
+      "name": "Filippo Costa",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Artur Boruc",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Tomás Andrade",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Joe Quigley",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Joseph Richard Quigley"
+      ]
+    },
+    {
+      "name": "Joe Bennett",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Joe Bennett (footballer)",
+        "Joseph \"Joe\" Bennett"
+      ]
+    },
+    {
+      "name": "Matt Butcher",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Matthew David Butcher"
+      ]
+    },
+    {
+      "name": "Tendayi Darikwa",
+      "team": "Burnley F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Michael Keane",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Michael Vincent Keane"
+      ]
+    },
+    {
+      "name": "Aaron Wan-Bissaka",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Wan Bissaka"
+      ]
+    },
+    {
+      "name": "Son Heung-min",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": [
+        "Heung-Min Son",
+        "Heung-min Son"
+      ]
+    },
+    {
+      "name": "Alex Pritchard",
+      "team": "Tottenham Hotspur F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Courtney Senior",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Courtney Fitzroy Senior"
+      ]
+    },
+    {
+      "name": "Todd Kane",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Andre Gray",
+      "team": "Burnley F.C.",
+      "aliases": [
+        "Andre Anthony Gray"
+      ]
+    },
+    {
+      "name": "James Tomkins",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Yohan Cabaye",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Steve Mandanda",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Steve Mandanda Mpidi"
+      ]
+    },
+    {
+      "name": "Emmanuel Emenike",
+      "team": "West Ham United F.C.",
+      "aliases": [
+        "Emmanuel Chinenye Emenike",
+        "The Beast"
+      ]
+    },
+    {
+      "name": "Matt Mills",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Matthew Claude \"Matt\" Mills"
+      ]
+    },
+    {
+      "name": "Nélson Oliveira",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Nelson Oliveira"
+      ]
+    },
+    {
+      "name": "Bojan Jokić",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Bojan Jokic"
+      ]
+    },
+    {
+      "name": "Kyle Ebecilio",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Kyle Stephen Joel Ebecilio"
+      ]
+    },
+    {
+      "name": "Jamie Ward",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Jamie John Ward"
+      ]
+    },
+    {
+      "name": "Ben Hamer",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Benjamin John \"Ben\" Hamer",
+        "Benjamin John Hamer"
+      ]
+    },
+    {
+      "name": "Chris O'Grady",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Christopher James \"Chris\" O'Grady",
+        "Christopher James O'Grady"
+      ]
+    },
+    {
+      "name": "Lewis Grabban",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Lewis James Grabban"
+      ]
+    },
+    {
+      "name": "Jordon Mutch",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Jordon James Edward Sydney Mutch"
+      ]
+    },
+    {
+      "name": "Luke Dreher",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Luke Garry Dreher"
+      ]
+    },
+    {
+      "name": "Kwesi Appiah",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aaron Hayden",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Aaron Edward-George Hayden"
+      ]
+    },
+    {
+      "name": "Sylvain Deslandes",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Sylvain Boris Nabil Deslandes"
+      ]
+    },
+    {
+      "name": "Bright Enobakhare",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Hakeem Odoffin",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Connor Hunte",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Benik Afobe",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Benik Tunani Afobe"
+      ]
+    },
+    {
+      "name": "Conor Coady",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Stéphane Zubar",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Kenwyne Jones",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Kenwyne Joel Jones"
+      ]
+    },
+    {
+      "name": "Sylvain Distin",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Lee Tomlin",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Lee Marc Tomlin"
+      ]
+    },
+    {
+      "name": "Adam Federici",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Rhoys Wiggins",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Rhoys Barrie Wiggins"
+      ]
+    },
+    {
+      "name": "Alex Dobre",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Mihai Alexandru Dobre",
+        "Mihai Dobre"
+      ]
+    },
+    {
+      "name": "Ivan Cavaleiro",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Ivan Ricardo Neves Abreu Cavaleiro"
+      ]
+    },
+    {
+      "name": "Joe Mason",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Joseph \"Joe\" Mason"
+      ]
+    },
+    {
+      "name": "Jed Wallace",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Max Gradel",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Max-Alain Gradel"
+      ]
+    },
+    {
+      "name": "Glenn Murray",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Juan Manuel Iturbe",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Juan Manuel Iturbe Arévalos",
+        "Juan Manuel Iturbe Arevalos"
+      ]
+    },
+    {
+      "name": "Nathan Aké",
+      "team": "AFC Bournemouth",
+      "aliases": [
+        "Nathan Benjamin Aké",
+        "Nathan Benjamin Ake",
+        "Nathan Ake"
+      ]
+    },
+    {
+      "name": "Emmanuel Adebayor",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Bakary Sako",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Pape Souaré",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Pape N'Diaye Souaré"
+      ]
+    },
+    {
+      "name": "Jón Daði Böðvarsson",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Jon Bodvarsson",
+        "Jon Dadi Bodvarsson",
+        "Jón Bödvarsson",
+        "Jón Böðvarsson",
+        "Jón Dadi Bödvarsson"
+      ]
+    },
+    {
+      "name": "Mike Williamson",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Alex McCarthy",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Loïc Rémy",
+      "team": "Crystal Palace F.C.",
+      "aliases": [
+        "Loïc Alex Teliére Hubert Rémy",
+        "Loic Remy",
+        "Loic Alex Teliere Hubert Remy"
+      ]
+    },
+    {
+      "name": "Connor Wickham",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Wilfried Zaha",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jack Wilshere",
+      "team": "AFC Bournemouth",
+      "aliases": []
+    },
+    {
+      "name": "Liam Trotter",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Modou Barrow",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Zain Westbrooke",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Zain Sam Westbrooke"
+      ]
+    },
+    {
+      "name": "Josh McEachran",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Joshua Mark McEachran"
+      ]
+    },
+    {
+      "name": "Dan Bentley",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Daniel Ian Bentley",
+        "Daniel Bentley"
+      ]
+    },
+    {
+      "name": "Gary Gardner",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nicolao Dumitru",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Dumitru Cardoso",
+        "Nicolao Manuel Dumitru Cardoso"
+      ]
+    },
+    {
+      "name": "Vladimir Stojković",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Nicklas Bendtner",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Freddie Ladapo",
+      "team": "Crystal Palace F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jordan Graham",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Jordan Tyler Graham"
+      ]
+    },
+    {
+      "name": "Will Randall",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Aaron Collins",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Aaron Graham John Collins"
+      ]
+    },
+    {
+      "name": "Chuba Akpom",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Chuba Amechi Akpom"
+      ]
+    },
+    {
+      "name": "Thomas Lam",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Thomas Anton Rudolph Lam"
+      ]
+    },
+    {
+      "name": "Ryan Mendes da Graça",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Deimantas Petravičius",
+      "team": "Nottingham Forest F.C.",
+      "aliases": [
+        "Deimantas Petravicius"
+      ]
+    },
+    {
+      "name": "Daniel Pinillos",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Marco Djuricin",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Williams",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Ryan Anthony Williams"
+      ]
+    },
+    {
+      "name": "Yoann Barbet",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Konstantin Kerschbaumer",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Josh Laurent",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Sergi Canós",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Sergi Canós Tenés"
+      ]
+    },
+    {
+      "name": "Philipp Hofmann",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Jack O'Connell",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Jack William O'Connell"
+      ]
+    },
+    {
+      "name": "Ryan Woods",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "John Swift",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Maxime Colin",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Maxime Jean-Yves Colin"
+      ]
+    },
+    {
+      "name": "Lasse Vibe",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Lewis Macleod",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Lewis Kenneth Macleod"
+      ]
+    },
+    {
+      "name": "Liam Moore",
+      "team": "Brentford F.C.",
+      "aliases": [
+        "Liam Simon Moore"
+      ]
+    },
+    {
+      "name": "Andreas Bjelland",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Björn Bergmann Sigurðarson",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Bjorn Sigurdarson",
+        "Björn Bergmann Sigurdarson",
+        "Bjorn Bergmann Sigurdarson",
+        "Björn Sigurðarson"
+      ]
+    },
+    {
+      "name": "Jérémy Hélan",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Jeremy Helan"
+      ]
+    },
+    {
+      "name": "Nathan Byrne",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Romaine Sawyers",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Akaki Gogia",
+      "team": "Brentford F.C.",
+      "aliases": []
+    },
+    {
+      "name": "Prince Oniangue",
+      "team": "Wolverhampton Wanderers F.C.",
+      "aliases": [
+        "Prince Oniangué",
+        "Prince Alban Oniangué"
+      ]
+    },
+    {
+      "name": "Apostolos Vellios",
+      "team": "Nottingham Forest F.C.",
+      "aliases": []
+    }
+  ]
+}
