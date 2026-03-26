@@ -25,6 +25,8 @@ from pipeline.config import (
     CONTEXT_SIMILARITY_THRESHOLD,
     CONTEXT_WINDOW_SIZE,
     TIER3_VALIDATION_THRESHOLD,
+    FOOTBALL_WORDS,
+    get_context_model,
 )
 
 
@@ -32,6 +34,7 @@ from pipeline.config import (
 # The model is loaded once on first use and cached in memory.
 # This avoids loading the ~80MB model on every call.
 _model = None
+_model_lang = None  # language the currently loaded model was loaded for
 _model_available = None  # None = not checked, True/False = result
 
 
@@ -47,19 +50,21 @@ def _check_model_available() -> bool:
     return _model_available
 
 
-def load_model():
-    """Load the sentence-transformer model (singleton, loaded once)."""
-    global _model
-    if _model is not None:
+def load_model(language: str = "en"):
+    """Load the sentence-transformer model (cached per language)."""
+    global _model, _model_lang
+    if _model is not None and _model_lang == language:
         return _model
 
     if not _check_model_available():
         return None
 
     from sentence_transformers import SentenceTransformer
-    print(f"  Loading context model: {CONTEXT_MODEL_NAME}...")
-    _model = SentenceTransformer(CONTEXT_MODEL_NAME)
-    print(f"  Context model loaded ({CONTEXT_MODEL_NAME})")
+    model_name = get_context_model(language)
+    print(f"  Loading context model: {model_name}...")
+    _model = SentenceTransformer(model_name)
+    _model_lang = language
+    print(f"  Context model loaded ({model_name})")
     return _model
 
 
@@ -80,6 +85,7 @@ def build_candidate_descriptions(
     gazetteer: dict[str, str],
     labels: Optional[dict] = None,
     entity_types: Optional[dict[str, str]] = None,
+    language: str = "en",
 ) -> dict[str, str]:
     """
     Build descriptive strings for each canonical name in the gazetteer.
@@ -125,12 +131,13 @@ def build_candidate_descriptions(
                 if long_name:
                     player_teams[long_name] = f"{team_name} manager"
 
+    football_word = FOOTBALL_WORDS.get(language, FOOTBALL_WORDS["default"])
     for name in canonical_names:
         team_info = player_teams.get(name, "")
         if team_info:
-            descriptions[name] = f"{name} {team_info} football"
+            descriptions[name] = f"{name} {team_info} {football_word}"
         else:
-            descriptions[name] = f"{name} football player"
+            descriptions[name] = f"{name} {football_word} player"
 
     return descriptions
 
@@ -253,6 +260,7 @@ def batch_disambiguate(
     gazetteer: dict[str, str],
     labels: Optional[dict] = None,
     entity_types: Optional[dict[str, str]] = None,
+    language: str = "en",
 ) -> list[DisambiguationResult]:
     """
     Disambiguate a batch of unresolved entities using sentence-transformers.
@@ -267,11 +275,13 @@ def batch_disambiguate(
         all_segments: list of all segments (for building context windows)
         gazetteer: the current gazetteer
         labels: Labels-caption.json dict
+        entity_types: entity type dictionary
+        language: detected commentary language
 
     Returns:
         List of DisambiguationResult for successfully disambiguated entities
     """
-    model = load_model()
+    model = load_model(language=language)
     if model is None:
         return []
 
@@ -280,7 +290,7 @@ def batch_disambiguate(
 
     # Step 1: Build candidate descriptions and pre-encode them
     descriptions = build_candidate_descriptions(
-        gazetteer, labels, entity_types=entity_types,
+        gazetteer, labels, entity_types=entity_types, language=language,
     )
 
     if not descriptions:

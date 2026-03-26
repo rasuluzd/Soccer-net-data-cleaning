@@ -9,6 +9,7 @@ for ASR errors where names are phonetically similar but textually different
 (e.g., "Sacco" sounds like "Sakho" but has low string similarity).
 """
 
+import unicodedata
 from dataclasses import dataclass
 from typing import Optional
 
@@ -19,36 +20,12 @@ from pipeline.config import (
     FUZZY_WEIGHT,
     PHONETIC_WEIGHT,
     CONTEXT_WEIGHT,
+    REJECTED_POS_TAGS,
     get_fuzzy_threshold,
+    get_scoring_weights,
     TIER2_ACCEPT_THRESHOLD,
 )
 from pipeline.ner_extractor import DetectedEntity
-
-
-# ─── Common English words that should NEVER be corrected ────────────
-# These are real English words or names that fuzz matching might
-# incorrectly "correct" to a player name.
-COMMON_WORDS_EXCLUDE = {
-    # Common first names (often valid on their own in commentary)
-    "target", "dan", "davies", "will", "young", "long", "ward",
-    "allen", "paul", "mark", "jones", "parker", "walker", "kennedy",
-    "martin", "alex", "jack", "joe", "tom", "nick", "mike", "john",
-    "james", "ryan", "adam", "ben", "sam", "matt", "chris", "lee",
-    "tony", "gary", "steven", "frank", "henry", "barry", "terry",
-    "wayne", "dean", "carl", "dave", "rob", "phil", "gordon",
-    "jose", "diego", "alan", "scott", "kurt", "adrian", "pedro",
-    "william", "bia", "kael",
-    # Soccer terms that might fuzzy-match names
-    "corner", "cross", "header", "pass", "shot", "goal", "foul",
-    "ball", "match", "kick", "play", "side", "team", "half",
-    "free", "throw", "card", "yellow", "red", "penalty",
-    "manager", "referee", "striker", "keeper", "defender",
-    # Common English words that phonetically resemble player names
-    "poor", "poured", "punch", "wall", "kale", "kyle",
-    "chile", "marino", "falco", "pele",
-    # Geographic names that aren't player misspellings
-    "stamford bridge",
-}
 
 
 @dataclass
@@ -65,8 +42,8 @@ class Correction:
     confidence_band: str = "accepted"  # "accepted" (≥75) or "uncertain" (48-74)
 
 
-def _split_entity_parts(original_text: str) -> tuple[str, str, str, str]:
-    """Split entity text into (core, leading_punct, trailing_possessive, trailing_punct)."""
+def _split_entity_parts(original_text: str) -> tuple[str, str, str, str, str]:
+    """Split entity text into (core, leading_punct, trailing_possessive, trailing_text, trailing_punct)."""
     temp = original_text.strip()
 
     # 1) Strip trailing punctuation first (important for cases like "Ward's.")
@@ -75,69 +52,104 @@ def _split_entity_parts(original_text: str) -> tuple[str, str, str, str]:
         trailing_punct = temp[-1] + trailing_punct
         temp = temp[:-1]
 
-    # 2) Strip possessive
+    # 2) Handle common NER suffix mis-extractions (e.g. " and co")
+    trailing_text = ""
+    lower_temp = temp.lower()
+    if lower_temp.endswith(" and co"):
+        trailing_text = temp[-7:]
+        temp = temp[:-7]
+
+    # 3) Strip possessive
     trailing_possessive = ""
     if temp.endswith("'s") or temp.endswith("\u2019s"):
         trailing_possessive = temp[-2:]
         temp = temp[:-2]
 
-    # 3) Strip leading punctuation
+    # 4) Strip leading punctuation
     leading_punct = ""
     while temp and temp[0] in ".,!?;:":
         leading_punct += temp[0]
         temp = temp[1:]
 
-    return temp, leading_punct, trailing_possessive, trailing_punct
+    return temp, leading_punct, trailing_possessive, trailing_text, trailing_punct
 
 
 def extract_entity_core(original_text: str) -> str:
     """Extract normalized entity text used for lookup/matching."""
-    core, _, _, _ = _split_entity_parts(original_text)
+    core, _, _, _, _ = _split_entity_parts(original_text)
     return core
 
 
 def extract_and_rebuild_entity(original_text: str, corrected_name: str) -> str:
     """Safely strips punctuation/possessives, swaps the name, and rebuilds the string."""
-    _, leading_punct, trailing_possessive, trailing_punct = _split_entity_parts(original_text)
-    return leading_punct + corrected_name + trailing_possessive + trailing_punct
+    _, leading_punct, trailing_possessive, trailing_text, trailing_punct = _split_entity_parts(original_text)
+    return leading_punct + corrected_name + trailing_possessive + trailing_text + trailing_punct
 
 
-def compute_phonetic_score(entity: str, candidate: str) -> float:
+def _strip_accents(text: str) -> str:
+    """Strip diacritics/accents for language-neutral phonetic comparison.
+    Examples: ö→o, å→a, ä→a, é→e, ü→u, ß→ss."""
+    nfkd = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def compute_phonetic_score(
+    entity: str,
+    candidate: str,
+    language: str = "en",
+) -> float:
     """
-    Compare two strings phonetically using Double Metaphone.
+    Compare two strings phonetically.
 
-    ASR errors are fundamentally *sound-based* — Whisper hears phonemes
-    and maps them to wrong spellings. Phonetic matching catches cases
-    where names sound alike but look very different:
-        "Sacco" ≈ "Sakho" (both → "SK")
-        "Turi"  ≈ "Touré" (both → "TR")
+    For English: uses Metaphone (tuned for English phonemes) + Soundex fallback.
+    For other languages: accent-normalizes both strings, then uses Soundex
+    (more language-neutral than Metaphone).
 
     Returns:
-        100.0 if phonetic codes match, 50.0 for partial match, 0.0 otherwise.
+        100.0 if phonetic codes match, 75.0 for partial match, 0.0 otherwise.
     """
     try:
-        # Get Metaphone codes (primary representation of pronunciation)
-        entity_code = jellyfish.metaphone(entity)
-        candidate_code = jellyfish.metaphone(candidate)
+        if language == "en":
+            # English path: Metaphone (unchanged from original)
+            entity_code = jellyfish.metaphone(entity)
+            candidate_code = jellyfish.metaphone(candidate)
 
-        if entity_code == candidate_code:
-            return 100.0
+            if entity_code == candidate_code:
+                return 100.0
 
-        # Partial match: one is a prefix of the other (e.g., KLRF ⊂ KLRHF)
-        # This is very common in ASR errors where extra syllables are added
-        if entity_code.startswith(candidate_code) or candidate_code.startswith(entity_code):
-            return 75.0
-
-        # Also try Soundex for a second opinion
-        try:
-            entity_soundex = jellyfish.soundex(entity)
-            candidate_soundex = jellyfish.soundex(candidate)
-            if entity_soundex == candidate_soundex:
+            if entity_code.startswith(candidate_code) or candidate_code.startswith(entity_code):
                 return 75.0
-        except Exception:
-            pass
 
-        return 0.0
+            try:
+                if jellyfish.soundex(entity) == jellyfish.soundex(candidate):
+                    return 75.0
+            except Exception:
+                pass
+
+            return 0.0
+        else:
+            # Non-English: accent-normalize, then Soundex (more language-neutral)
+            entity_norm = _strip_accents(entity)
+            candidate_norm = _strip_accents(candidate)
+
+            try:
+                if jellyfish.soundex(entity_norm) == jellyfish.soundex(candidate_norm):
+                    return 100.0
+            except Exception:
+                pass
+
+            # Also check if accent-stripped forms match via Metaphone
+            try:
+                entity_code = jellyfish.metaphone(entity_norm)
+                candidate_code = jellyfish.metaphone(candidate_norm)
+                if entity_code == candidate_code:
+                    return 75.0
+                if entity_code.startswith(candidate_code) or candidate_code.startswith(entity_code):
+                    return 50.0
+            except Exception:
+                pass
+
+            return 0.0
     except Exception:
         return 0.0
 
@@ -146,34 +158,38 @@ def compute_combined_score(
     entity_text: str,
     candidate: str,
     context_names: Optional[set[str]] = None,
+    language: str = "en",
 ) -> tuple[float, float, bool, bool]:
     """
     Compute the multi-signal score for matching an entity to a candidate.
 
-    Score = FUZZY_WEIGHT × fuzzy + PHONETIC_WEIGHT × phonetic + CONTEXT_WEIGHT × context
+    Score = fuzzy_w × fuzzy + phonetic_w × phonetic + context_w × context
+
+    Weights are language-conditional: English uses the tuned defaults,
+    non-English shifts weight from phonetic (less reliable) to fuzzy.
 
     Args:
         entity_text: the detected entity text (potentially misspelled)
         candidate: the gazetteer entry to compare against
-        context_names: set of other entity names in the same segment/nearby segments
-                      (used for context bonus — if other players from the same team
-                      are mentioned, this candidate is more likely correct)
+        context_names: nearby entity names for context scoring
+        language: detected commentary language
 
     Returns:
         Tuple of (combined_score, fuzzy_score, phonetic_match, context_match)
     """
+    fuzzy_w, phonetic_w, context_w = get_scoring_weights(language)
+
     # Signal 1: Fuzzy string similarity (token_sort handles word order)
     fuzzy_score = fuzz.token_sort_ratio(entity_text.lower(), candidate.lower())
 
     # Signal 2: Phonetic similarity
-    phonetic_score = compute_phonetic_score(entity_text, candidate)
+    phonetic_score = compute_phonetic_score(entity_text, candidate, language=language)
     phonetic_match = phonetic_score >= 50.0
 
     # Signal 3: Context bonus
     context_score = 0.0
     context_match = False
     if context_names:
-        # If other known names appear in the same context, boost confidence
         overlap = context_names.intersection({candidate})
         if overlap:
             context_score = 100.0
@@ -181,9 +197,9 @@ def compute_combined_score(
 
     # Combined weighted score
     combined = (
-        FUZZY_WEIGHT * fuzzy_score
-        + PHONETIC_WEIGHT * phonetic_score
-        + CONTEXT_WEIGHT * context_score
+        fuzzy_w * fuzzy_score
+        + phonetic_w * phonetic_score
+        + context_w * context_score
     )
 
     return combined, fuzzy_score, phonetic_match, context_match
@@ -267,6 +283,8 @@ def find_best_match(
     context_names: Optional[set[str]] = None,
     entity_types: Optional[dict[str, str]] = None,
     team_words: Optional[set[str]] = None,
+    pos: str = "",
+    language: str = "en",
 ) -> Optional[Correction]:
     """
     Find the best matching gazetteer entry for a detected entity.
@@ -278,6 +296,10 @@ def find_best_match(
         entity_text: the entity text to correct
         gazetteer: dict mapping name variants to canonical names
         context_names: nearby entity names for context scoring
+        entity_types: entity type dictionary for team/venue rejection
+        team_words: set of team name fragments for multi-word rejection
+        pos: POS tag from spaCy (used instead of static word lists)
+        language: detected commentary language
 
     Returns:
         A Correction object if a match was found above threshold, or None.
@@ -290,8 +312,8 @@ def find_best_match(
     if not entity_clean:
         return None
 
-    # Skip common English words that aren't player names
-    if entity_clean.lower() in COMMON_WORDS_EXCLUDE:
+    # Skip words tagged as non-name POS (ADJ, VERB, DET, etc.)
+    if pos in REJECTED_POS_TAGS:
         return None
 
     # Skip very short entities (≤2 chars) — too ambiguous
@@ -371,7 +393,7 @@ def find_best_match(
 
     for candidate_text, raw_fuzzy, _ in top_candidates:
         combined, fuzzy_score, phonetic_match, context_match = compute_combined_score(
-            entity_clean, candidate_text, context_names
+            entity_clean, candidate_text, context_names, language=language
         )
 
         if combined > best_score:
@@ -476,6 +498,7 @@ def correct_segment_text(
     entity_types: Optional[dict[str, str]] = None,
     team_words: Optional[set[str]] = None,
     debug: bool = False,
+    language: str = "en",
 ) -> tuple[str, list[Correction]]:
     """
     Correct all detected entities in a segment's text.
@@ -489,6 +512,10 @@ def correct_segment_text(
         gazetteer: the name lookup dictionary
         segment_id: ID of the segment being corrected
         context_names: nearby names for context scoring
+        entity_types: entity type dictionary
+        team_words: team name fragments
+        debug: enable debug output
+        language: detected commentary language
 
     Returns:
         Tuple of (corrected_text, list_of_corrections)
@@ -503,6 +530,7 @@ def correct_segment_text(
         match = find_best_match(
             entity.text, gazetteer, context_names,
             entity_types=entity_types, team_words=team_words,
+            pos=entity.pos, language=language,
         )
         if match:
             match.segment_id = segment_id

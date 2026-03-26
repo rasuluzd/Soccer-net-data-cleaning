@@ -134,3 +134,47 @@ def lookup_learned(entity_text: str, dictionary: dict[str, dict]) -> Optional[st
             return entry["correct"]
 
     return None
+
+
+def batch_update_learned_dictionary(
+    corrections: list[Correction],
+) -> dict[str, dict]:
+    """
+    Batch-update the learned dictionary with corrections from ALL matches.
+
+    This is the parallel-safe version: called ONCE after all workers finish,
+    accumulating corrections in a single read-modify-write cycle.
+
+    Unlike update_learned_dictionary(), this does NOT perform per-match
+    entity_types/gazetteer validation (those structures are match-specific
+    and not available in batch context). It trusts that the corrections
+    were already validated within each match's clean_match() call.
+
+    Args:
+        corrections: list of Correction objects from all matches
+
+    Returns:
+        The updated dictionary (also saved to disk)
+    """
+    dictionary = load_learned_dictionary()
+
+    for corr in corrections:
+        key = corr.original.lower()
+        if key in dictionary:
+            entry = dictionary[key]
+            entry["seen_count"] += 1
+            n = entry["seen_count"]
+            entry["fuzzy_score_avg"] = (
+                (entry["fuzzy_score_avg"] * (n - 1) + corr.combined_score) / n
+            )
+            entry["confidence"] = min(0.99, 1.0 - (1.0 / (entry["seen_count"] + 1)))
+        else:
+            dictionary[key] = {
+                "correct": corr.corrected,
+                "confidence": 0.5,
+                "seen_count": 1,
+                "fuzzy_score_avg": corr.combined_score,
+            }
+
+    save_learned_dictionary(dictionary)
+    return dictionary

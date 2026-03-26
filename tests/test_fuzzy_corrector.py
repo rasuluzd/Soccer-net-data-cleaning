@@ -12,7 +12,6 @@ from pipeline.fuzzy_corrector import (
     find_best_match,
     correct_segment_text,
     compute_phonetic_score,
-    COMMON_WORDS_EXCLUDE,
     extract_and_rebuild_entity,
     extract_entity_core,
     _entity_contains_multiple_gazetteer_names,
@@ -113,19 +112,25 @@ class TestFindBestMatch:
         assert match is None
 
     def test_skips_common_word_target(self):
-        """'target' is a common English word and should NOT be corrected."""
-        match = find_best_match("target", SAMPLE_GAZETTEER)
+        """'target' tagged as NOUN should NOT be corrected."""
+        match = find_best_match("target", SAMPLE_GAZETTEER, pos="NOUN")
         assert match is None
 
     def test_skips_common_word_dan(self):
-        """'Dan' should NOT be corrected to 'Scott Dann'."""
-        match = find_best_match("Dan", SAMPLE_GAZETTEER)
+        """'Dan' tagged as NOUN should NOT be corrected to 'Dann'."""
+        match = find_best_match("Dan", SAMPLE_GAZETTEER, pos="NOUN")
         assert match is None
 
     def test_skips_common_word_kennedy(self):
-        """'Kennedy' should NOT be corrected to 'Kenedy'."""
-        match = find_best_match("Kennedy", SAMPLE_GAZETTEER)
+        """'Kennedy' tagged as NOUN should NOT be corrected."""
+        match = find_best_match("Kennedy", SAMPLE_GAZETTEER, pos="NOUN")
         assert match is None
+
+    def test_allows_propn_entity(self):
+        """A PROPN entity should be allowed through for correction."""
+        match = find_best_match("Zuma", SAMPLE_GAZETTEER, pos="PROPN")
+        assert match is not None
+        assert match.corrected == "Zouma"
 
     def test_skips_very_short_entity(self):
         """Entities with 2 or fewer chars should be skipped."""
@@ -264,29 +269,6 @@ class TestEntityTextHelpers:
         core = extract_entity_core("Ward's.")
         assert core == "Ward"
 
-
-class TestCommonWordsExclude:
-    """Verify the common words exclusion list is comprehensive."""
-
-    def test_target_excluded(self):
-        assert "target" in COMMON_WORDS_EXCLUDE
-
-    def test_dan_excluded(self):
-        assert "dan" in COMMON_WORDS_EXCLUDE
-
-    def test_kennedy_excluded(self):
-        assert "kennedy" in COMMON_WORDS_EXCLUDE
-
-    def test_davies_excluded(self):
-        assert "davies" in COMMON_WORDS_EXCLUDE
-
-    def test_pele_excluded(self):
-        assert "pele" in COMMON_WORDS_EXCLUDE
-
-    def test_soccer_terms_excluded(self):
-        assert "corner" in COMMON_WORDS_EXCLUDE
-        assert "penalty" in COMMON_WORDS_EXCLUDE
-        assert "referee" in COMMON_WORDS_EXCLUDE
 
 
 class TestCanonicalNotKey:

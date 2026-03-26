@@ -21,6 +21,7 @@ class Segment:
     end_time: float       # end timestamp in seconds
     text: str             # raw ASR transcription text
     half: int             # 1 or 2 (which half of the match)
+    global_id: str = ""   # globally unique ID for Elasticsearch indexing
 
 
 @dataclass

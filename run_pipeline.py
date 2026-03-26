@@ -58,9 +58,10 @@ Examples:
         help="Maximum correction tier (1=rules only, 2=+fuzzy/phonetic, 3=+AI context). Default: 3",
     )
     parser.add_argument(
-        "--enrich-wikidata",
-        action="store_true",
-        help="Expand gazetteer with Wikidata EPL squad data (queries API on first use, then caches)",
+        "--workers",
+        type=int,
+        default=0,
+        help="Number of parallel workers (0=auto-detect CPU count, 1=sequential). Default: 0",
     )
 
     args = parser.parse_args()
@@ -69,8 +70,8 @@ Examples:
     results = run_pipeline(
         match_filter=args.match,
         dry_run=args.dry_run,
-        enrich_wikidata=args.enrich_wikidata,
         max_tier=args.tier,
+        workers=args.workers,
     )
 
     if not results:

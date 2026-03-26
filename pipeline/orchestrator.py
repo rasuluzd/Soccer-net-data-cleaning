@@ -7,7 +7,7 @@ scaling to hundreds of matches across multiple seasons.
 
 Processing order per match:
     1. Load ASR JSONs + Labels-caption.json
-    2. Build gazetteer for this match (+ Wikidata enrichment if enabled)
+    2. Build gazetteer for this match from Labels-caption.json
     3. Check learned dictionary for instant corrections
     4. Filter hallucinated/garbage segments
     5. De-duplicate segments
@@ -20,19 +20,23 @@ Processing order per match:
 """
 
 import json
-from dataclasses import dataclass
+import os
+import time
+from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass, field
 
-from pipeline.config import CLEANED_OUTPUT_DIR, get_fuzzy_threshold
+from pipeline.config import (
+    CLEANED_OUTPUT_DIR, MAX_WORKERS, REJECTED_POS_TAGS, get_fuzzy_threshold,
+)
 from pipeline.loader import MatchData, Segment, discover_matches
 from pipeline.gazetteer import build_gazetteer, get_team_words, build_firstname_map
-from pipeline.hallucination_filter import filter_segments
+from pipeline.hallucination_filter import filter_segments, detect_commentary_language
 from pipeline.deduplicator import deduplicate_segments
 from pipeline.ner_extractor import extract_entities, extract_entities_batch
 from pipeline.fuzzy_corrector import (
     correct_segment_text,
     compute_combined_score,
     Correction,
-    COMMON_WORDS_EXCLUDE,
     extract_entity_core,
     extract_and_rebuild_entity,
     _entity_contains_multiple_gazetteer_names,
@@ -41,10 +45,17 @@ from pipeline.learned_dictionary import (
     lookup_learned,
     update_learned_dictionary,
     load_learned_dictionary,
+    batch_update_learned_dictionary,
 )
-from pipeline.wikidata_enrichment import enrich_gazetteer
+
 from pipeline.context_disambiguator import (
     batch_disambiguate,
+)
+from pipeline.temporal_chunker import (
+    generate_match_id,
+    generate_segment_global_id,
+    create_temporal_chunks,
+    chunks_to_es_bulk,
 )
 
 
@@ -73,13 +84,14 @@ class CleaningResult:
     corrections: list[dict]
     removed_hallucinations: list[dict]
     removed_duplicates: list[dict]
+    tier12_corrections: list = field(default_factory=list)  # Raw Correction objects for learned dict merge
 
 
 def clean_match(
     match: MatchData,
     dry_run: bool = False,
-    enrich_wikidata: bool = False,
     max_tier: int = 3,
+    learned_dict: dict | None = None,
 ) -> CleaningResult:
     """
     Run the full cleaning pipeline on a single match.
@@ -87,7 +99,6 @@ def clean_match(
     Args:
         match: the MatchData object to clean
         dry_run: if True, don't write output files (just report what would change)
-        enrich_wikidata: if True, expand gazetteer with Wikidata EPL players
         max_tier: maximum tier to run (2=fuzzy only, 3=fuzzy+context)
 
     Returns:
@@ -101,6 +112,10 @@ def clean_match(
 
     original_count = len(match.segments)
 
+    # ── Step 0: Detect commentary language ───────────────────────────
+    detected_lang = detect_commentary_language(match.segments)
+    print(f"  Detected language: {detected_lang}")
+
     # ── Step 1: Build gazetteer ──────────────────────────────────────
     gazetteer, entity_types = build_gazetteer(match.labels)
     team_words = get_team_words(entity_types, gazetteer)
@@ -108,20 +123,11 @@ def clean_match(
     print(f"  Gazetteer: {len(gazetteer)} name entries")
     print(f"  Entity types: {len(entity_types)} typed | Team words: {team_words}")
 
-    # ── Step 1b: Wikidata enrichment (optional) ───────────────────────
-    if enrich_wikidata:
-        # Extract season years from the match path
-        season = match.season  # e.g. "2014-2015"
-        try:
-            parts = season.split("-")
-            year_start = int(parts[0])
-            year_end = int(parts[1]) if len(parts) > 1 else year_start + 1
-        except (ValueError, IndexError):
-            year_start, year_end = 2014, 2016
-        gazetteer = enrich_gazetteer(gazetteer, year_start, year_end)
 
     # ── Step 2: Filter hallucinations ────────────────────────────────
-    valid_segments, removed_hallucinations = filter_segments(match.segments)
+    valid_segments, removed_hallucinations = filter_segments(
+        match.segments, expected_lang=detected_lang
+    )
     print(f"  Hallucinations removed: {len(removed_hallucinations)}")
 
     # ── Step 3: De-duplicate ─────────────────────────────────────────
@@ -144,13 +150,18 @@ def clean_match(
     uncertain_corrections: list[Correction] = []  # Tier 2 corrections needing Tier 3 validation
     corrected_segments: list[Segment] = []
     total_entities = 0
+    # Track (segment_id, original_text) pairs to prevent the same entity
+    # being counted twice when it appears multiple times in one segment.
+    _seen_correction_keys: set[tuple[str, str]] = set()
 
     saved_entities_for_step5 = []
 
-    learned_dict=load_learned_dictionary()  # Load once to avoid repeated disk I/O
+    if learned_dict is None:
+        learned_dict = load_learned_dictionary()
+    # Use the snapshot for lookups (read-only within this match)
 
     print("  Extracting entities in batch mode...")
-    segment_entities_map = extract_entities_batch(deduped_segments)
+    segment_entities_map = extract_entities_batch(deduped_segments, language=detected_lang)
 
     for seg in deduped_segments:
         # First check the learned dictionary for instant corrections
@@ -173,8 +184,8 @@ def clean_match(
             if not entity_text:
                 continue
 
-            # Skip common English words — they should never be corrected
-            if entity_text.lower() in COMMON_WORDS_EXCLUDE:
+            # Skip words tagged as non-name POS (ADJ, VERB, DET, etc.)
+            if entity.pos in REJECTED_POS_TAGS:
                 continue
             # Skip very short entities
             if len(entity_text.strip()) <= 2:
@@ -197,16 +208,19 @@ def clean_match(
                 after = text[entity.end_char:]
                 text = before + replacement + after
 
-                all_corrections.append(Correction(
-                    original=entity.text,
-                    corrected=corrected_name,
-                    combined_score=100.0,
-                    fuzzy_score=100.0,
-                    phonetic_match=True,
-                    context_match=False,
-                    segment_id=seg.segment_id,
-                    method="learned_dictionary",
-                ))
+                ck = (seg.segment_id, entity.text)
+                if ck not in _seen_correction_keys:
+                    _seen_correction_keys.add(ck)
+                    all_corrections.append(Correction(
+                        original=entity.text,
+                        corrected=corrected_name,
+                        combined_score=100.0,
+                        fuzzy_score=100.0,
+                        phonetic_match=True,
+                        context_match=False,
+                        segment_id=seg.segment_id,
+                        method="learned_dictionary",
+                    ))
                 learned_applied = True
 
         # If learned dict didn't handle everything, do fuzzy matching
@@ -234,6 +248,7 @@ def clean_match(
                 context_names=context_names if context_names else None,
                 entity_types=entity_types,
                 team_words=team_words,
+                language=detected_lang,
             )
             # Split corrections by confidence band:
             # - "accepted" (≥75): apply immediately
@@ -286,11 +301,11 @@ def clean_match(
                 if not entity_text:
                     continue
                 # ── Strict filtering for Tier 3 ──
-                # Only PERSON entities should be disambiguated
-                if entity.label != "PERSON":
+                # Only PERSON-like entities should be disambiguated
+                if entity.label not in ("PERSON", "PER"):
                     continue
-                # Skip common words on the exclusion list
-                if entity_text.lower() in COMMON_WORDS_EXCLUDE:
+                # Skip words tagged as non-name POS
+                if entity.pos in REJECTED_POS_TAGS:
                     continue
                 # Must start with uppercase (names always do)
                 if not entity_text[0].isupper():
@@ -440,6 +455,7 @@ def clean_match(
                 gazetteer=gazetteer,
                 labels=match.labels,
                 entity_types=entity_types,
+                language=detected_lang,
             )
 
             # Apply Tier 3 corrections
@@ -472,8 +488,8 @@ def clean_match(
         else:
             print("  Tier 3: no unresolved entities")
 
-    # ── Step 6: Update learned dictionary ────────────────────────────
-    # Only save Tier 1/2 corrections — Tier 3 context_similarity
+    # ── Step 6: Collect Tier 1/2 corrections for learned dict ────────
+    # Only Tier 1/2 corrections — Tier 3 context_similarity
     # corrections are less certain and could poison future runs.
     # Also exclude corrections that target team/venue names to
     # prevent cross-match contamination (e.g. City ↔ United).
@@ -481,8 +497,9 @@ def clean_match(
         c for c in all_corrections
         if not c.method.startswith("context_similarity")
     ]
-    if tier12_corrections:
-        update_learned_dictionary(tier12_corrections, entity_types=entity_types, gazetteer=gazetteer)
+    # NOTE: We do NOT update the learned dictionary here.
+    # Corrections are returned to the caller for batch update
+    # after all matches complete (enables safe parallel execution).
 
     # ── Step 6: Write output ─────────────────────────────────────────
     if not dry_run:
@@ -490,6 +507,21 @@ def clean_match(
                               removed_hallucinations, removed_duplicates)
 
     # ── Build result ─────────────────────────────────────────────────
+    # Deduplicate corrections for the report
+    unique_corrections = []
+    seen_corrections = set()
+    for c in all_corrections:
+        key = (c.segment_id, c.original, c.corrected)
+        if key not in seen_corrections:
+            seen_corrections.add(key)
+            unique_corrections.append({
+                "segment_id": c.segment_id,
+                "original": c.original,
+                "corrected": c.corrected,
+                "score": round(c.combined_score, 1),
+                "method": c.method,
+            })
+
     return CleaningResult(
         match_name=match.match_name,
         original_segment_count=original_count,
@@ -497,19 +529,11 @@ def clean_match(
         duplicates_removed=len(removed_duplicates),
         segments_after_cleaning=len(corrected_segments),
         entities_detected=total_entities,
-        entities_corrected=len(all_corrections),
-        corrections=[
-            {
-                "segment_id": c.segment_id,
-                "original": c.original,
-                "corrected": c.corrected,
-                "score": round(c.combined_score, 1),
-                "method": c.method,
-            }
-            for c in all_corrections
-        ],
+        entities_corrected=len(unique_corrections),
+        corrections=unique_corrections,
         removed_hallucinations=removed_hallucinations,
         removed_duplicates=removed_duplicates,
+        tier12_corrections=tier12_corrections,
     )
 
 
@@ -520,11 +544,24 @@ def _write_cleaned_output(
     removed_hallucinations: list[dict],
     removed_duplicates: list[dict],
 ) -> None:
-    """Write cleaned JSON files mirroring the original directory structure."""
+    """Write cleaned JSON files mirroring the original directory structure.
+
+    Generates globally unique IDs for each segment and creates
+    temporal chunks for Elasticsearch-ready search indexing.
+    """
     # Create output directory mirroring the match structure
     relative_path = match.match_dir.relative_to(match.match_dir.parents[3])
     output_dir = CLEANED_OUTPUT_DIR / relative_path / "commentary_data"
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate composite match ID for globally unique segment IDs
+    match_id = generate_match_id(match.league, match.season, match.match_name)
+
+    # Assign global IDs to segments
+    for seg in segments:
+        seg.global_id = generate_segment_global_id(
+            match_id, seg.half, seg.segment_id,
+        )
 
     # Split segments by half
     for half_num in [1, 2]:
@@ -532,13 +569,19 @@ def _write_cleaned_output(
         if not half_segments:
             continue
 
-        # Build the output JSON in the same format as the input
+        # Build the output JSON with global IDs
         output_data = {
             "segments": {
-                s.segment_id: [s.start_time, s.end_time, s.text]
+                s.segment_id: {
+                    "global_id": s.global_id,
+                    "start_time": s.start_time,
+                    "end_time": s.end_time,
+                    "text": s.text,
+                }
                 for s in half_segments
             },
             "cleaning_metadata": {
+                "match_id": match_id,
                 "original_segment_count": len([
                     s for s in match.segments if s.half == half_num
                 ]),
@@ -562,14 +605,53 @@ def _write_cleaned_output(
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=4, ensure_ascii=False)
 
+    # Generate temporal chunks for ES search indexing
+    chunks = create_temporal_chunks(
+        segments, match_id, match.league, match.season,
+    )
+    if chunks:
+        es_docs = chunks_to_es_bulk(chunks)
+        es_output_path = output_dir / "es_chunks.json"
+        with open(es_output_path, "w", encoding="utf-8") as f:
+            json.dump(es_docs, f, indent=2, ensure_ascii=False)
+        print(f"  ES chunks: {len(chunks)} temporal chunks generated")
+
     print(f"  Output written to: {output_dir}")
+
+
+def _init_worker():
+    """Worker initializer: loads heavy ML models once per process.
+
+    Called by ProcessPoolExecutor when spawning each worker.
+    Models are stored in module-level singletons, so subsequent
+    calls within the same worker reuse them instantly.
+
+    NOTE: Only used when explicitly requested. For small batches,
+    lazy loading (letting models load on first use) is faster because
+    it overlaps model loading with computation in other workers.
+    """
+    from pipeline.ner_extractor import get_nlp
+    from pipeline.context_disambiguator import load_model
+    get_nlp()     # Load spaCy model (en_core_web_sm: ~12MB, fast)
+    load_model()  # Load sentence-transformer (~80MB)
+
+
+def _clean_match_wrapper(args: tuple) -> CleaningResult:
+    """Wrapper for ProcessPoolExecutor.map() — unpacks the args tuple."""
+    match, dry_run, max_tier, learned_dict = args
+    return clean_match(
+        match,
+        dry_run=dry_run,
+        max_tier=max_tier,
+        learned_dict=learned_dict,
+    )
 
 
 def run_pipeline(
     match_filter: str | None = None,
     dry_run: bool = False,
-    enrich_wikidata: bool = False,
     max_tier: int = 3,
+    workers: int | None = None,
 ) -> list[CleaningResult]:
     """
     Run the full pipeline on all discovered matches.
@@ -578,8 +660,10 @@ def run_pipeline(
         match_filter: optional substring to filter matches by name
                      (e.g., "Manchester City" to process only that match)
         dry_run: if True, just preview changes without writing
-        enrich_wikidata: if True, expand gazetteer with Wikidata EPL data
         max_tier: max correction tier (2=fuzzy+phonetic, 3=+context AI)
+        workers: number of parallel worker processes.
+                 None/0 = auto-detect (use config MAX_WORKERS or CPU count).
+                 1 = sequential (no parallelism).
 
     Returns:
         List of CleaningResult objects, one per match
@@ -592,8 +676,6 @@ def run_pipeline(
     else:
         mode_parts.append("LIVE")
     mode_parts.append(f"Tier {max_tier}")
-    if enrich_wikidata:
-        mode_parts.append("+ Wikidata enrichment")
     print(f"Mode: {' | '.join(mode_parts)}")
     print()
 
@@ -610,15 +692,71 @@ def run_pipeline(
         print("No matches to process!")
         return []
 
-    # Process each match
-    results = []
-    for match in matches:
-        result = clean_match(
-            match,
-            dry_run=dry_run,
-            enrich_wikidata=enrich_wikidata,
-            max_tier=max_tier,
-        )
-        results.append(result)
+    # Resolve worker count.
+    # With en_core_web_sm (~12MB), model loading is fast (~2-5s per process).
+    # The sentence-transformer (~80MB) is the main startup cost.
+    # For very small batches, sequential avoids process spawn overhead.
+    PARALLEL_THRESHOLD = 3  # Matches needed before parallelism helps
+    if workers is None or workers == 0:
+        if MAX_WORKERS > 0:
+            effective_workers = MAX_WORKERS
+        elif len(matches) > PARALLEL_THRESHOLD:
+            cpu_count = os.cpu_count() or 1
+            effective_workers = max(2, cpu_count // 2)
+        else:
+            effective_workers = 1  # Sequential for small batches
+    else:
+        effective_workers = workers
+    # Don't spawn more workers than matches
+    effective_workers = min(effective_workers, len(matches))
+
+    # Load learned dictionary ONCE (read-only snapshot for all workers)
+    learned_dict = load_learned_dictionary()
+    print(f"Learned dictionary: {len(learned_dict)} entries loaded")
+
+    start_time = time.time()
+
+    # ── Process matches ──────────────────────────────────────────────
+    if effective_workers <= 1:
+        # Sequential mode
+        print(f"Processing {len(matches)} match(es) sequentially...")
+        results = []
+        for match in matches:
+            result = clean_match(
+                match,
+                dry_run=dry_run,
+                max_tier=max_tier,
+                learned_dict=learned_dict,
+            )
+            results.append(result)
+    else:
+        # Parallel mode
+        print(f"Processing {len(matches)} match(es) in parallel ({effective_workers} workers)...")
+        args_list = [
+            (match, dry_run, max_tier, learned_dict)
+            for match in matches
+        ]
+        with ProcessPoolExecutor(
+            max_workers=effective_workers,
+            # No initializer — models load lazily via singletons.
+            # This is faster for small batches because model loading
+            # in one worker overlaps with computation in others.
+        ) as pool:
+            results = list(pool.map(_clean_match_wrapper, args_list))
+
+    elapsed = time.time() - start_time
+    print(f"\nAll matches processed in {elapsed:.1f}s")
+
+    # ── Batch-update learned dictionary with corrections from all matches ──
+    all_tier12 = []
+    # Collect entity_types and gazetteers for validation
+    # (re-build for each match's corrections is not feasible here;
+    #  we pass None to skip per-match validation in batch mode)
+    for result in results:
+        all_tier12.extend(result.tier12_corrections)
+
+    if all_tier12 and not dry_run:
+        batch_update_learned_dictionary(all_tier12)
+        print(f"Learned dictionary updated with {len(all_tier12)} corrections from {len(results)} match(es)")
 
     return results
