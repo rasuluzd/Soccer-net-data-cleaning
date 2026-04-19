@@ -1,0 +1,18 @@
+{
+  "matches": [
+    {
+      "id": "bp-vs-degerfors-r30",
+      "title": "IF Brommapojkarna vs Degerfors IF",
+      "subtitle": "Allsvenskan Round 30",
+      "date": "2025-11-09",
+      "folder": "bp-vs-degerfors-r30",
+      "video": {
+        "type": "hls",
+        "parts": {
+          "1": "https://api.forzasys.com/allsvenskan/playlist.m3u8/29317:0:6996000/Manifest.m3u8"
+        },
+        "part2_offset_sec": 2800
+      }
+    }
+  ]
+}
