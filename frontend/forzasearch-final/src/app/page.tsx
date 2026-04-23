@@ -105,8 +105,7 @@ export default function LandingPage() {
                 <div className="bg-white/10 rounded-full px-4 py-1.5 text-white/40 text-sm flex-1">IF Brommapojkarna 0–1 Degerfors mål</div>
                 <svg className="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </div>
-              {/* Replace src with your promo video: src="/video/promo.mp4" type="direct" */}
-              <VideoPlayer src="/video/Screen Recording 2026-04-19 150404.mp4" loop className="rounded-none" />
+              <VideoPlayer src="/video/20260421-1639-28.5013600.mp4" loop className="rounded-none" />
             </div>
           </motion.div>
         </div>

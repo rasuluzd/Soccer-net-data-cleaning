@@ -33,10 +33,10 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     const result = await login(identifier.trim(), password.trim());
-    setLoading(false);
 
     if (result.error) {
       setError(result.error);
+      setLoading(false);
     } else {
       router.push("/app");
     }

@@ -3,11 +3,11 @@
 import Image from "next/image";
 
 const TEAM = [
-  { name: "Rasul Uzdijev", role: "Programming And Data Cleaning", image: "/team/Screenshot 2026-04-19 143937.png" },
-  { name: "Thomas Knutsen", role: "Programming And Cleaning", image: "/team/Screenshot 2026-04-19 144450.png" },
-  { name: "Abdi Sharif", role: "Front End Developer And Second In Command", image: "/team/Screenshot 2026-04-19 144022.png" },
-  { name: "Tufa", role: "Document Writer And Scrum Master", image: null },
-  { name: "Liban Hussein", role: "Lead Front End Developer And Group Leader", image: "/team/cv pic.jpg" },
+  { name: "Rasul Uzdijev", role: "Computer Science", image: "/team/Screenshot 2026-04-19 143937.png" },
+  { name: "Thomas Knutsen", role: "Information Technology", image: "/team/IMG_4334.jpeg" },
+  { name: "Abdi Sharif", role: "Applied Computer Science", image: "/team/IMG_4335.jpeg" },
+  { name: "Abdulrahim Tufa", role: "Applied Computer Science", image: "/team/IMG_4328.JPG" },
+  { name: "Liban Hussein", role: "Computer Science", image: "/team/cv pic.jpg" },
 ];
 
 export default function TeamCarousel() {
