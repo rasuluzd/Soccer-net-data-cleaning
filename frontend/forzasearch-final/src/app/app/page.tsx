@@ -14,6 +14,7 @@ interface Clip {
 }
 interface SearchResult { answer: string; clips: Clip[]; esHits: number; }
 interface HistoryItem { id: string; query: string; answer: string; clips: Clip[]; time: string; }
+interface MatchOption { id: string; title: string; subtitle?: string; date?: string }
 
 const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -26,7 +27,20 @@ export default function AppPage() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [sidebar, setSidebar] = useState(true);
+  const [matches, setMatches] = useState<MatchOption[]>([]);
+  const [matchId, setMatchId] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/matches")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: MatchOption[]) => {
+        setMatches(data);
+        if (data.length && !matchId) setMatchId(data[0].id);
+      })
+      .catch(() => setMatches([]));
+  }, [user?.id]);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -69,6 +83,10 @@ export default function AppPage() {
   const handleSearch = useCallback(async () => {
     const q = query.trim();
     if (!q || searching) return;
+    if (!matchId) {
+      setResult({ answer: "Pick a match first.", clips: [], esHits: 0 });
+      return;
+    }
     setSearching(true);
     setResult(null);
 
@@ -76,7 +94,7 @@ export default function AppPage() {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ query: q }),
+        body: JSON.stringify({ query: q, matchId }),
       });
       const data = await res.json();
       if (data.error) {
@@ -91,7 +109,7 @@ export default function AppPage() {
     } finally {
       setSearching(false);
     }
-  }, [query, searching, token, history]);
+  }, [query, searching, token, history, matchId]);
 
   const loadHistory = (item: HistoryItem) => {
     setQuery(item.query);
@@ -185,6 +203,24 @@ export default function AppPage() {
               <p className="text-white/45 text-sm">Search match commentary · Get AI answers · Watch the video clip</p>
             </div>
           )}
+
+          {/* Match picker — queries are scoped to one match */}
+          <div className="w-full max-w-2xl mb-3 flex-shrink-0">
+            <label className="block text-white/70 text-xs mb-1.5">Match</label>
+            <select
+              value={matchId}
+              onChange={(e) => setMatchId(e.target.value)}
+              disabled={!matches.length}
+              className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 disabled:opacity-50"
+            >
+              {matches.length === 0 && <option value="">No matches available</option>}
+              {matches.map((m) => (
+                <option key={m.id} value={m.id} className="text-black">
+                  {m.title}{m.date ? ` — ${m.date}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Search bar — no + icon */}
           <div className="w-full max-w-2xl mb-6 flex-shrink-0">

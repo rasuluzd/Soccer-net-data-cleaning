@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Client } from "@elastic/elasticsearch";
+import { embedMany, EMBEDDING_DIMS } from "./embeddings";
 
 const INDEX = "forzasearch-windows";
 const WINDOW_SIZE = 5;
@@ -94,6 +95,7 @@ async function main() {
           text: { type: "text", analyzer: "swedish_custom", fields: { general: { type: "text", analyzer: "general" } } },
           part: { type: "integer" }, start_sec: { type: "float" }, end_sec: { type: "float" },
           match_minute: { type: "integer" }, match_id: { type: "keyword" },
+          embedding: { type: "dense_vector", dims: EMBEDDING_DIMS, index: true, similarity: "cosine" },
         }},
       },
     });
@@ -112,7 +114,13 @@ async function main() {
     const windows = buildWindows(segments);
     console.log(`    ${windows.length} windows built`);
 
-    const body = windows.flatMap((w) => [{ index: { _index: INDEX } }, { ...w, match_id: entry.id }]);
+    console.log(`    computing embeddings...`);
+    const embeddings = await embedMany(windows.map((w) => w.text));
+
+    const body = windows.flatMap((w, i) => [
+      { index: { _index: INDEX } },
+      { ...w, match_id: entry.id, embedding: embeddings[i] },
+    ]);
     await elastic.bulk({ body, refresh: true });
     total += windows.length;
     console.log(`    ✓ Indexed`);

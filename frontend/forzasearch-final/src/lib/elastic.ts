@@ -1,4 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
+import { embed, EMBEDDING_DIMS } from "./embeddings";
 
 const elastic = new Client({
   node: process.env.ELASTICSEARCH_URL || "http://localhost:9200",
@@ -35,6 +36,7 @@ export async function createIndex() {
           end_sec: { type: "float" },
           match_minute: { type: "integer" },
           match_id: { type: "keyword" },
+          embedding: { type: "dense_vector", dims: EMBEDDING_DIMS, index: true, similarity: "cosine" },
         },
       },
     },
@@ -52,27 +54,58 @@ export async function bulkIndex(documents: Record<string, unknown>[]) {
 }
 
 export async function searchWindows(query: string, matchId?: string, size = 1000) {
+  // Hybrid retrieval: BM25 (lexical) + kNN (semantic) in a single search.
+  // BM25 catches exact token matches (player names, specific Swedish terms);
+  // kNN catches semantic similarity (cross-language, paraphrases, spelling
+  // drift like Vukojevich ↔ Vukojevic). ES sums the two scores for overlapping
+  // docs and unions non-overlapping ones.
+  //
+  // If the embedding model fails to load (e.g. onnxruntime-node missing native
+  // deps on this machine), we fall back to pure BM25 so search still works —
+  // just without the semantic layer.
+
   const must: Record<string, unknown>[] = [];
   if (matchId) must.push({ term: { match_id: matchId } });
+  const knnFilter = matchId ? { term: { match_id: matchId } } : undefined;
 
-  const result = await elastic.search({
-    index: INDEX,
-    size,
-    body: {
-      query: {
-        bool: {
-          must,
-          should: [
-            { multi_match: { query, fields: ["text^2", "text.general^3"], type: "best_fields", fuzziness: "AUTO" } },
-            { match_phrase: { text: { query, boost: 5 } } },
-            { match_phrase: { "text.general": { query, boost: 5 } } },
-          ],
-          minimum_should_match: 1,
-        },
+  let queryVector: number[] | null = null;
+  try {
+    queryVector = await embed(query);
+  } catch (err) {
+    console.warn(
+      "[search] embedding failed, falling back to BM25-only:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+
+  const body: Record<string, unknown> = {
+    query: {
+      bool: {
+        must,
+        should: [
+          { multi_match: { query, fields: ["text^2", "text.general^3"], type: "best_fields", fuzziness: "AUTO" } },
+          { match_phrase: { text: { query, boost: 5 } } },
+          { match_phrase: { "text.general": { query, boost: 5 } } },
+        ],
+        // When no vector is available, require at least one BM25 clause to match —
+        // otherwise the match_id filter alone would return every window in the match.
+        ...(queryVector ? {} : { minimum_should_match: 1 }),
       },
     },
-  });
+  };
 
+  if (queryVector) {
+    body.knn = {
+      field: "embedding",
+      query_vector: queryVector,
+      k: Math.max(size * 2, 10),
+      num_candidates: 100,
+      filter: knnFilter,
+      boost: 5,
+    };
+  }
+
+  const result = await elastic.search({ index: INDEX, size, body });
   return result.hits?.hits || [];
 }
 
