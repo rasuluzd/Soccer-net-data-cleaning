@@ -39,10 +39,20 @@ export default function VideoPlayer({ src, type, startSec = 0, endSec, className
       hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) setStatus("error"); });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
-      video.addEventListener("loadedmetadata", () => { setStatus("ready"); video.currentTime = startSec; });
+      video.autoplay = autoPlay;
+      video.addEventListener("loadedmetadata", () => {
+        setStatus("ready");
+        video.currentTime = startSec;
+        if (autoPlay) video.play().catch(() => {});
+      });
     } else if (!isHls) {
       video.src = src;
-      video.addEventListener("loadedmetadata", () => { setStatus("ready"); video.currentTime = startSec; });
+      video.autoplay = autoPlay;
+      video.addEventListener("loadedmetadata", () => {
+        setStatus("ready");
+        video.currentTime = startSec;
+        if (autoPlay) video.play().catch(() => {});
+      });
     } else {
       setStatus("error");
     }
@@ -78,7 +88,7 @@ export default function VideoPlayer({ src, type, startSec = 0, endSec, className
           <span className="text-white/30 text-xs">Check the source URL</span>
         </div>
       )}
-      <video ref={videoRef} controls playsInline loop={loop} muted className="w-full aspect-video" />
+      <video ref={videoRef} controls playsInline loop={loop} muted autoPlay={autoPlay} className="w-full aspect-video" />
     </div>
   );
 }

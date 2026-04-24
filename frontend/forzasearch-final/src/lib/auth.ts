@@ -20,8 +20,10 @@ interface StoredUser extends User {
 // In-memory user store (swap for PostgreSQL/Supabase later)
 const users: Map<string, StoredUser> = new Map();
 
-// Seed admin user on first load
-(async () => {
+// Seed admin user on first load. Exposed as a promise so auth operations
+// can await it — otherwise the first login request races the hash and
+// fails with "invalid credentials" because the admin isn't in the Map yet.
+const seedPromise: Promise<void> = (async () => {
   if (!users.has("admin@forzasearch.com")) {
     const hash = await bcrypt.hash("admin123", 10);
     users.set("admin@forzasearch.com", {
@@ -44,6 +46,7 @@ export async function registerUser(data: {
   lastName: string;
   password: string;
 }): Promise<{ user: User; token: string } | { error: string }> {
+  await seedPromise;
   const email = data.email.toLowerCase();
   if (users.has(email)) {
     return { error: "Email already registered" };
@@ -75,6 +78,7 @@ export async function loginUser(
   identifier: string,
   password: string
 ): Promise<{ user: User; token: string } | { error: string }> {
+  await seedPromise;
   const normalized = identifier.toLowerCase();
   const user = users.get(normalized) ?? Array.from(users.values()).find((u) => u.username.toLowerCase() === normalized);
   if (!user) return { error: "Invalid email/username or password" };
@@ -96,6 +100,7 @@ export async function createToken(user: User | StoredUser): Promise<string> {
 
 export async function verifyToken(token: string): Promise<User | null> {
   try {
+    await seedPromise;
     const { payload } = await jwtVerify(token, JWT_SECRET);
     const email = payload.email as string;
     const stored = users.get(email);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const router = useRouter();
 
   const [identifier, setIdentifier] = useState("");
@@ -16,6 +16,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    if (user) router.replace("/app");
+  }, [user, router]);
 
   const validate = () => {
     if (!identifier?.trim()) return "Email or username required";
@@ -26,10 +30,10 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (loading) return;
-    
+
     const err = validate();
     if (err) { setError(err); return; }
-    
+
     setError("");
     setLoading(true);
     const result = await login(identifier.trim(), password.trim());
@@ -37,8 +41,6 @@ export default function LoginPage() {
     if (result.error) {
       setError(result.error);
       setLoading(false);
-    } else {
-      router.push("/app");
     }
   };
 

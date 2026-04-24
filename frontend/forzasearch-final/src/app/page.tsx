@@ -68,7 +68,24 @@ export default function LandingPage() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={{ visible: { transition: { staggerChildren: 0.15 } } }}>
             <motion.p variants={fadeUp} className="text-brand-gold font-bold uppercase tracking-[0.15em] text-sm mb-4">Welcome To</motion.p>
             <motion.div variants={fadeUp} className="mb-10">
-              <Logo className="font-mono text-3xl md:text-4xl text-gray-900 dark:text-white tracking-widest font-bold" />
+              <div className="block dark:hidden">
+                <Image
+                  src="/forzasearch black.png"
+                  alt="Forza Logo"
+                  width={300}
+                  height={100}
+                  className="w-[300px] h-[100px] object-contain"
+                />
+              </div>
+              <div className="hidden dark:block">
+                <Image
+                  src="/forzasearch white.png"
+                  alt="Forza Logo"
+                  width={300}
+                  height={100}
+                  className="w-[300px] h-[100px] object-contain"
+                />
+              </div>
             </motion.div>
             <div className="grid md:grid-cols-2 gap-16 items-start">
               <motion.div variants={fadeUp}>
@@ -105,7 +122,7 @@ export default function LandingPage() {
                 <div className="bg-white/10 rounded-full px-4 py-1.5 text-white/40 text-sm flex-1">IF Brommapojkarna 0–1 Degerfors mål</div>
                 <svg className="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </div>
-              <VideoPlayer src="/video/20260421-1639-28.5013600.mp4" loop className="rounded-none" />
+              <VideoPlayer src="/video/20260421-1639-28.5013600.mp4" loop autoPlay className="rounded-none" />
             </div>
           </motion.div>
         </div>
