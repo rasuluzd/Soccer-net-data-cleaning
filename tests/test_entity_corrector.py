@@ -67,29 +67,53 @@ class TestGazetteerIndex:
         # Score should be in uncertain band (≥0.40 retrieve, <0.90 shortcut)
         assert 0.40 <= results[0][1] < 0.90
 
-    def test_retrieve_cross_domain_word_below_reject(self):
-        """The whole point of TF-IDF: 'Saturday' should NOT score high
-        against any player name. This is the architectural FP fix."""
+    def test_retrieve_cross_domain_word_below_mcq_floor(self):
+        """'Saturday' is the dangerous FP class. With hybrid retrieval the
+        rapidfuzz signal does push Sturridge past SHORTCUT_REJECT (~0.59),
+        but it stays below MCQ_MIN_FUZZ_TO_INVOKE (0.65) — so the
+        downstream gate still blocks the call to MCQ. The thing that
+        matters is end-to-end rejection, not the intermediate score.
+        """
+        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Saturday", top_k=3)
         if results:
-            # Best score should be below the reject threshold
-            assert results[0][1] < SHORTCUT_REJECT_TFIDF, (
-                f"'Saturday' should score < {SHORTCUT_REJECT_TFIDF}, "
-                f"got {results[0][1]:.3f} for {results[0][0]}"
+            # Top combined score must stay strictly below MCQ_MIN_FUZZ/100
+            # so production's pre-MCQ floor catches this FP class.
+            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0, (
+                f"'Saturday' rescued past MCQ floor: top={results[0][0]} "
+                f"score={results[0][1]:.3f} "
+                f"(must stay < {MCQ_MIN_FUZZ_TO_INVOKE/100:.2f})"
             )
 
-    def test_retrieve_premier_below_reject(self):
+    def test_retrieve_premier_below_mcq_floor(self):
+        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Premier", top_k=3)
         if results:
-            assert results[0][1] < SHORTCUT_REJECT_TFIDF
+            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0
 
-    def test_retrieve_dutchman_below_reject(self):
+    def test_retrieve_dutchman_below_mcq_floor(self):
+        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Dutchman", top_k=3)
         if results:
-            assert results[0][1] < SHORTCUT_REJECT_TFIDF
+            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0
+
+    def test_retrieve_rescue_pulls_long_name_via_surname_token(self):
+        """Hybrid retrieval computes fuzz against the BEST WORD of each
+        canonical (not the full string), so an ASR mishearing of a short
+        name surfaces against the long-name canonical via the surname
+        token. 'Cale' (mishearing of 'Costa') has fuzz('cale','costa')=44;
+        without best-word fuzz the canonical 'Diego Costa' would be
+        ranked very low because fuzz('cale','diego costa')~22.
+        """
+        idx = _GazetteerIndex(CHELSEA_GAZ)
+        results = idx.retrieve("Cale", top_k=5)
+        names = [r[0] for r in results]
+        assert "Diego Costa" in names, (
+            f"Diego Costa missing from top-5 for 'Cale'; got {names}"
+        )
 
     def test_empty_gazetteer_returns_nothing(self):
         idx = _GazetteerIndex({})
@@ -416,20 +440,29 @@ class TestCorrectMatchEndToEnd:
         assert t["mlm_vetoed_mcq"] == 1
 
     def test_self_consistency_majority_vote_picks(self):
-        """3 samples, 2 vote A, 1 votes E → majority is A (>50%)."""
+        """With samples=3, 2 vote A, 1 votes E → majority is A (>50%)."""
         from pipeline import entity_corrector as ec
         seq = ["A", "A", "E"]
-        with patch.object(ec, "_single_mcq_sample", side_effect=seq):
+        with patch.object(ec, "MCQ_SELF_CONSISTENCY_SAMPLES", 3), \
+                patch.object(ec, "_single_mcq_sample", side_effect=seq):
             r = ec._mcq_call("x", ["c1"], "", "", "x", "")
         assert r == "A"
 
     def test_self_consistency_no_majority_keeps(self):
-        """3 samples, 1 each A/B/C → no majority → returns D (keep)."""
+        """With samples=3, 1 each A/B/C → no majority → returns D (keep)."""
         from pipeline import entity_corrector as ec
         seq = ["A", "B", "C"]
-        with patch.object(ec, "_single_mcq_sample", side_effect=seq):
+        with patch.object(ec, "MCQ_SELF_CONSISTENCY_SAMPLES", 3), \
+                patch.object(ec, "_single_mcq_sample", side_effect=seq):
             r = ec._mcq_call("x", ["c1", "c2", "c3"], "", "", "x", "")
         assert r == "D"
+
+    def test_default_single_sample_returns_pick(self):
+        """Default config (samples=1) returns the single picked letter directly."""
+        from pipeline import entity_corrector as ec
+        with patch.object(ec, "_single_mcq_sample", return_value="A"):
+            r = ec._mcq_call("x", ["c1"], "", "", "x", "")
+        assert r == "A"
 
     def test_frozen_word_indices_set_after_correction(self):
         """After entity_corrector applies a correction, the segment must

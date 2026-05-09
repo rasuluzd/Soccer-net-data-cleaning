@@ -219,20 +219,23 @@ CONTEXT_MODELS = {
     "default": "paraphrase-multilingual-MiniLM-L12-v2",
 }
 
-# Per-language ASR model selection. Stock OpenAI Whisper-large-v3 is SOTA
-# for English, but Swedish and German have published fine-tunes that cut
-# WER substantially:
+# Per-language ASR model selection. faster-whisper accepts both stock
+# OpenAI HF checkpoints (auto-converted to CTranslate2 on first load,
+# slow + extra disk) and pre-converted CT2 repos (load instantly, native
+# int8/float16 quantisation). For English we use the official Systran
+# CT2-converted version of OpenAI Whisper large-v3 directly. Swedish and
+# German use published fine-tunes that cut WER substantially:
 #   - KBLab/kb-whisper-large: ~47% rel. WER reduction vs whisper-large-v3
 #     on Swedish FLEURS / Common Voice / NST (Interspeech 2025)
 #   - primeline/whisper-large-v3-turbo-german: German-fine-tuned turbo
 # Override with `--model` flag in tools/retranscribe_kb_whisper.py.
 ASR_MODELS = {
-    "en": "openai/whisper-large-v3",
+    "en": "Systran/faster-whisper-large-v3",
     "sv": "KBLab/kb-whisper-large",
     "no": "KBLab/kb-whisper-large",  # KB-Whisper handles Norwegian decently
     "da": "KBLab/kb-whisper-large",  # and Danish via the Swedish family
     "de": "primeline/whisper-large-v3-turbo-german",
-    "default": "openai/whisper-large-v3",
+    "default": "Systran/faster-whisper-large-v3",
 }
 
 # Decoding parameters used by tools/retranscribe_kb_whisper.py via
@@ -496,10 +499,14 @@ MCQ_MIN_TOKEN_LEN = 5
 # character-overlap but the actual token similarity is low.
 MCQ_MIN_FUZZ_TO_INVOKE = 65
 
-# Self-consistency: run Qwen MCQ N times and majority-vote. Standard
-# DeRAGEC ACL 2025 pattern; dampens Qwen 1.5B's stochasticity at
-# decision boundaries. First sample is temp 0, rest are temp 0.3.
-MCQ_SELF_CONSISTENCY_SAMPLES = 3
+# Self-consistency: run Qwen MCQ N times and majority-vote. The DeRAGEC
+# ACL 2025 pattern was originally implemented with N=3 to dampen
+# stochasticity at decision boundaries. Empirical probe (.work/probe_
+# mcq_consistency.py) on Qwen 1.5B with single-letter MCQ output shows
+# that temp=0.3 NEVER diverges from temp=0.0 — sampling adds zero
+# diversity and ~30% wall-time overhead. Default is therefore 1.
+# Bump to 3 if a larger / less-greedy LLM is wired in later.
+MCQ_SELF_CONSISTENCY_SAMPLES = 1
 
 # After Qwen picks A/B/C, use xlm-roberta MLM to second-guess: mask
 # the entity in context and compare P(original) vs P(picked). If MLM

@@ -55,17 +55,17 @@ from pipeline.config import (
 WHISPER_OUTPUT_SCHEMA_VERSION = 2
 
 
-def build_initial_prompt(labels_path: Path, max_names: int = 40) -> str:
-    """Build an initial_prompt biasing string from Labels-caption.json.
+def _ordered_lineup_names(labels_path: Path) -> list[str]:
+    """Read Labels-caption.json and return [teams..., long_names..., short_names...].
 
-    Whisper truncates the prompt to the *last* 224 tokens, so the highest-
-    value tokens (player short_names) go at the end.
+    Order matters because Whisper truncates prompts and hotwords at half
+    of max_length: highest-value tokens (player short_names) go LAST so
+    they survive truncation.
     """
     if not labels_path.exists():
-        return ""
+        return []
     with open(labels_path, "r", encoding="utf-8") as f:
         labels = json.load(f)
-
     teams: list[str] = [t for t in labels.get("teams", []) if t]
     short_names: list[str] = []
     long_names: list[str] = []
@@ -82,17 +82,42 @@ def build_initial_prompt(labels_path: Path, max_names: int = 40) -> str:
             long_ = (coach.get("long_name") or "").strip()
             if long_ and long_ not in long_names:
                 long_names.append(long_)
-
-    ordered = teams + long_names + short_names
     seen: set[str] = set()
     deduped: list[str] = []
-    for n in ordered:
+    for n in teams + long_names + short_names:
         if n not in seen:
             seen.add(n)
             deduped.append(n)
+    return deduped
+
+
+def build_initial_prompt(labels_path: Path, max_names: int = 40) -> str:
+    """Build an initial_prompt biasing string from Labels-caption.json.
+
+    Whisper truncates the prompt to the *last* 224 tokens, so the highest-
+    value tokens (player short_names) go at the end. Used for first-window
+    stylistic conditioning; combine with ``build_hotwords_string`` for
+    per-window name biasing.
+    """
+    deduped = _ordered_lineup_names(labels_path)
     if not deduped:
         return ""
     return "Fotbollsmatch. Namn: " + ", ".join(deduped[:max_names]) + "."
+
+
+def build_hotwords_string(labels_path: Path, max_names: int = 40) -> str:
+    """Comma-separated lineup names for faster-whisper's ``hotwords`` arg.
+
+    Unlike ``initial_prompt`` (only consumed for the first decode window),
+    ``hotwords`` is prepended to the prompt of *every* window, so name
+    tokens stay biasable across the whole match. The string is plain
+    "Name1, Name2, Name3" — no header, no period — to maximise the share
+    of name tokens within the per-window truncation budget (max_length//2).
+    """
+    deduped = _ordered_lineup_names(labels_path)
+    if not deduped:
+        return ""
+    return ", ".join(deduped[:max_names])
 
 
 def _resolve_device(device: str) -> str:
@@ -113,6 +138,7 @@ def transcribe(
     audio_path: Path,
     output_path: Path,
     initial_prompt: str = "",
+    hotwords: str = "",
     model_name: str | None = None,
     language: str = "sv",
     device: str = "auto",
@@ -129,6 +155,13 @@ def transcribe(
     With ``word_timestamps=True`` (default), output uses schema 2 with per-word
     probability and per-segment avg_logprob — required by the SOTA refactor's
     confidence-gated GER (``pipeline/llm_corrector.py``).
+
+    ``initial_prompt`` is consumed by faster-whisper only for the FIRST decode
+    window, while ``hotwords`` is prepended to the prompt of every window —
+    use the latter to keep player-name tokens biasable across the full match.
+    Both are plain text; faster-whisper tokenises them internally. Token budget
+    is ~half of max_length per window, so the prompt builders order names
+    so the highest-value (short_names) survive truncation.
     """
     try:
         from faster_whisper import WhisperModel
@@ -153,6 +186,9 @@ def transcribe(
 
     if initial_prompt:
         print(f"Using initial_prompt biasing ({len(initial_prompt)} chars).")
+    if hotwords:
+        n_names = hotwords.count(",") + 1 if hotwords else 0
+        print(f"Using hotwords biasing ({len(hotwords)} chars, {n_names} names).")
 
     print(f"Transcribing {audio_path} ...")
     seg_iter, info = model.transcribe(
@@ -161,6 +197,7 @@ def transcribe(
         beam_size=beam_size,
         best_of=best_of,
         initial_prompt=initial_prompt or None,
+        hotwords=hotwords or None,
         vad_filter=vad_filter,
         word_timestamps=word_timestamps,
         condition_on_previous_text=False,         # avoids cascading hallucinations

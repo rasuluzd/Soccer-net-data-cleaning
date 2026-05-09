@@ -36,7 +36,11 @@ from pipeline.config import (  # noqa: E402
     WHISPER_BEAM_SIZE,
     WHISPER_BEST_OF,
 )
-from pipeline.whisper_runner import build_initial_prompt, transcribe  # noqa: E402
+from pipeline.whisper_runner import (  # noqa: E402
+    build_hotwords_string,
+    build_initial_prompt,
+    transcribe,
+)
 
 
 def resolve_by_match(match_substring: str, half: int) -> tuple[Path, Path, Path]:
@@ -111,10 +115,12 @@ def main() -> None:
         sys.exit(2)
 
     prompt = "" if args.no_prompt else build_initial_prompt(labels)
+    hotwords = "" if args.no_prompt else build_hotwords_string(labels)
     transcribe(
         audio_path=audio,
         output_path=output,
         initial_prompt=prompt,
+        hotwords=hotwords,
         model_name=args.model,
         language=args.language,
         device=args.device,

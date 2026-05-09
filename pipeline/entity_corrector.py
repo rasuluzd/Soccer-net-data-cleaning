@@ -188,12 +188,19 @@ def _validated_cache_record(
 # ─── TF-IDF retrieval over gazetteer ─────────────────────────────────
 
 class _GazetteerIndex:
-    """TF-IDF char-n-gram retrieval index over gazetteer canonical names.
+    """Hybrid TF-IDF + rapidfuzz retrieval over gazetteer canonical names.
 
-    Built once per match (gazetteer is per-match). Avoids Metaphone — pure
-    string-similarity is multilingual and more robust to short tokens, which
-    is the regime where Metaphone+Jaro-Winkler produces prefix-collision FPs
-    (Saturday/Sturridge ≈ 0.92 — see audit comment in fuzzy_corrector.py).
+    Built once per match. TF-IDF char-bigrams capture name-shape similarity
+    well but undervalue some real ASR mishearings (Cale→Costa, Leclerc→
+    Lallana). rapidfuzz fuzz.ratio rescues those, but on its own would
+    over-rank common words against player names (Saturday→Sturridge=0.59,
+    Premier→Milner=0.62 — see ``.work/probe_retrieval_methods.py``).
+
+    ``retrieve()`` returns the combined score ``max(tfidf, fuzz/100)`` per
+    candidate so legitimate-but-low-tfidf matches surface, while the
+    downstream MCQ_MIN_FUZZ_TO_INVOKE=65 floor catches noise that rapidfuzz
+    alone would have leaked through. Lineup is small (~50 names) so
+    brute-force fuzz over all canonicals stays under 1ms per query.
     """
 
     def __init__(self, gazetteer: dict[str, str]):
@@ -213,11 +220,23 @@ class _GazetteerIndex:
         if not self.canonicals or self.vectorizer is None or not query.strip():
             return []
         q_vec = self.vectorizer.transform([query])
-        sims = cosine_similarity(q_vec, self.matrix)[0]
-        top_idx = np.argsort(-sims)[:top_k]
+        tfidf_scores = cosine_similarity(q_vec, self.matrix)[0]
+        q_lower = query.lower()
+        # Brute-force fuzz over the small lineup is cheap. We compute fuzz
+        # against the BEST word of each canonical (not the full string) so
+        # short-name ASR mishearings ("Cale") rescue against long-name
+        # canonicals ("Diego Costa") via the surname token.
+        combined = np.empty_like(tfidf_scores)
+        for i, canon in enumerate(self.canonicals):
+            words = canon.split() or [canon]
+            best_word_fuzz = max(
+                fuzz.ratio(q_lower, w.lower()) / 100.0 for w in words
+            )
+            combined[i] = max(float(tfidf_scores[i]), best_word_fuzz)
+        top_idx = np.argsort(-combined)[:top_k]
         return [
-            (self.canonicals[i], float(sims[i]))
-            for i in top_idx if sims[i] > 0
+            (self.canonicals[i], float(combined[i]))
+            for i in top_idx if combined[i] > 0
         ]
 
 
@@ -392,15 +411,13 @@ def _mcq_call(
     segment_text: str,
     context_block: str,
 ) -> Optional[str]:
-    """Self-consistency MCQ: 3 samples at temp 0.3, majority vote.
-
-    Standard DeRAGEC pattern (ACL 2025): a small LLM (Qwen 1.5B) is
-    stochastic at the decision boundary — running 3 times and taking
-    the majority dampens that noise. If no clear majority emerges, the
-    correct answer is "keep" — we treat absence of consensus as D.
-
-    Cost: 3× MCQ wall time. With ~55 MCQ invocations per match this
-    adds ~10-15s on a CPU.
+    """MCQ with optional self-consistency. ``MCQ_SELF_CONSISTENCY_SAMPLES``
+    controls how many samples are drawn — first at temp=0, rest at temp=0.3.
+    Default is 1: empirically Qwen 1.5B with a single-letter constrained
+    output is fully deterministic across temperatures, so extra samples
+    add no diversity and only wall-time. Majority logic is preserved so
+    bumping the constant to 3 keeps working if a less-greedy LLM is wired
+    in later. If no clear majority emerges, returns ``D`` (keep).
     """
     samples: list[str] = []
     for i in range(MCQ_SELF_CONSISTENCY_SAMPLES):
