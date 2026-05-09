@@ -38,6 +38,22 @@ def generate_report(results: list[CleaningResult]) -> str:
     total_duplicates = sum(r.duplicates_removed for r in results)
     total_entities = sum(r.entities_detected for r in results)
     total_corrections = sum(r.entities_corrected for r in results)
+    total_text_corrections = sum(len(r.text_corrections) for r in results)
+    # Stage 3.5 XLM-R detection flags are SIGNALS (consumed by mT5), not
+    # corrections. Tracked separately so the "Text corrections" total
+    # isn't inflated by hundreds of flags that never became changes.
+    total_flagged_words = sum(
+        getattr(r, "flagged_words_count", 0) for r in results
+    )
+
+    # Aggregate correction breakdown across all matches
+    total_breakdown = {
+        "normalization": 0, "spell_check": 0, "grammar": 0,
+        "entity": 0, "neural": 0, "llm": 0,
+    }
+    for r in results:
+        for key in total_breakdown:
+            total_breakdown[key] += r.correction_breakdown.get(key, 0)
 
     lines.append("OVERALL SUMMARY")
     lines.append("-" * 40)
@@ -48,8 +64,31 @@ def generate_report(results: list[CleaningResult]) -> str:
     lines.append(f"  Segments retained:     {total_after}")
     lines.append(f"  Entities detected:     {total_entities}")
     lines.append(f"  Entities corrected:    {total_corrections}")
+    lines.append(f"  Text corrections:      {total_text_corrections}")
+    if total_flagged_words > 0:
+        lines.append(f"  XLM-R flagged words:   {total_flagged_words} (detection signals, not corrections)")
     lines.append(f"  Retention rate:        {total_after/total_original*100:.1f}%" if total_original else "")
     lines.append("")
+
+    # ── Correction Breakdown by Stage ────────────────────────────────
+    active_stages = {k: v for k, v in total_breakdown.items() if v > 0}
+    if active_stages:
+        lines.append("CORRECTION BREAKDOWN BY STAGE")
+        lines.append("-" * 40)
+        stage_labels = {
+            "normalization": "Stage 2A (Domain Normalization)",
+            "spell_check":   "Stage 2B (Spell-Check)",
+            "grammar":       "Stage 2C (Grammar)",
+            "entity":        "Stage 3  (Entity Names)",
+            "neural":        "Stage 4  (Neural Infill)",
+            "llm":           "Stage 5  (LLM Quality Pass)",
+        }
+        for key, count in total_breakdown.items():
+            label = stage_labels.get(key, key)
+            lines.append(f"  {label:<40} {count:>5}")
+        total_all = sum(total_breakdown.values())
+        lines.append(f"  {'TOTAL':<40} {total_all:>5}")
+        lines.append("")
 
     # ── Per-Match Table ──────────────────────────────────────────────
     lines.append("PER-MATCH BREAKDOWN")

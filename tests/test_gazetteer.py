@@ -186,3 +186,73 @@ class TestLearnedCorrectionFiltering:
             gaz, _ = build_gazetteer(SAMPLE_LABELS, include_learned=True)
         assert "aspilicueta" in gaz
         assert gaz["aspilicueta"] == "Azpilicueta"
+
+
+class TestBigramExpansion:
+    """Phase C3 — regression tests for bigram / initial-abbreviation
+    variant generation, language-agnostic.
+    """
+
+    LABELS_3WORD_PLAYER = {
+        "gameHomeTeam": "AIK",
+        "gameAwayTeam": "Halmstad",
+        "lineup": {
+            "home": {
+                "players": [
+                    # Three-word Nordic name that commentators often slur.
+                    {
+                        "long_name": "Mads Döhr Thychosen",
+                        "short_name": "Thychosen",
+                        "name": "Thychosen",
+                    },
+                ],
+                "coach": [],
+            },
+            "away": {"players": [], "coach": []},
+        },
+        "referee": [],
+        "venue": [],
+    }
+
+    def test_bigrams_generated_for_three_word_name(self):
+        gaz, _ = extract_names_from_labels(self.LABELS_3WORD_PLAYER)
+        # "Mads Thychosen" — skipping the middle name — must be in the
+        # gazetteer so ASR slurrings like "Hansstyrkosen" can retrieve it.
+        assert "Mads Thychosen" in gaz
+        assert gaz["Mads Thychosen"] == "Mads Döhr Thychosen"
+
+    def test_adjacent_bigram_also_present(self):
+        gaz, _ = extract_names_from_labels(self.LABELS_3WORD_PLAYER)
+        assert "Mads Döhr" in gaz
+        assert "Döhr Thychosen" in gaz
+
+    def test_initial_abbreviation_variant(self):
+        gaz, _ = extract_names_from_labels(self.LABELS_3WORD_PLAYER)
+        # "M. Thychosen" is a common written abbreviation
+        assert "M. Thychosen" in gaz
+
+    def test_two_word_name_has_no_bigram_noise(self):
+        """Two-word names already have surname + long_name variants —
+        we should not generate bigrams for them (nothing to add)."""
+        labels = {
+            "gameHomeTeam": "T",
+            "gameAwayTeam": "U",
+            "lineup": {
+                "home": {
+                    "players": [
+                        {"long_name": "Kevin De",
+                         "short_name": "De", "name": "De"},
+                    ],
+                    "coach": [],
+                },
+                "away": {"players": [], "coach": []},
+            },
+            "referee": [],
+            "venue": [],
+        }
+        gaz, _ = extract_names_from_labels(labels)
+        # Only surname + long_name + short_name should be present, no
+        # extra one-word or single-letter variants from bigram gen.
+        assert "Kevin De" in gaz
+        # No initial abbreviation for 2-word name
+        assert "K. De" not in gaz

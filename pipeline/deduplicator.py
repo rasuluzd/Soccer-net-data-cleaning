@@ -12,6 +12,17 @@ from pipeline.config import DUPLICATE_SIMILARITY_THRESHOLD
 from pipeline.loader import Segment
 
 
+def _normalize_for_dedup(text: str) -> str:
+    """Strip surrounding whitespace and trailing punctuation.
+
+    This makes "Hansson.", "Hansson!", "Hansson," all dedup-equivalent —
+    they're the same word from Whisper's perspective, just with different
+    punctuation. Without this, the fuzz.ratio comparison distinguishes
+    them and they slip past dedup individually.
+    """
+    return text.strip().rstrip(".,!?;:").strip()
+
+
 def deduplicate_segments(
     segments: list[Segment],
     threshold: int = DUPLICATE_SIMILARITY_THRESHOLD,
@@ -64,7 +75,10 @@ def deduplicate_segments(
             continue
 
         # Compare current segment's text with the previous one
-        similarity = fuzz.ratio(current.text.strip(), seg.text.strip())
+        similarity = fuzz.ratio(
+            _normalize_for_dedup(current.text),
+            _normalize_for_dedup(seg.text),
+        )
 
         if similarity >= threshold:
             # This is a duplicate — extend the time span but don't keep it

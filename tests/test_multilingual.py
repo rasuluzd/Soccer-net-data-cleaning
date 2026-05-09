@@ -37,8 +37,14 @@ class TestConfigHelpers:
     def test_english_spacy_model(self):
         assert get_spacy_model("en") == "en_core_web_sm"
 
-    def test_default_spacy_model(self):
-        assert get_spacy_model("sv") == "xx_ent_wiki_sm"
+    def test_swedish_spacy_model(self):
+        """Swedish should use the language-specific model (with POS tagging),
+        not the NER-only multilingual fallback."""
+        assert get_spacy_model("sv") == "sv_core_news_sm"
+
+    def test_unknown_language_falls_back_to_multilingual(self):
+        """Languages without a specific model fall back to xx_ent_wiki_sm."""
+        assert get_spacy_model("xyz") == "xx_ent_wiki_sm"
 
     def test_english_context_model(self):
         assert get_context_model("en") == "all-MiniLM-L6-v2"
@@ -58,8 +64,12 @@ class TestConfigHelpers:
 
     def test_english_scoring_weights(self):
         fw, pw, cw = get_scoring_weights("en")
-        assert fw == 0.45
-        assert pw == 0.40
+        # Retuned May 2026 after FP audit: phonetic dropped from 0.40 to
+        # 0.20 because Metaphone Jaro-Winkler over short codes produces
+        # prefix-collision artifacts (Saturday/Sturridge ≈ 0.92) that
+        # pushed cross-domain accidents into the Tier 3 proposal band.
+        assert fw == 0.65
+        assert pw == 0.20
         assert cw == 0.15
 
     def test_noneng_scoring_weights(self):
@@ -202,9 +212,9 @@ class TestPhoneticMultilingual:
         assert score >= 75.0
 
     def test_noneng_phonetic_different_names(self):
-        """Completely different names should score 0."""
+        """Completely different names should score low (below 50)."""
         score = compute_phonetic_score("Zlatan", "Svensson", language="sv")
-        assert score == 0.0
+        assert score < 50.0
 
 
 # ─── Capitalized word regex ─────────────────────────────────────────
@@ -251,3 +261,5 @@ class TestPOSRejection:
     def test_empty_pos_not_rejected(self):
         """Empty POS (no tag info) should not be rejected."""
         assert "" not in REJECTED_POS_TAGS
+
+

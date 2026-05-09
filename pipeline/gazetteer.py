@@ -63,6 +63,37 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
             return rest
         return first
 
+    def bigram_variants(full_name: str) -> list[str]:
+        """Phase C3 — generate bigram + initial-abbreviation variants.
+
+        For a 3+ word name, produce every 2-word subsequence plus
+        initial-letter abbreviations. This catches compound mishearings
+        where Whisper slurred adjacent tokens (e.g. 'Hansstyrkosen' could
+        match 'Mads Thychosen' once the bigram variant exists).
+
+        Example: "Mads Döhr Thychosen" →
+            bigrams:       ["Mads Döhr", "Mads Thychosen", "Döhr Thychosen"]
+            initials:      ["M. Döhr Thychosen", "M. Thychosen", "M.D. Thychosen"]
+        """
+        parts = full_name.strip().split()
+        variants: list[str] = []
+        if len(parts) < 3:
+            return variants
+        # Non-adjacent 2-grams (skip adjacent since surname is already added)
+        for i, a in enumerate(parts):
+            for b in parts[i + 1:]:
+                variants.append(f"{a} {b}")
+        # Initial-letter abbreviations
+        # "Mads Döhr Thychosen" → "M. Thychosen", "M.D. Thychosen"
+        if len(parts) >= 2:
+            initial = f"{parts[0][0]}."
+            variants.append(f"{initial} {parts[-1]}")  # "M. Thychosen"
+            if len(parts) >= 3:
+                # "M.D. Thychosen" for 3+ parts
+                initials = ".".join(p[0] for p in parts[:-1]) + "."
+                variants.append(f"{initials} {parts[-1]}")
+        return variants
+
     # ── Players ──────────────────────────────────────────────────────
     for side in ("home", "away"):
         lineup = labels.get("lineup", {}).get(side, {})
@@ -75,6 +106,10 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
             if long_name:
                 surname = extract_surname(long_name)
                 add_name(long_name, short_name, name, surname, entity_type="player")
+                # Phase C3 — bigram / initial-abbreviation variants.
+                for variant in bigram_variants(long_name):
+                    if variant not in gazetteer:
+                        gazetteer[variant] = long_name
             elif short_name:
                 add_name(short_name, name, entity_type="player")
 
@@ -113,6 +148,14 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
                 gazetteer[alt_name] = main_name or alt_name
                 entity_types[main_name or alt_name] = "team"
 
+    # Also accept a top-level "teams" list of *additional* teams that may
+    # be referenced in commentary (e.g. league-table mentions, rivals).
+    # Each entry registers itself as a canonical team so the pipeline does
+    # not try to fuzzy-correct it to a player surname.
+    for extra_team in labels.get("teams", []):
+        if extra_team and extra_team not in gazetteer:
+            add_name(extra_team, entity_type="team")
+
     # ── Venue ────────────────────────────────────────────────────────
     for venue in labels.get("venue", []):
         if venue:
@@ -135,8 +178,15 @@ def load_learned_corrections() -> dict[str, dict]:
     if not LEARNED_CORRECTIONS_PATH.exists():
         return {}
 
-    with open(LEARNED_CORRECTIONS_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    # Empty file (e.g. after an interrupted write) → treat as fresh start
+    if LEARNED_CORRECTIONS_PATH.stat().st_size == 0:
+        return {}
+
+    try:
+        with open(LEARNED_CORRECTIONS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return {}
 
 
 def save_learned_corrections(corrections: dict[str, dict]) -> None:

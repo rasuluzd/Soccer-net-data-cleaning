@@ -205,3 +205,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# SoccerNet ASR pipeline outputs / caches (project-specific)
+cleaned_data/
+evaluation_results/
+whisper_cache/
+# Dataset itself (~tens of GB) — keep out of git
+path/to/SoccerNet/
+data/SoccerNet/

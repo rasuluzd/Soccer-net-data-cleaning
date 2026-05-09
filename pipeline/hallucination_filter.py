@@ -11,7 +11,6 @@ from typing import Optional
 
 from pipeline.config import (
     HALLUCINATION_MIN_ALPHA_RATIO,
-    MIN_SEGMENT_WORD_COUNT,
     LANGUAGE_FAMILIES,
 )
 from pipeline.loader import Segment
@@ -173,10 +172,10 @@ def filter_segment(
     if alpha_ratio < HALLUCINATION_MIN_ALPHA_RATIO:
         return False, f"low_alpha_ratio ({alpha_ratio:.2f})"
 
-    # ── Rule 4: Too few words ────────────────────────────────────────
-    word_count = len(text.split())
-    if word_count < MIN_SEGMENT_WORD_COUNT:
-        return False, f"too_few_words ({word_count})"
+    # Rule 4 was "too few words" (reject < MIN_SEGMENT_WORD_COUNT) but
+    # with MIN_SEGMENT_WORD_COUNT=1 it was unreachable — Rule 1 already
+    # catches empty text. Removed (A8/F10). Single-word commentary
+    # exclamations like "GOAL!" are valid.
 
     # ── Rule 5: Wrong language detected ──────────────────────────────
     if not is_valid_commentary(text, expected_lang):
@@ -186,12 +185,78 @@ def filter_segment(
     return True, None
 
 
+def find_repeated_name_hallucinations(
+    segments: list[Segment],
+    min_cluster_size: int = 3,
+    cluster_window_s: float = 60.0,
+) -> set[tuple[int, str]]:
+    """Return segment_ids of "stuck on a name" hallucinations.
+
+    Whisper sometimes gets stuck outputting a single capitalized word for
+    multiple segments in a rapid cluster (e.g. "Hansson." repeated 6 times
+    in 30 seconds). Real commentator callouts of a player name are
+    typically spread across the whole match, not clustered.
+
+    Rule: flag a run of ≥3 single-title-case-word segments with the SAME
+    text that fall within a ``cluster_window_s`` time window. Only the
+    segments in the offending cluster(s) are flagged — not other
+    occurrences of that name elsewhere in the match.
+
+    Calibration:
+      - AIK: 6 identical "Hansson." in ~30s window → flagged (correct)
+      - West Ham: 16 "Neves." spread across 90 min → not flagged (correct,
+        they're real commentary callouts)
+    """
+    # Index single-word capitalized-segment occurrences by token
+    from collections import defaultdict
+
+    by_token: dict[str, list[Segment]] = defaultdict(list)
+    for seg in segments:
+        stripped = seg.text.strip().rstrip(".,!?;:").strip()
+        words = stripped.split()
+        if len(words) != 1:
+            continue
+        w = words[0]
+        if not w[:1].isupper() or w.isupper():
+            continue
+        if not any(c.isalpha() for c in w):
+            continue
+        by_token[w.lower()].append(seg)
+
+    # (half, segment_id) tuple — segment_id alone is not unique across halves.
+    bad_ids: set[tuple[int, str]] = set()
+    for token, occurrences in by_token.items():
+        if len(occurrences) < min_cluster_size:
+            continue
+        # Sort by start_time and find clusters
+        occs = sorted(occurrences, key=lambda s: s.start_time)
+        # Sliding-window cluster detection
+        i = 0
+        while i < len(occs):
+            j = i
+            # Extend cluster while segments are within window of the FIRST
+            # cluster element
+            while j + 1 < len(occs) and (
+                occs[j + 1].start_time - occs[i].start_time <= cluster_window_s
+            ):
+                j += 1
+            cluster = occs[i : j + 1]
+            if len(cluster) >= min_cluster_size:
+                for s in cluster:
+                    bad_ids.add((s.half, s.segment_id))
+            i = j + 1
+    return bad_ids
+
+
 def filter_segments(
     segments: list[Segment],
     expected_lang: str = "en",
 ) -> tuple[list[Segment], list[dict]]:
     """
     Filter a list of segments, removing hallucinated/garbage entries.
+
+    Applies per-segment rules (1-5) plus batch-level Rule 6 (repeated
+    single-name hallucinations).
 
     Args:
         segments: list of Segment objects to filter
@@ -202,10 +267,23 @@ def filter_segments(
         - kept: list of valid Segment objects
         - removed: list of dicts with { segment, reason } for logging
     """
+    # Batch-level pre-pass: identify "stuck on a name" hallucinations
+    repeated_name_ids = find_repeated_name_hallucinations(segments)
+
     kept = []
     removed = []
 
     for seg in segments:
+        if (seg.half, seg.segment_id) in repeated_name_ids:
+            removed.append({
+                "segment_id": seg.segment_id,
+                "half": seg.half,
+                "start_time": seg.start_time,
+                "text": seg.text[:80],
+                "reason": "hallucination_repeated_name_segment",
+            })
+            continue
+
         is_valid, reason = filter_segment(seg, expected_lang=expected_lang)
         if is_valid:
             kept.append(seg)
@@ -214,7 +292,7 @@ def filter_segments(
                 "segment_id": seg.segment_id,
                 "half": seg.half,
                 "start_time": seg.start_time,
-                "text": seg.text[:80],  # truncate for readability
+                "text": seg.text[:80],
                 "reason": reason,
             })
 

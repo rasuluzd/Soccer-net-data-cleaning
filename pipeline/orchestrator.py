@@ -1,22 +1,24 @@
 """
 Pipeline Orchestrator — runs all cleaning steps on each match.
 
-This is the central coordinator that ties together all pipeline components
-in the correct order. It processes each match independently, allowing
-scaling to hundreds of matches across multiple seasons.
-
-Processing order per match:
+Processing order per match (post-May-2026 architecture):
     1. Load ASR JSONs + Labels-caption.json
-    2. Build gazetteer for this match from Labels-caption.json
-    3. Check learned dictionary for instant corrections
-    4. Filter hallucinated/garbage segments
-    5. De-duplicate segments
-    6. Run NER to detect entities
-    7. Fuzzy+phonetic correction against gazetteer (Tier 2)
-    8. Contextual disambiguation for unresolved entities (Tier 3)
-    9. Update learned dictionary
-    10. Write cleaned JSON output
-    11. Return cleaning statistics
+    2. Build gazetteer + entity-type map from labels
+    3. Detect language (langdetect on full transcript sample)
+    4. Stage 1: Hallucination filter
+    5. Stage 1: Deduplicator
+    6. Stage 2A: Domain normalizer (scores, times)
+    7. NER + heuristic entity extraction
+    8. Stage E: ValidatedEntityCorrector  ← TF-IDF retrieve + Qwen MCQ judge
+    9. Step L: Confidence-gated GER (Qwen + MLM veto + drift guard)
+    10. Step P: Punctuation + casing restoration
+    11. Write cleaned JSON output (schema-2 enrichments + telemetry)
+    12. Generate temporal chunks for ES indexing
+
+The legacy heuristic cascade (Tier 2 fuzzy/phonetic/context, Tier 3 cosine
+disambiguator, mT5/BERT span-infill, Ollama Mistral rewriter, MCQ
+validator) was replaced by Stage E + Step L. See plans/check-all-files-
+and-peppy-lemur.md for rationale.
 """
 
 import json
@@ -26,31 +28,28 @@ from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 
 from pipeline.config import (
-    CLEANED_OUTPUT_DIR, MAX_WORKERS, REJECTED_POS_TAGS, get_fuzzy_threshold,
+    CLEANED_OUTPUT_DIR, MAX_WORKERS,
+    ENTITY_CORRECTION_ENABLED,
+    DOMAIN_NORMALIZATION_ENABLED,
 )
 from pipeline.loader import MatchData, Segment, discover_matches
-from pipeline.gazetteer import build_gazetteer, get_team_words, build_firstname_map
+from pipeline.gazetteer import build_gazetteer
 from pipeline.hallucination_filter import filter_segments, detect_commentary_language
 from pipeline.deduplicator import deduplicate_segments
 from pipeline.ner_extractor import extract_entities, extract_entities_batch
 from pipeline.fuzzy_corrector import (
-    correct_segment_text,
-    compute_combined_score,
     Correction,
     extract_entity_core,
     extract_and_rebuild_entity,
-    _entity_contains_multiple_gazetteer_names,
+    passes_conservative_gates,
 )
-from pipeline.learned_dictionary import (
-    lookup_learned,
-    update_learned_dictionary,
-    load_learned_dictionary,
-    batch_update_learned_dictionary,
-)
-
-from pipeline.context_disambiguator import (
-    batch_disambiguate,
-)
+from pipeline.entity_corrector import correct_match as entity_correct_match
+from pipeline.entity_corrector import get_last_telemetry as entity_last_telemetry
+from pipeline.domain_normalizer import DomainNormalizer
+# SOTA refactor stages — see plans/check-all-files-and-peppy-lemur.md
+from pipeline.llm_corrector import correct_match as llm_correct_match
+from pipeline.llm_corrector import get_last_telemetry as llm_last_telemetry
+from pipeline.punct_restorer import restore_punctuation_batch
 from pipeline.temporal_chunker import (
     generate_match_id,
     generate_segment_global_id,
@@ -85,6 +84,19 @@ class CleaningResult:
     removed_hallucinations: list[dict]
     removed_duplicates: list[dict]
     tier12_corrections: list = field(default_factory=list)  # Raw Correction objects for learned dict merge
+    # Stage 2: general text correction tracking
+    text_corrections: list[dict] = field(default_factory=list)
+    # Stage 3.5: XLM-R detection flags (signals, not corrections — tracked
+    # separately so they don't inflate the "Text corrections" report total).
+    flagged_words_count: int = 0
+    correction_breakdown: dict = field(default_factory=lambda: {
+        "normalization": 0,
+        "spell_check": 0,
+        "grammar": 0,
+        "entity": 0,
+        "neural": 0,
+        "llm": 0,
+    })
 
 
 def clean_match(
@@ -118,10 +130,7 @@ def clean_match(
 
     # ── Step 1: Build gazetteer ──────────────────────────────────────
     gazetteer, entity_types = build_gazetteer(match.labels)
-    team_words = get_team_words(entity_types, gazetteer)
-    firstname_map = build_firstname_map(gazetteer, entity_types)
-    print(f"  Gazetteer: {len(gazetteer)} name entries")
-    print(f"  Entity types: {len(entity_types)} typed | Team words: {team_words}")
+    print(f"  Gazetteer: {len(gazetteer)} name entries  Entity types: {len(entity_types)} typed")
 
 
     # ── Step 2: Filter hallucinations ────────────────────────────────
@@ -145,348 +154,99 @@ def clean_match(
             )
     print(f"  Duplicates removed: {len(removed_duplicates)}")
 
-    # ── Step 4: NER + Correction ─────────────────────────────────────
+    # entity_corrector builds its own match-wide token frequency for the
+    # frequency heuristic; nothing to precompute here.
+
+    # ── Stage 2: General text correction (spell-check, grammar, normalization)
+    # This seam is where new correction modules plug in.
+    # Each module receives segments and returns corrected segments + corrections.
+    stage2_corrections: list[dict] = []
+
+    if DOMAIN_NORMALIZATION_ENABLED:
+        normalizer = DomainNormalizer(detected_lang)
+        deduped_segments, norm_corrections = normalizer.normalize_batch(deduped_segments)
+        for c in norm_corrections:
+            c["match"] = match.match_name
+        stage2_corrections.extend(norm_corrections)
+        if norm_corrections:
+            print(f"  Stage 2A normalization: {len(norm_corrections)} corrections")
+
+    # NOTE: Stage 2B (pyspellchecker) + Stage 2C (LanguageTool grammar) were
+    # removed in the May 2026 architectural refactor. Both fired ~5 correc-
+    # tions per match (mostly punctuation) and were superseded by Step P
+    # (oliverguhr punctuation restorer) plus Step L (Qwen confidence-gated
+    # GER which catches grammar drift via the editable-mask constraint).
+
+    if stage2_corrections:
+        print(f"  Stage 2 text corrections: {len(stage2_corrections)}")
+
+    # ── Stage E: Validated Entity Correction ─────────────────────────
+    # Replaces the legacy Tier 2 (fuzzy/phonetic/context) + Tier 3 (cosine
+    # disambiguator) cascade. Architecture:
+    #   1. TF-IDF char-bigram retrieval over gazetteer (no Metaphone)
+    #   2. Auto-accept on cosine ≥0.90 + clear winner
+    #   3. Auto-reject on cosine <0.40
+    #   4. MCQ judge (Qwen GGUF) for the uncertain 0.40-0.89 band
+    #   5. Two-layer cache: per-match decisions + cross-match validated
+    #      cache (3-match consensus required) — see entity_corrector.py
     all_corrections: list[Correction] = []
-    uncertain_corrections: list[Correction] = []  # Tier 2 corrections needing Tier 3 validation
     corrected_segments: list[Segment] = []
     total_entities = 0
-    # Track (segment_id, original_text) pairs to prevent the same entity
-    # being counted twice when it appears multiple times in one segment.
-    _seen_correction_keys: set[tuple[str, str]] = set()
+    entity_telemetry: dict = {}
 
-    saved_entities_for_step5 = []
+    if not ENTITY_CORRECTION_ENABLED:
+        corrected_segments = list(deduped_segments)
+        saved_entities_for_step5 = [[] for _ in deduped_segments]
+        print("  Entity correction: DISABLED (config.ENTITY_CORRECTION_ENABLED=False)")
+    else:
+        saved_entities_for_step5 = []
 
-    if learned_dict is None:
-        learned_dict = load_learned_dictionary()
-    # Use the snapshot for lookups (read-only within this match)
-
-    print("  Extracting entities in batch mode...")
-    segment_entities_map = extract_entities_batch(deduped_segments, language=detected_lang)
-
-    for seg in deduped_segments:
-        # First check the learned dictionary for instant corrections
-        text = seg.text
-
-        # Detect entities
-        entities = segment_entities_map.get(seg.segment_id, [])
-        total_entities += len(entities)
-
-        saved_entities_for_step5.append(entities)
-
-        # Try learned dictionary first for each entity
-        learned_applied = False
-
-        sorted_entities = sorted(entities, key=lambda e: e.start_char, reverse=True)
-
-        for entity in sorted_entities:
-            entity_text = extract_entity_core(entity.text)
-
-            if not entity_text:
-                continue
-
-            # Skip words tagged as non-name POS (ADJ, VERB, DET, etc.)
-            if entity.pos in REJECTED_POS_TAGS:
-                continue
-            # Skip very short entities
-            if len(entity_text.strip()) <= 2:
-                continue
-
-            learned_correction = lookup_learned(entity_text, learned_dict)
-            if learned_correction:
-                # Apply single-word logic: if entity is 1 word,
-                # don't replace with full name
-                entity_word_count = len(entity_text.split())
-                if entity_word_count == 1 and " " in learned_correction:
-                    # Extract just the surname from the full name
-                    corrected_name = learned_correction.split()[-1]
-                else:
-                    corrected_name = learned_correction
-
-                replacement = extract_and_rebuild_entity(entity.text, corrected_name)
-
-                before = text[:entity.start_char]
-                after = text[entity.end_char:]
-                text = before + replacement + after
-
-                ck = (seg.segment_id, entity.text)
-                if ck not in _seen_correction_keys:
-                    _seen_correction_keys.add(ck)
-                    all_corrections.append(Correction(
-                        original=entity.text,
-                        corrected=corrected_name,
-                        combined_score=100.0,
-                        fuzzy_score=100.0,
-                        phonetic_match=True,
-                        context_match=False,
-                        segment_id=seg.segment_id,
-                        method="learned_dictionary",
-                    ))
-                learned_applied = True
-
-        # If learned dict didn't handle everything, do fuzzy matching
-        if entities and not learned_applied:
-            # Build context_names from first names found in the segment text.
-            # If "Yannick" appears in text, add "Bolasie" (the surname) to
-            # context_names so the fuzzy matcher gives it a context bonus.
-            context_names: set[str] = set()
-            seg_words = {w.lower() for w in text.split()}
-            for fname, canonicals in firstname_map.items():
-                if fname in seg_words:
-                    for canonical in canonicals:
-                        # Add the surname variant so context scoring matches
-                        parts = canonical.split()
-                        if len(parts) >= 2:
-                            surname = " ".join(parts[1:])
-                            context_names.add(surname)
-                        context_names.add(canonical)
-
-            corrected_text, corrections = correct_segment_text(
-                text=text,
-                entities=entities,
-                gazetteer=gazetteer,
-                segment_id=seg.segment_id,
-                context_names=context_names if context_names else None,
-                entity_types=entity_types,
-                team_words=team_words,
-                language=detected_lang,
+        print("  Extracting entities in batch mode...")
+        segment_entities_map = extract_entities_batch(deduped_segments, language=detected_lang)
+        for seg in deduped_segments:
+            saved_entities_for_step5.append(
+                segment_entities_map.get((seg.half, seg.segment_id), [])
             )
-            # Split corrections by confidence band:
-            # - "accepted" (≥75): apply immediately
-            # - "uncertain" (48-74): hold for Tier 3 context validation
-            accepted = [c for c in corrections if c.confidence_band == "accepted"]
-            uncertain = [c for c in corrections if c.confidence_band == "uncertain"]
+            total_entities += len(segment_entities_map.get((seg.half, seg.segment_id), []))
 
-            if accepted:
-                # Apply only high-confidence corrections to the text
-                # Re-run correction with only accepted entities
-                text = corrected_text  # Use the corrected text (has all corrections)
-                all_corrections.extend(accepted)
-            else:
-                # No accepted corrections — keep original text
-                pass
+        # Run the new Validated Entity Corrector (TF-IDF + MCQ judge)
+        match_id = generate_match_id(match.league, match.season, match.match_name)
+        corrected_segments, entity_corrections_dicts = entity_correct_match(
+            segments=deduped_segments,
+            gazetteer=gazetteer,
+            entity_types=entity_types,
+            segment_entities_map=segment_entities_map,
+            match_id=match_id,
+            match_name=match.match_name,
+            language=detected_lang,
+        )
+        entity_telemetry = entity_last_telemetry()
 
-            # Store uncertain corrections for potential Tier 3 routing
-            uncertain_corrections.extend(uncertain)
+        # Convert dicts → Correction records for downstream metadata writers.
+        for d in entity_corrections_dicts:
+            d["match"] = match.match_name
+            all_corrections.append(Correction(
+                original=d["original"],
+                corrected=d["corrected"],
+                combined_score=d["score"],
+                fuzzy_score=0.0,
+                phonetic_match=False,
+                context_match=d.get("method") in ("mcq_judge", "validated_cache"),
+                segment_id=d["segment_id"],
+                half=d["half"],
+                method=d.get("method", "entity_corrector"),
+            ))
 
-        corrected_segments.append(Segment(
-            segment_id=seg.segment_id,
-            start_time=seg.start_time,
-            end_time=seg.end_time,
-            text=text,
-            half=seg.half,
-        ))
+        print(f"  Entities detected: {total_entities}")
+        print(f"  Stage E entity corrections applied: {len(all_corrections)}")
 
-    print(f"  Entities detected (Tier 2): {total_entities}")
-    print(f"  Entities corrected (Tier 2 accepted): {len(all_corrections)}")
-    print(f"  Uncertain corrections (routed to Tier 3): {len(uncertain_corrections)}")
-
-    # ── Step 5: Tier 3 — Contextual disambiguation ────────────────────
-    tier3_corrections = 0
-    if max_tier >= 3:
-        # Collect unresolved entities (detected by NER but not corrected)
-        # We re-run NER on corrected segments to find remaining entities
-        unresolved = []
-        corrected_set = {
-            (c.segment_id, c.original) for c in all_corrections
-        }
-        lower_gazetteer = {k.lower() for k in gazetteer}
-        team_names = [
-            canon for canon, etype in entity_types.items()
-            if etype == "team"
-        ]
-
-        for seg_idx, (seg, entities) in enumerate(zip(corrected_segments, saved_entities_for_step5)):
-            for entity in entities:
-                entity_text = extract_entity_core(entity.text)
-                if not entity_text:
-                    continue
-                # ── Strict filtering for Tier 3 ──
-                # Only PERSON-like entities should be disambiguated
-                if entity.label not in ("PERSON", "PER"):
-                    continue
-                # Skip words tagged as non-name POS
-                if entity.pos in REJECTED_POS_TAGS:
-                    continue
-                # Must start with uppercase (names always do)
-                if not entity_text[0].isupper():
-                    continue
-                # Skip possessives
-                # Skip if already in gazetteer (no correction needed)
-                # Strip trailing punctuation first — spaCy often
-                # includes sentence-ending punctuation in the entity span
-                # e.g. "Joel Ward." should match "Joel Ward" in gazetteer
-                entity_cleaned = entity_text
-                if entity_cleaned in gazetteer or entity_cleaned.lower() in lower_gazetteer:
-                    continue
-                # Skip if Tier 2 already corrected this
-                if (seg.segment_id, entity_text) in corrected_set:
-                    continue
-                # ── Entity-type-aware filtering ──
-                # Skip entities whose text matches a team/venue word.
-                # Fixes: "Palace"→player, "Wickham Palace"→player
-                entity_lower_words = {w.lower() for w in entity_cleaned.split()}
-                if entity_lower_words & team_words:
-                    continue
-                # Skip entities that contain a full team name as substring
-                # Fixes: "West Ham United" being sent for correction
-                entity_lower = entity_cleaned.lower()
-                if any(tn.lower() in entity_lower for tn in team_names):
-                    continue
-                # Skip multi-word entities where each word is a known name
-                # (e.g. "Ivanovic Zouma" — two adjacent correct names)
-                entity_words = entity_cleaned.split()
-                if len(entity_words) >= 2:
-                    words_in_gaz = sum(
-                        1 for w in entity_words
-                        if w.lower() in lower_gazetteer
-                    )
-                    if words_in_gaz >= 2:
-                        continue
-                    # Also check for multi-word gazetteer substrings.
-                    # "Di Maria Rooney" contains "Di Maria" + "Rooney" — two
-                    # valid names merged by spaCy, not a single misspelling.
-                    if _entity_contains_multiple_gazetteer_names(
-                        entity_cleaned, lower_gazetteer
-                    ):
-                        continue
-
-                # ── Fuzzy similarity gate ──
-                # Only route to Tier 3 if the entity has meaningful
-                # string/phonetic similarity to at least one gazetteer
-                # candidate. This prevents correctly transcribed names
-                # from other clubs (e.g. "Coutinho") from being wrongly
-                # remapped to match-roster players.
-                # When the gate passes, attach the best Tier 2 candidate
-                # so Tier 3 validates it rather than doing an unconstrained
-                # search (which could pick an unrelated name).
-                from rapidfuzz import process as rfprocess, fuzz as rffuzz
-                top_candidates = rfprocess.extract(
-                    entity_cleaned, list(gazetteer.keys()),
-                    scorer=rffuzz.token_sort_ratio, limit=1,
-                )
-                proposed_correction = None
-                proposed_score = None
-                if top_candidates:
-                    best_candidate = top_candidates[0][0]
-                    best_t2_score, _, _, _ = compute_combined_score(
-                        entity_cleaned, best_candidate,
-                    )
-                    if best_t2_score < get_fuzzy_threshold(entity_cleaned):
-                        continue  # Too dissimilar — not an ASR error
-                    # Derive the corrected name the same way Tier 2 would
-                    canonical = gazetteer[best_candidate]
-                    entity_word_count = len(entity_cleaned.split())
-                    if entity_word_count == 1:
-                        canonical_words = canonical.split()
-                        if len(canonical_words) == 1:
-                            proposed_correction = canonical
-                        else:
-                            best_word = canonical_words[-1]
-                            best_word_sim = 0
-                            for cw in canonical_words:
-                                wsim = rffuzz.ratio(entity_cleaned.lower(), cw.lower())
-                                if wsim > best_word_sim:
-                                    best_word_sim = wsim
-                                    best_word = cw
-                            proposed_correction = best_word
-                    else:
-                        # Multi-word entity — use surname-only form if the
-                        # entity doesn't match the canonical first name.
-                        # "De Michelis" matched "Demichelis" → canonical
-                        # "Martin Demichelis" → use "Demichelis" not full.
-                        canonical_words = canonical.split()
-                        candidate_word_count = len(best_candidate.split())
-                        is_surname_variant = (
-                            len(canonical_words) > candidate_word_count
-                            or (len(canonical_words) > entity_word_count
-                                and entity_word_count <= 2)
-                        )
-                        if is_surname_variant:
-                            entity_first = entity_cleaned.split()[0].lower()
-                            canon_first = canonical_words[0].lower()
-                            first_name_sim = rffuzz.ratio(
-                                entity_first, canon_first
-                            )
-                            if first_name_sim < 60:
-                                proposed_correction = " ".join(
-                                    canonical_words[1:]
-                                )
-                            else:
-                                proposed_correction = canonical
-                        else:
-                            proposed_correction = canonical
-                    proposed_score = best_t2_score
-
-                # This entity is a plausible name that Tier 2 couldn't
-                # resolve — send to Tier 3 for contextual disambiguation
-                entry = {
-                    "text": entity_text,
-                    "segment_id": seg.segment_id,
-                    "segment_idx": seg_idx,
-                }
-                if proposed_correction:
-                    entry["proposed_correction"] = proposed_correction
-                    entry["proposed_score"] = proposed_score
-                unresolved.append(entry)
-
-        # Also route uncertain Tier 2 corrections to Tier 3.
-        # These scored 48-74 and need context validation.
-        for uc in uncertain_corrections:
-            # Find the segment index for this correction
-            seg_idx_for_uc = None
-            for idx, seg in enumerate(corrected_segments):
-                if seg.segment_id == uc.segment_id:
-                    seg_idx_for_uc = idx
-                    break
-            if seg_idx_for_uc is not None:
-                unresolved.append({
-                    "text": uc.original,
-                    "segment_id": uc.segment_id,
-                    "segment_idx": seg_idx_for_uc,
-                    "proposed_correction": uc.corrected,
-                    "proposed_score": uc.combined_score,
-                })
-
-        if unresolved:
-            print(f"  Unresolved entities for Tier 3: {len(unresolved)}")
-            results_t3 = batch_disambiguate(
-                unresolved_entities=unresolved,
-                all_segments=corrected_segments,
-                gazetteer=gazetteer,
-                labels=match.labels,
-                entity_types=entity_types,
-                language=detected_lang,
-            )
-
-            # Apply Tier 3 corrections
-            for r in results_t3:
-                # Find and update the segment
-                for i, seg in enumerate(corrected_segments):
-                    if seg.segment_id == r.segment_id:
-                        new_text = seg.text.replace(r.entity_text, r.corrected)
-                        corrected_segments[i] = Segment(
-                            segment_id=seg.segment_id,
-                            start_time=seg.start_time,
-                            end_time=seg.end_time,
-                            text=new_text,
-                            half=seg.half,
-                        )
-                        all_corrections.append(Correction(
-                            original=r.entity_text,
-                            corrected=r.corrected,
-                            combined_score=round(r.similarity * 100, 1),
-                            fuzzy_score=0.0,
-                            phonetic_match=False,
-                            context_match=True,
-                            segment_id=r.segment_id,
-                            method=f"context_similarity({r.similarity:.2f})",
-                        ))
-                        tier3_corrections += 1
-                        break
-
-            print(f"  Tier 3 corrections: {tier3_corrections}")
-        else:
-            print("  Tier 3: no unresolved entities")
+    # NOTE: Stage 3.5 (XLM-R error detection) + Stage 3.7 (LLM MCQ validator) +
+    # Stage 4 (mT5 / BERT masked-LM) + Stage 5 (Ollama generative rewriter)
+    # were all removed in the May 2026 cleanup. They were either gated off,
+    # produced 0 net corrections, or have been superseded by the SOTA Step L
+    # (pipeline/llm_corrector.py — confidence-gated GER with Qwen + MLM veto).
+    # See plans/check-all-files-and-peppy-lemur.md.
+    flagged_words_count = 0  # kept in CleaningResult for backward-compat reports
 
     # ── Step 6: Collect Tier 1/2 corrections for learned dict ────────
     # Only Tier 1/2 corrections — Tier 3 context_similarity
@@ -501,10 +261,44 @@ def clean_match(
     # Corrections are returned to the caller for batch update
     # after all matches complete (enables safe parallel execution).
 
-    # ── Step 6: Write output ─────────────────────────────────────────
+    # ── SOTA Refactor — Steps R, L, P (see plan + module docstrings) ─
+    # These run AFTER the legacy correction stages so that legacy can be
+    # re-enabled via config flags for ablation comparison without code
+    # changes. With defaults (legacy stages = False), legacy is a no-op
+    # and `corrected_segments` here is the dedup+text-clean output.
+    sota_corrections: list[dict] = []
+    # NOTE: Step R (n-best entity rerank) was removed in May 2026 — it was
+    # a no-op since the Whisper output schema-1 doesn't carry n-best
+    # alternatives. The architectural slot is preserved in entity_corrector
+    # which now handles all entity-correction work.
+
+    # Step L: Confidence-gated GER (Qwen2.5-0.5B + MLM veto).
+    corrected_segments, llm_corrections = llm_correct_match(
+        corrected_segments, gazetteer, entity_types,
+        match_name=match.match_name, language=detected_lang,
+    )
+    llm_telemetry = llm_last_telemetry()
+    if llm_corrections:
+        for c in llm_corrections:
+            c["match"] = match.match_name
+        sota_corrections.extend(llm_corrections)
+        print(f"  Step L LLM GER: {len(llm_corrections)} corrections")
+    # Step P: Punctuation + casing restoration (search-friendly output).
+    corrected_segments, punct_corrections = restore_punctuation_batch(
+        corrected_segments, language=detected_lang,
+    )
+    if punct_corrections:
+        for c in punct_corrections:
+            c["match"] = match.match_name
+        sota_corrections.extend(punct_corrections)
+        print(f"  Step P punct restoration: {len(punct_corrections)} segments restyled")
+
+    # ── Step 7: Write output ─────────────────────────────────────────
     if not dry_run:
         _write_cleaned_output(match, corrected_segments, all_corrections,
-                              removed_hallucinations, removed_duplicates)
+                              removed_hallucinations, removed_duplicates,
+                              sota_corrections=sota_corrections,
+                              llm_telemetry=llm_telemetry)
 
     # ── Build result ─────────────────────────────────────────────────
     # Deduplicate corrections for the report
@@ -520,7 +314,18 @@ def clean_match(
                 "corrected": c.corrected,
                 "score": round(c.combined_score, 1),
                 "method": c.method,
+                "stage": "3",  # Entity correction stage
             })
+
+    # Build correction breakdown by stage
+    breakdown = {
+        "normalization": 0, "spell_check": 0, "grammar": 0,
+        "entity": len(unique_corrections), "neural": 0, "llm": 0,
+    }
+    for sc in stage2_corrections:
+        method = sc.get("method", "")
+        if method in breakdown:
+            breakdown[method] += 1
 
     return CleaningResult(
         match_name=match.match_name,
@@ -534,6 +339,9 @@ def clean_match(
         removed_hallucinations=removed_hallucinations,
         removed_duplicates=removed_duplicates,
         tier12_corrections=tier12_corrections,
+        text_corrections=stage2_corrections,
+        flagged_words_count=flagged_words_count,
+        correction_breakdown=breakdown,
     )
 
 
@@ -543,11 +351,18 @@ def _write_cleaned_output(
     corrections: list[Correction],
     removed_hallucinations: list[dict],
     removed_duplicates: list[dict],
+    sota_corrections: list[dict] | None = None,
+    llm_telemetry: dict | None = None,
 ) -> None:
     """Write cleaned JSON files mirroring the original directory structure.
 
     Generates globally unique IDs for each segment and creates
     temporal chunks for Elasticsearch-ready search indexing.
+
+    The output JSON now also includes optional schema-2 enrichments
+    (per-word probabilities, n-best alternatives, speaker_id) when the
+    upstream Whisper run produced them — useful for downstream event
+    detection and confidence-aware search.
     """
     # Create output directory mirroring the match structure
     relative_path = match.match_dir.relative_to(match.match_dir.parents[3])
@@ -569,17 +384,39 @@ def _write_cleaned_output(
         if not half_segments:
             continue
 
+        def _seg_payload(s: Segment) -> dict:
+            payload = {
+                "global_id": s.global_id,
+                "start_time": s.start_time,
+                "end_time": s.end_time,
+                "text": s.text,
+            }
+            # Persist schema-2 enrichments when present (downstream event
+            # detection / confidence-aware search wants these).
+            if s.words is not None:
+                payload["words"] = s.words
+            if s.avg_logprob is not None:
+                payload["avg_logprob"] = s.avg_logprob
+            if s.no_speech_prob is not None:
+                payload["no_speech_prob"] = s.no_speech_prob
+            if s.nbest is not None:
+                payload["nbest"] = s.nbest
+            if s.speaker_id is not None:
+                payload["speaker_id"] = s.speaker_id
+            return payload
+
+        # Half-aware slice of SOTA corrections (R/L/P stages).
+        # Filter on the half tag ONLY — segment_id is not unique across halves
+        # (both halves use "0", "1", "2", ...), so any segment_id-based fallback
+        # silently leaks cross-half corrections into the wrong file.
+        sota_for_half = [
+            c for c in (sota_corrections or [])
+            if c.get("half") == half_num
+        ]
+
         # Build the output JSON with global IDs
         output_data = {
-            "segments": {
-                s.segment_id: {
-                    "global_id": s.global_id,
-                    "start_time": s.start_time,
-                    "end_time": s.end_time,
-                    "text": s.text,
-                }
-                for s in half_segments
-            },
+            "segments": {s.segment_id: _seg_payload(s) for s in half_segments},
             "cleaning_metadata": {
                 "match_id": match_id,
                 "original_segment_count": len([
@@ -593,15 +430,18 @@ def _write_cleaned_output(
                         "corrected": c.corrected,
                         "score": round(c.combined_score, 1),
                         "method": c.method,
+                        "stage": "3",
                     }
                     for c in corrections
-                    if any(s.segment_id == c.segment_id and s.half == half_num
-                           for s in segments)
+                    if c.half == half_num
                 ],
+                "sota_corrections": sota_for_half,
+                "llm_telemetry": llm_telemetry or {},
             },
         }
 
-        output_path = output_dir / f"{half_num}_asr_cleaned.json"
+        from pipeline.config import ASR_INPUT_VARIANT
+        output_path = output_dir / f"{half_num}_asr{ASR_INPUT_VARIANT}_cleaned.json"
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=4, ensure_ascii=False)
 
@@ -710,9 +550,10 @@ def run_pipeline(
     # Don't spawn more workers than matches
     effective_workers = min(effective_workers, len(matches))
 
-    # Load learned dictionary ONCE (read-only snapshot for all workers)
-    learned_dict = load_learned_dictionary()
-    print(f"Learned dictionary: {len(learned_dict)} entries loaded")
+    # Legacy learned_dictionary removed — entity_corrector now owns the
+    # validated cross-match cache (per-match decision cache + safe-cache
+    # requiring 3-match consensus).
+    learned_dict: dict = {}
 
     start_time = time.time()
 
@@ -755,8 +596,7 @@ def run_pipeline(
     for result in results:
         all_tier12.extend(result.tier12_corrections)
 
-    if all_tier12 and not dry_run:
-        batch_update_learned_dictionary(all_tier12)
-        print(f"Learned dictionary updated with {len(all_tier12)} corrections from {len(results)} match(es)")
+    # The validated cross-match cache (entity_corrector owns it) updates
+    # itself in-process per match; nothing to batch-write here.
 
     return results

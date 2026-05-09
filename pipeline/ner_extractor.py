@@ -98,15 +98,6 @@ def get_nlp(language: str = "en"):
     return nlp
 
 
-def _reset_nlp():
-    """Reset the cached spaCy models (forces reload on next get_nlp() call).
-
-    Used by the model comparison script to switch between models.
-    """
-    global _nlp_cache
-    _nlp_cache.clear()
-
-
 # ─── Heuristic Entity Detection ─────────────────────────────────────
 
 # Pattern: A capitalized word (2+ chars) that might be a name.
@@ -154,6 +145,10 @@ def extract_heuristic_entities(
         nlp = get_nlp(language)
         doc = nlp(text)
 
+    # Language-aware POS reject set
+    from pipeline.config import get_rejected_pos_tags
+    rejected_pos = get_rejected_pos_tags(language)
+
     # Rule 1: Short segments (1-3 words) that are just a name
     if len(words) <= 3:
         for match in CAPITALIZED_WORD.finditer(text):
@@ -162,7 +157,7 @@ def extract_heuristic_entities(
                 continue
             pos = _get_pos_for_word(doc, word, match.start())
             # Skip if POS indicates a non-name word
-            if pos in REJECTED_POS_TAGS:
+            if pos in rejected_pos:
                 continue
             entities.append(DetectedEntity(
                 text=word,
@@ -173,45 +168,73 @@ def extract_heuristic_entities(
                 pos=pos,
             ))
 
-    # Rule 2: Capitalized words near verbs (language-agnostic via POS)
+    # Rule 2: Capitalized words that aren't rejected-POS (proper-noun candidates).
+    # In Swedish football commentary, a capitalized non-sentence-start word is
+    # almost always a proper noun (name/team/venue). Whether or not it appears
+    # near a verb doesn't matter — "till Nordfält." has no nearby verb but
+    # Nordfält is clearly an entity. The POS + position signals (not
+    # sentence-start, not in rejected POS tags) are enough.
+    #
+    # F3 FIX (v2): previously used `text.find(clean_word)` which always
+    # returns the FIRST occurrence. For repeated-name segments ("Hansson
+    # skjuter. Hansson missar.") both iterations hit start=0, got collapsed
+    # by _deduplicate_entities, and only the first instance was corrected.
+    #
+    # Fix: walk word-by-word, consuming from a cursor. Skip tokens simply
+    # advance the cursor; entity candidates look up from the cursor. This
+    # avoids the off-by-length issues a naive cursor can introduce.
+    cursor = 0
     for i, word in enumerate(words):
+        # Always advance cursor past this word, whether or not we keep it.
+        # Find the word at or after cursor so repeated words get distinct spans.
+        word_start = text.find(word, cursor)
+        if word_start < 0:
+            # Word not found from cursor — reset search to cursor for robustness.
+            word_start = text.find(word, max(cursor - 1, 0))
+            if word_start < 0:
+                continue
+        next_cursor = word_start + len(word)
+
         clean_word = word.strip(".,!?;:'\"")
         if len(clean_word) < 3:
+            cursor = next_cursor
             continue
         if not clean_word[0].isupper():
+            cursor = next_cursor
+            continue
+        # Sentence-start capitals may be common words — skip unless spaCy
+        # tags them as PROPN.
+        is_sentence_start = (i == 0)
+
+        # Find clean_word specifically (not the word-with-punctuation).
+        # It must be at or inside [word_start, next_cursor].
+        start_pos = text.find(clean_word, word_start)
+        if start_pos < 0 or start_pos >= next_cursor:
+            cursor = next_cursor
+            continue
+        pos = _get_pos_for_word(doc, clean_word, start_pos)
+        cursor = next_cursor
+
+        # Skip if POS indicates a non-name word (language-aware set)
+        if pos in rejected_pos:
             continue
 
-        # Get POS for this word
-        start_pos = text.find(clean_word)
-        pos = _get_pos_for_word(doc, clean_word, start_pos) if start_pos >= 0 else ""
-
-        # Skip if POS indicates a non-name word
-        if pos in REJECTED_POS_TAGS:
+        # At sentence start, only accept if POS is PROPN (to avoid "Det",
+        # "Han", "Nu" style capitalized function words).
+        if is_sentence_start and pos != "PROPN":
             continue
 
-        # Check if any nearby word (±2 positions) is a verb (POS-based, language-agnostic)
-        has_nearby_verb = False
-        for j in range(max(0, i - 2), min(len(words), i + 3)):
-            if j == i:
-                continue
-            nearby_word = words[j].strip(".,!?;:'\"")
-            nearby_start = text.find(nearby_word)
-            if nearby_start >= 0:
-                nearby_pos = _get_pos_for_word(doc, nearby_word, nearby_start)
-                if nearby_pos == "VERB":
-                    has_nearby_verb = True
-                    break
+        if start_pos < 0:
+            continue
 
-        if has_nearby_verb:
-            if start_pos >= 0:
-                entities.append(DetectedEntity(
-                    text=clean_word,
-                    label="PERSON",
-                    start_char=start_pos,
-                    end_char=start_pos + len(clean_word),
-                    source="heuristic_near_action_verb",
-                    pos=pos,
-                ))
+        entities.append(DetectedEntity(
+            text=clean_word,
+            label="PERSON",
+            start_char=start_pos,
+            end_char=start_pos + len(clean_word),
+            source="heuristic_capitalized_non_function",
+            pos=pos,
+        ))
 
     return entities
 
@@ -276,7 +299,7 @@ def extract_entities(segment: Segment, language: str = "en") -> list[DetectedEnt
 def extract_entities_batch(
     segments: list[Segment],
     language: str = "en",
-) -> dict[str, list[DetectedEntity]]:
+) -> dict[tuple[int, str], list[DetectedEntity]]:
     """
     Extract entities from all segments in a batch.
 
@@ -287,7 +310,15 @@ def extract_entities_batch(
         language: detected commentary language (default "en")
 
     Returns:
-        Dict mapping segment_id -> list of DetectedEntity
+        Dict mapping (half, segment_id) -> list of DetectedEntity
+
+    NOTE: The map is keyed by ``(seg.half, seg.segment_id)`` because
+    ``segment_id`` alone is NOT unique across halves — the JSON format
+    restarts numbering at 0 for each half, so half 1 seg "90" and half 2
+    seg "90" collide. Keying by segment_id only caused entities (with
+    positions valid for half 2 text) to be applied to half 1 text, which
+    corrupted segments like '411 som eventuellt då.' → '411 som eventuellt
+    då.Celina' (half 2 seg 90 was 'Testa vänsterkanten genom Selina.').
     """
     nlp = get_nlp(language)
     entity_labels = get_entity_labels(language)
@@ -295,7 +326,7 @@ def extract_entities_batch(
     # Prepare texts and segment references
     texts = [seg.text.strip() for seg in segments]
 
-    results: dict[str, list[DetectedEntity]] = {}
+    results: dict[tuple[int, str], list[DetectedEntity]] = {}
 
     # Process in batches with spaCy pipe
     for i, doc in enumerate(nlp.pipe(texts, batch_size=32)):
@@ -329,6 +360,6 @@ def extract_entities_batch(
             if not overlaps:
                 entities.append(he)
 
-        results[seg.segment_id] = _deduplicate_entities(entities)
+        results[(seg.half, seg.segment_id)] = _deduplicate_entities(entities)
 
     return results

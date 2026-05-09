@@ -109,3 +109,15 @@ class TestDeduplicateSegments:
         assert removed[0]["segment_id"] == "11"
         assert removed[0]["duplicate_of"] == "10"
         assert removed[0]["similarity"] == 100.0
+
+    def test_punctuation_variants_merge(self):
+        """Consecutive 'Hansson.', 'Hansson!', 'Hansson,' should all merge as
+        duplicates — punctuation is stripped before similarity comparison."""
+        segments = [
+            _seg("Hansson.", 0, 5, "0"),
+            _seg("Hansson!", 5, 10, "1"),
+            _seg("Hansson,", 10, 15, "2"),
+        ]
+        deduped, removed = deduplicate_segments(segments)
+        assert len(deduped) == 1
+        assert len(removed) == 2

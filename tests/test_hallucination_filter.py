@@ -9,6 +9,7 @@ from pipeline.loader import Segment
 from pipeline.hallucination_filter import (
     filter_segment,
     filter_segments,
+    find_repeated_name_hallucinations,
     compute_alpha_ratio,
     has_non_latin_characters,
 )
@@ -86,10 +87,11 @@ class TestFilterSegment:
         assert is_valid is False
         assert "non_latin" in reason
 
-    def test_single_word_noise(self):
-        is_valid, reason = filter_segment(_seg("transition"))
-        assert is_valid is False
-        assert "too_few_words" in reason
+    def test_single_word_valid(self):
+        # Single-word segments like "GOAL!" are valid commentary.
+        # MIN_SEGMENT_WORD_COUNT=1 allows these through.
+        is_valid, reason = filter_segment(_seg("GOAL"))
+        assert is_valid is True
 
     def test_two_word_segment_valid(self):
         # Two words should pass the min word count
@@ -106,9 +108,15 @@ class TestFilterSegment:
         assert is_valid is True
 
     def test_low_alpha_ratio(self):
-        is_valid, reason = filter_segment(_seg("3 on 2"))
+        # "123456" has 0% alpha — clear garbage
+        is_valid, reason = filter_segment(_seg("123456"))
         assert is_valid is False
         assert "low_alpha_ratio" in reason
+
+    def test_mixed_alpha_numeric_valid(self):
+        # "3 on 2" has 75% alpha — above 0.50 threshold, valid commentary
+        is_valid, reason = filter_segment(_seg("3 on 2"))
+        assert is_valid is True
 
 
 class TestFilterSegments:
@@ -117,16 +125,16 @@ class TestFilterSegments:
     def test_mixed_segments(self):
         segments = [
             _seg("De Bruyne passes to Sterling", "0"),
-            _seg("youこちら", "1"),
-            _seg("transition", "2"),
+            _seg("youこちら", "1"),                       # non-Latin → removed
+            _seg("transition", "2"),                      # 1 word, valid (MIN=1)
             _seg("Sterling shoots and scores", "3"),
         ]
         kept, removed = filter_segments(segments)
-        assert len(kept) == 2
-        assert len(removed) == 2
-        # Valid segments should be #0 and #3
+        assert len(kept) == 3   # "transition" now kept (MIN_SEGMENT_WORD_COUNT=1)
+        assert len(removed) == 1
         assert kept[0].segment_id == "0"
-        assert kept[1].segment_id == "3"
+        assert kept[1].segment_id == "2"
+        assert kept[2].segment_id == "3"
 
     def test_all_valid(self):
         segments = [
@@ -139,10 +147,122 @@ class TestFilterSegments:
 
     def test_all_garbage(self):
         segments = [
-            _seg("", "0"),
-            _seg("실시", "1"),
-            _seg("x", "2"),
+            _seg("", "0"),          # empty → removed
+            _seg("실시", "1"),       # non-Latin → removed
+            _seg("12345", "2"),     # 0% alpha → removed
         ]
         kept, removed = filter_segments(segments)
         assert len(kept) == 0
         assert len(removed) == 3
+
+
+def _tseg(text: str, seg_id: str, start: float, end: float) -> Segment:
+    """Helper for time-sensitive test segments."""
+    return Segment(
+        segment_id=seg_id,
+        start_time=start,
+        end_time=end,
+        text=text,
+        half=1,
+    )
+
+
+class TestRepeatedNameHallucinations:
+    """Rule 6: Whisper 'stuck on a name' pattern (cluster-aware)."""
+
+    def test_finds_clustered_repeated_name(self):
+        """Segments 26-31 in AIK raw all said 'Hansson.' within ~30s.
+        That's a cluster and should be flagged."""
+        segments = [
+            _tseg("Hansson.", "0", 0.0, 5.0),
+            _tseg("Vänster sida, bollen går ut.", "1", 5.0, 10.0),
+            _tseg("Hansson.", "2", 10.0, 15.0),
+            _tseg("Corner för AIK.", "3", 15.0, 20.0),
+            _tseg("Hansson.", "4", 20.0, 25.0),
+        ]
+        bad_ids = find_repeated_name_hallucinations(
+            segments, min_cluster_size=3, cluster_window_s=60.0,
+        )
+        # All 3 "Hansson." within 25s — a cluster.
+        # Keys are (half, segment_id) tuples so halves don't collide.
+        assert bad_ids == {(1, "0"), (1, "2"), (1, "4")}
+
+    def test_spread_out_callouts_not_flagged(self):
+        """Real commentator callouts of a player are spread across the match,
+        not clustered. E.g. 'Neves!' 16 times over 90 min → not hallucination."""
+        segments = [
+            _tseg("Neves.", "0", 10.0, 12.0),
+            _tseg("Neves.", "1", 600.0, 602.0),    # 10 min later
+            _tseg("Neves.", "2", 1200.0, 1202.0),  # 20 min later
+            _tseg("Neves.", "3", 1800.0, 1802.0),  # 30 min later
+        ]
+        bad_ids = find_repeated_name_hallucinations(
+            segments, min_cluster_size=3, cluster_window_s=60.0,
+        )
+        # All 4 are spread widely → not a cluster, not flagged
+        assert bad_ids == set()
+
+    def test_does_not_flag_below_threshold(self):
+        """Two clustered occurrences is not enough — could be real emphasis."""
+        segments = [
+            _tseg("Hansson!", "0", 0.0, 5.0),
+            _tseg("Other stuff here.", "1", 5.0, 10.0),
+            _tseg("Hansson.", "2", 10.0, 15.0),
+        ]
+        bad_ids = find_repeated_name_hallucinations(segments)
+        assert bad_ids == set()
+
+    def test_ignores_multi_word_segments(self):
+        """Multi-word segments never count, regardless of clustering."""
+        segments = [
+            _tseg("Hansson passes forward.", "0", 0.0, 5.0),
+            _tseg("Hansson shoots.", "1", 5.0, 10.0),
+            _tseg("Hansson scores.", "2", 10.0, 15.0),
+        ]
+        bad_ids = find_repeated_name_hallucinations(segments)
+        assert bad_ids == set()
+
+    def test_ignores_all_caps(self):
+        """ALL-CAPS words like 'AIK' are acronyms, not stuck names."""
+        segments = [
+            _tseg("AIK.", "0", 0.0, 5.0),
+            _tseg("AIK!", "1", 5.0, 10.0),
+            _tseg("AIK?", "2", 10.0, 15.0),
+        ]
+        bad_ids = find_repeated_name_hallucinations(segments)
+        assert bad_ids == set()
+
+    def test_multiple_clusters_all_flagged(self):
+        """Two separate clusters of the same word far apart: flag BOTH clusters."""
+        segments = [
+            # Cluster 1: at t=0-25
+            _tseg("Hansson.", "0", 0.0, 5.0),
+            _tseg("Hansson.", "1", 10.0, 15.0),
+            _tseg("Hansson.", "2", 20.0, 25.0),
+            # Gap with other content
+            _tseg("The ball is in play.", "3", 1000.0, 1005.0),
+            # Cluster 2: at t=2000-2025
+            _tseg("Hansson.", "4", 2000.0, 2005.0),
+            _tseg("Hansson.", "5", 2010.0, 2015.0),
+            _tseg("Hansson.", "6", 2020.0, 2025.0),
+        ]
+        bad_ids = find_repeated_name_hallucinations(segments)
+        assert bad_ids == {(1, "0"), (1, "1"), (1, "2"), (1, "4"), (1, "5"), (1, "6")}
+
+    def test_filter_segments_removes_clustered_hallucinations(self):
+        """End-to-end: filter_segments drops clustered hallucinations only."""
+        segments = [
+            _tseg("Hansson.", "0", 0.0, 5.0),
+            _tseg("The match continues.", "1", 10.0, 20.0),
+            _tseg("Hansson.", "2", 20.0, 25.0),
+            _tseg("Hansson.", "3", 30.0, 35.0),
+            _tseg("Another valid segment.", "4", 100.0, 105.0),
+            _tseg("Hansson.", "5", 500.0, 505.0),  # isolated, not flagged
+        ]
+        kept, removed = filter_segments(segments)
+        # 3 clustered Hansson. (0, 2, 3) removed; 1 isolated kept; 2 valid kept
+        kept_ids = {s.segment_id for s in kept}
+        assert kept_ids == {"1", "4", "5"}
+        repeated_removals = [r for r in removed
+                             if r["reason"] == "hallucination_repeated_name_segment"]
+        assert len(repeated_removals) == 3

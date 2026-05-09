@@ -2,6 +2,17 @@ spacy>=3.5
 rapidfuzz>=3.0
 jellyfish>=1.0
 langdetect>=1.0.9
-regex>=2023.0
 sentence-transformers>=2.2
-requests>=2.28
+# Stage 2B spell-check + Stage 2C grammar
+pyspellchecker>=0.7
+language-tool-python>=2.7
+# Stage 3.5 error detection + Stage 4 neural correction
+torch>=2.0
+transformers>=4.30
+# faster-whisper for ASR with logprobs + n-best beam
+faster-whisper>=1.0
+# SOTA refactor: confidence-gated GER + RAG entity rerank + punct restoration
+llama-cpp-python>=0.3.0
+faiss-cpu>=1.8
+# Speaker diarization (optional, enabled via DIARIZATION_ENABLED in config.py)
+# pyannote.audio>=3.1   # uncomment when diarization is enabled

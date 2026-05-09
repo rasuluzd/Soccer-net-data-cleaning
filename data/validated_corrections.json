@@ -1,0 +1,162 @@
+{
+  "adanovic": {
+    "correct": "Ivanovic",
+    "fuzzy_avg": 75.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "alana": {
+    "correct": "Lallana",
+    "fuzzy_avg": 83.33333333333334,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "city": {
+    "correct": "City",
+    "fuzzy_avg": 100.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "dante": {
+    "correct": "Kante",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "gary cale": {
+    "correct": "Gary Cahill",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "guardiola": {
+    "correct": "Guardiola",
+    "fuzzy_avg": 100.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "james milne": {
+    "correct": "James Milner",
+    "fuzzy_avg": 95.65217391304348,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "jürgen klopp": {
+    "correct": "Jurgen Klopp",
+    "fuzzy_avg": 91.66666666666666,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "kane": {
+    "correct": "Mane",
+    "fuzzy_avg": 75.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "kosta": {
+    "correct": "Costa",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "mann": {
+    "correct": "Mane",
+    "fuzzy_avg": 75.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "marvin atkinson": {
+    "correct": "Martin Atkinson",
+    "fuzzy_avg": 93.33333333333333,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "nathaniel klein": {
+    "correct": "Nathaniel Clyne",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "northampton": {
+    "correct": "Southampton",
+    "fuzzy_avg": 81.81818181818181,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "oskar": {
+    "correct": "Oscar",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "ramirez": {
+    "correct": "Ramires",
+    "fuzzy_avg": 85.71428571428572,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "shooting daniel sturridge": {
+    "correct": "Daniel Sturridge",
+    "fuzzy_avg": 78.04878048780488,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "starridge": {
+    "correct": "Sturridge",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "stewart": {
+    "correct": "Stewart",
+    "fuzzy_avg": 100.0,
+    "last_updated": "2026-05-09",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "williams": {
+    "correct": "Willian",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  }
+}

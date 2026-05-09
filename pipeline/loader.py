@@ -10,18 +10,35 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from pipeline.config import DATASET_ROOT
+from pipeline.config import ASR_INPUT_VARIANT, DATASET_ROOT
 
 
 @dataclass
 class Segment:
-    """One ASR transcript segment (a chunk of commentary)."""
+    """One ASR transcript segment (a chunk of commentary).
+
+    Optional fields populated by faster-whisper schema-2 outputs (per
+    ``pipeline/whisper_runner.py:WHISPER_OUTPUT_SCHEMA_VERSION``). When the
+    source ``X_asr.json`` is the older list-format schema-1, these stay None
+    and downstream stages degrade gracefully (e.g. the LLM corrector treats
+    every word as low-confidence when ``words`` is None).
+    """
     segment_id: str       # original key from JSON ("0", "1", ...)
     start_time: float     # start timestamp in seconds
     end_time: float       # end timestamp in seconds
     text: str             # raw ASR transcription text
     half: int             # 1 or 2 (which half of the match)
     global_id: str = ""   # globally unique ID for Elasticsearch indexing
+    # Schema-2 enrichments (None for schema-1 inputs)
+    words: Optional[list[dict]] = None         # [{word, start, end, prob}, ...]
+    avg_logprob: Optional[float] = None        # segment avg token logprob
+    no_speech_prob: Optional[float] = None     # Whisper's silence probability
+    nbest: Optional[list[str]] = None          # alternative beam hypotheses
+    speaker_id: Optional[str] = None           # set by pipeline/diarizer.py
+    # Word indices that downstream LLM stages must treat as non-editable.
+    # Populated by entity_corrector when it applies a correction so the
+    # subsequent Step L (Qwen GER) doesn't re-touch the canonical name.
+    frozen_word_indices: Optional[list[int]] = None
 
 
 @dataclass
@@ -39,29 +56,58 @@ def load_asr_json(filepath: Path, half: int) -> list[Segment]:
     """
     Parse a single *_asr.json file into a list of Segment objects.
 
-    The JSON format is:
-        {"segments": {"0": [start, end, "text"], "1": [start, end, "text"], ...}}
+    Supports both schema versions:
+
+    Schema 1 (legacy list format)::
+
+        {"segments": {"0": [start, end, "text"], ...}}
+
+    Schema 2 (faster-whisper enriched, per ``whisper_runner.py``)::
+
+        {"schema_version": 2,
+         "language": "en",
+         "segments": {
+             "0": {"start": ..., "end": ..., "text": ...,
+                   "avg_logprob": ..., "no_speech_prob": ...,
+                   "words": [{"word": ..., "start": ..., "end": ..., "prob": ...}],
+                   "nbest": [...], "speaker_id": ...}, ...}}
 
     Args:
         filepath: path to 1_asr.json or 2_asr.json
         half: 1 or 2
 
     Returns:
-        List of Segment objects sorted by start time.
+        List of Segment objects sorted by start time. Schema-2 enrichments
+        (``words``, ``avg_logprob``, ``nbest``, ``speaker_id``) are populated
+        when present and ``None`` for schema-1 inputs.
     """
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     segments = []
     for seg_id, values in data.get("segments", {}).items():
-        # Each value is [start_time, end_time, "text"]
-        if len(values) >= 3:
+        if isinstance(values, list) and len(values) >= 3:
+            # Schema 1: list-style [start, end, text]
             segments.append(Segment(
                 segment_id=seg_id,
                 start_time=float(values[0]),
                 end_time=float(values[1]),
                 text=str(values[2]),
                 half=half,
+            ))
+        elif isinstance(values, dict):
+            # Schema 2: dict-style with optional enrichments
+            segments.append(Segment(
+                segment_id=seg_id,
+                start_time=float(values.get("start", 0.0)),
+                end_time=float(values.get("end", 0.0)),
+                text=str(values.get("text", "")),
+                half=half,
+                words=values.get("words"),
+                avg_logprob=values.get("avg_logprob"),
+                no_speech_prob=values.get("no_speech_prob"),
+                nbest=values.get("nbest"),
+                speaker_id=values.get("speaker_id"),
             ))
 
     # Sort by start time to ensure correct order
@@ -123,9 +169,27 @@ def discover_matches(dataset_root: Path = DATASET_ROOT) -> list[MatchData]:
                 if not match_dir.is_dir():
                     continue
 
+                # Support two layouts:
+                #  (a) match_dir/commentary_data/1_asr.json  (standard SoccerNet)
+                #  (b) match_dir/1_asr.json                  (flat, used for eval matches)
+                # ASR_INPUT_VARIANT="_kb" picks up the KB-Whisper variants
+                # (1_asr_kb.json) when present; falls back to the stock files.
+                v = ASR_INPUT_VARIANT
                 commentary_dir = match_dir / "commentary_data"
-                half1_path = commentary_dir / "1_asr.json"
-                half2_path = commentary_dir / "2_asr.json"
+                half1_path = commentary_dir / f"1_asr{v}.json"
+                half2_path = commentary_dir / f"2_asr{v}.json"
+                if not (half1_path.exists() or half2_path.exists()):
+                    # Try flat layout with variant
+                    half1_path = match_dir / f"1_asr{v}.json"
+                    half2_path = match_dir / f"2_asr{v}.json"
+                if v and not (half1_path.exists() or half2_path.exists()):
+                    # Variant requested but missing — fall back to stock so a
+                    # match without a KB-Whisper run still loads.
+                    half1_path = commentary_dir / "1_asr.json"
+                    half2_path = commentary_dir / "2_asr.json"
+                    if not (half1_path.exists() or half2_path.exists()):
+                        half1_path = match_dir / "1_asr.json"
+                        half2_path = match_dir / "2_asr.json"
 
                 # Skip matches without any ASR data
                 if not (half1_path.exists() or half2_path.exists()):
