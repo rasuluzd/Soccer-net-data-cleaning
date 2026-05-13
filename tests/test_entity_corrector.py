@@ -67,53 +67,39 @@ class TestGazetteerIndex:
         # Score should be in uncertain band (≥0.40 retrieve, <0.90 shortcut)
         assert 0.40 <= results[0][1] < 0.90
 
-    def test_retrieve_cross_domain_word_below_mcq_floor(self):
-        """'Saturday' is the dangerous FP class. With hybrid retrieval the
-        rapidfuzz signal does push Sturridge past SHORTCUT_REJECT (~0.59),
-        but it stays below MCQ_MIN_FUZZ_TO_INVOKE (0.65) — so the
-        downstream gate still blocks the call to MCQ. The thing that
-        matters is end-to-end rejection, not the intermediate score.
-        """
-        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
+    def test_retrieve_high_fuzz_rescue_stays_below_shortcut(self):
+        idx = _GazetteerIndex({
+            "Mamadou Sakho": "Mamadou Sakho",
+            "Sakho": "Mamadou Sakho",
+        })
+        results = idx.retrieve("Sako", top_k=3)
+        assert results
+        assert results[0][0] == "Mamadou Sakho"
+        assert 0.85 <= results[0][1] < SHORTCUT_ACCEPT_TFIDF
+
+    def test_retrieve_cross_domain_word_below_reject(self):
+        """The whole point of TF-IDF: 'Saturday' should NOT score high
+        against any player name. This is the architectural FP fix."""
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Saturday", top_k=3)
         if results:
-            # Top combined score must stay strictly below MCQ_MIN_FUZZ/100
-            # so production's pre-MCQ floor catches this FP class.
-            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0, (
-                f"'Saturday' rescued past MCQ floor: top={results[0][0]} "
-                f"score={results[0][1]:.3f} "
-                f"(must stay < {MCQ_MIN_FUZZ_TO_INVOKE/100:.2f})"
+            # Best score should be below the reject threshold
+            assert results[0][1] < SHORTCUT_REJECT_TFIDF, (
+                f"'Saturday' should score < {SHORTCUT_REJECT_TFIDF}, "
+                f"got {results[0][1]:.3f} for {results[0][0]}"
             )
 
-    def test_retrieve_premier_below_mcq_floor(self):
-        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
+    def test_retrieve_premier_below_reject(self):
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Premier", top_k=3)
         if results:
-            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0
+            assert results[0][1] < SHORTCUT_REJECT_TFIDF
 
-    def test_retrieve_dutchman_below_mcq_floor(self):
-        from pipeline.config import MCQ_MIN_FUZZ_TO_INVOKE
+    def test_retrieve_dutchman_below_reject(self):
         idx = _GazetteerIndex(CHELSEA_GAZ)
         results = idx.retrieve("Dutchman", top_k=3)
         if results:
-            assert results[0][1] < MCQ_MIN_FUZZ_TO_INVOKE / 100.0
-
-    def test_retrieve_rescue_pulls_long_name_via_surname_token(self):
-        """Hybrid retrieval computes fuzz against the BEST WORD of each
-        canonical (not the full string), so an ASR mishearing of a short
-        name surfaces against the long-name canonical via the surname
-        token. 'Cale' (mishearing of 'Costa') has fuzz('cale','costa')=44;
-        without best-word fuzz the canonical 'Diego Costa' would be
-        ranked very low because fuzz('cale','diego costa')~22.
-        """
-        idx = _GazetteerIndex(CHELSEA_GAZ)
-        results = idx.retrieve("Cale", top_k=5)
-        names = [r[0] for r in results]
-        assert "Diego Costa" in names, (
-            f"Diego Costa missing from top-5 for 'Cale'; got {names}"
-        )
+            assert results[0][1] < SHORTCUT_REJECT_TFIDF
 
     def test_empty_gazetteer_returns_nothing(self):
         idx = _GazetteerIndex({})
@@ -419,6 +405,28 @@ class TestCorrectMatchEndToEnd:
             )
         assert not mock_mcq.called, "4-char Kane must skip MCQ"
         assert corrs == []
+
+    def test_short_high_fuzz_name_typo_can_reach_mcq(self):
+        """4-char player-name typos with very high fuzz should not be thrown
+        away by the generic short-token FP gate."""
+        gaz = {
+            "Mamadou Sakho": "Mamadou Sakho",
+            "Sakho": "Mamadou Sakho",
+        }
+        types = {"Mamadou Sakho": "player"}
+        text = "Sako clears"
+        seg = _seg("0", text)
+        ent = _Ent("Sako", 0, 4)
+        from pipeline import entity_corrector as ec
+        with patch.object(ec, "_mcq_call", return_value="A") as mock_mcq:
+            out, corrs = correct_match(
+                segments=[seg], gazetteer=gaz, entity_types=types,
+                segment_entities_map={(1, "0"): [ent]}, match_id="m1",
+            )
+        assert mock_mcq.called
+        assert len(corrs) == 1
+        assert corrs[0]["corrected"] == "Sakho"
+        assert out[0].text == "Sakho clears"
 
     def test_mlm_veto_rejects_pick(self):
         """When MLM veto is enabled and reports True (original more plausible),

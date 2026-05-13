@@ -25,7 +25,7 @@ import json
 import os
 import time
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from pipeline.config import (
     CLEANED_OUTPUT_DIR, MAX_WORKERS,
@@ -145,13 +145,9 @@ def clean_match(
     for i, seg in enumerate(deduped_segments):
         collapsed = _collapse_repeated_words(seg.text)
         if collapsed != seg.text:
-            deduped_segments[i] = Segment(
-                segment_id=seg.segment_id,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                text=collapsed,
-                half=seg.half,
-            )
+            # Word-level confidence no longer aligns after deleting repeated
+            # tokens, but all other schema-2 metadata remains useful.
+            deduped_segments[i] = replace(seg, text=collapsed, words=None)
     print(f"  Duplicates removed: {len(removed_duplicates)}")
 
     # entity_corrector builds its own match-wide token frequency for the

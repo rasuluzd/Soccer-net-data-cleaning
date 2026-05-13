@@ -12,6 +12,8 @@ No external dependencies — pure regex.
 """
 
 import re
+from dataclasses import replace
+
 from pipeline.loader import Segment
 
 
@@ -147,12 +149,13 @@ class DomainNormalizer:
                 c["segment_id"] = seg.segment_id
             all_corrections.extend(corrections)
 
-            corrected.append(Segment(
-                segment_id=seg.segment_id,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                text=new_text,
-                half=seg.half,
-            ))
+            # Preserve schema-2 metadata when the text is unchanged. If this
+            # stage removes/merges tokens, the per-word confidence alignment is
+            # no longer reliable, so drop only the word-level list for that
+            # segment and keep the segment-level metadata.
+            if new_text == seg.text:
+                corrected.append(replace(seg))
+            else:
+                corrected.append(replace(seg, text=new_text, words=None))
 
         return corrected, all_corrections

@@ -83,6 +83,24 @@ class TestDeduplicateSegments:
         assert len(deduped) == 1
         assert len(removed) == 0
 
+    def test_preserves_schema2_confidence_metadata(self):
+        seg = Segment(
+            segment_id="0",
+            start_time=0,
+            end_time=5,
+            text="Only one segment",
+            half=1,
+            words=[{"word": "Only", "prob": 0.91}],
+            avg_logprob=-0.1,
+            no_speech_prob=0.01,
+        )
+        deduped, removed = deduplicate_segments([seg])
+        assert len(deduped) == 1
+        assert len(removed) == 0
+        assert deduped[0].words == seg.words
+        assert deduped[0].avg_logprob == -0.1
+        assert deduped[0].no_speech_prob == 0.01
+
     def test_triple_then_different(self):
         """Three duplicates followed by a different segment."""
         segments = [

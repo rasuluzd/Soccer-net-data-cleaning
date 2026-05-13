@@ -98,6 +98,9 @@ def main() -> None:
                         "observed to drop chunks of soft commentary)")
     p.add_argument("--no-prompt", action="store_true",
                    help="Disable initial_prompt biasing")
+    p.add_argument("--condition-on-previous", action="store_true",
+                   help="Pass previous segment text as Whisper context "
+                        "(default off; helps when large-v3 drops fragmented speech).")
     args = p.parse_args()
 
     if args.match:
@@ -127,6 +130,7 @@ def main() -> None:
         beam_size=args.beam_size,
         best_of=args.best_of,
         vad_filter=args.vad_filter,
+        condition_on_previous_text=args.condition_on_previous,
     )
 
 

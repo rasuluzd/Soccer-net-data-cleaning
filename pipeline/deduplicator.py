@@ -6,6 +6,8 @@ segments (e.g., "De Bruyne" appears 6 times in a row). This module keeps
 only the first occurrence and extends its time span to cover all duplicates.
 """
 
+from dataclasses import replace
+
 from rapidfuzz import fuzz
 
 from pipeline.config import DUPLICATE_SIMILARITY_THRESHOLD
@@ -51,13 +53,7 @@ def deduplicate_segments(
     removed: list[dict] = []
 
     # Start with the first segment
-    current = Segment(
-        segment_id=segments[0].segment_id,
-        start_time=segments[0].start_time,
-        end_time=segments[0].end_time,
-        text=segments[0].text,
-        half=segments[0].half,
-    )
+    current = replace(segments[0])
 
     for i in range(1, len(segments)):
         seg = segments[i]
@@ -65,13 +61,7 @@ def deduplicate_segments(
         # Only compare within the same half
         if seg.half != current.half:
             deduped.append(current)
-            current = Segment(
-                segment_id=seg.segment_id,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                text=seg.text,
-                half=seg.half,
-            )
+            current = replace(seg)
             continue
 
         # Compare current segment's text with the previous one
@@ -94,13 +84,7 @@ def deduplicate_segments(
         else:
             # Not a duplicate — save current and move on
             deduped.append(current)
-            current = Segment(
-                segment_id=seg.segment_id,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                text=seg.text,
-                half=seg.half,
-            )
+            current = replace(seg)
 
     # Don't forget the last segment
     deduped.append(current)

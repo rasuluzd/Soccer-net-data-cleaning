@@ -499,6 +499,12 @@ MCQ_MIN_TOKEN_LEN = 5
 # character-overlap but the actual token similarity is low.
 MCQ_MIN_FUZZ_TO_INVOKE = 65
 
+# Exception to the short-token block: 4-char surnames are common in football
+# (Sakho/Sako, Doku, Isak, Saka). Allow MCQ for short tokens only when the
+# reduced-form fuzz signal is extremely strong; Kane->Mane and Mann->Mane
+# sit around 75 and remain blocked.
+MCQ_SHORT_TOKEN_MIN_FUZZ = 85
+
 # Self-consistency: run Qwen MCQ N times and majority-vote. The DeRAGEC
 # ACL 2025 pattern was originally implemented with N=3 to dampen
 # stochasticity at decision boundaries. Empirical probe (.work/probe_

@@ -54,6 +54,7 @@ from pipeline.config import (
     FREQUENCY_HEURISTIC_THRESHOLD,
     MCQ_MIN_TOKEN_LEN,
     MCQ_MIN_FUZZ_TO_INVOKE,
+    MCQ_SHORT_TOKEN_MIN_FUZZ,
     MCQ_SELF_CONSISTENCY_SAMPLES,
     MLM_VETO_ON_MCQ_ENABLED,
     VALIDATED_CACHE_ENABLED,
@@ -188,19 +189,12 @@ def _validated_cache_record(
 # ─── TF-IDF retrieval over gazetteer ─────────────────────────────────
 
 class _GazetteerIndex:
-    """Hybrid TF-IDF + rapidfuzz retrieval over gazetteer canonical names.
+    """TF-IDF char-n-gram retrieval index over gazetteer canonical names.
 
-    Built once per match. TF-IDF char-bigrams capture name-shape similarity
-    well but undervalue some real ASR mishearings (Cale→Costa, Leclerc→
-    Lallana). rapidfuzz fuzz.ratio rescues those, but on its own would
-    over-rank common words against player names (Saturday→Sturridge=0.59,
-    Premier→Milner=0.62 — see ``.work/probe_retrieval_methods.py``).
-
-    ``retrieve()`` returns the combined score ``max(tfidf, fuzz/100)`` per
-    candidate so legitimate-but-low-tfidf matches surface, while the
-    downstream MCQ_MIN_FUZZ_TO_INVOKE=65 floor catches noise that rapidfuzz
-    alone would have leaked through. Lineup is small (~50 names) so
-    brute-force fuzz over all canonicals stays under 1ms per query.
+    Built once per match (gazetteer is per-match). Avoids Metaphone — pure
+    string-similarity is multilingual and more robust to short tokens, which
+    is the regime where Metaphone+Jaro-Winkler produces prefix-collision FPs
+    (Saturday/Sturridge ≈ 0.92 — see audit comment in fuzzy_corrector.py).
     """
 
     def __init__(self, gazetteer: dict[str, str]):
@@ -222,17 +216,22 @@ class _GazetteerIndex:
         q_vec = self.vectorizer.transform([query])
         tfidf_scores = cosine_similarity(q_vec, self.matrix)[0]
         q_lower = query.lower()
-        # Brute-force fuzz over the small lineup is cheap. We compute fuzz
-        # against the BEST word of each canonical (not the full string) so
-        # short-name ASR mishearings ("Cale") rescue against long-name
-        # canonicals ("Diego Costa") via the surname token.
-        combined = np.empty_like(tfidf_scores)
+        combined = np.array(tfidf_scores, dtype=float, copy=True)
+
+        # Rescue high-confidence ASR typos whose char n-gram cosine is just
+        # below the reject floor. Clamp fuzz-only rescue below the shortcut
+        # threshold so these candidates still go through MCQ + validation.
         for i, canon in enumerate(self.canonicals):
             words = canon.split() or [canon]
             best_word_fuzz = max(
                 fuzz.ratio(q_lower, w.lower()) / 100.0 for w in words
             )
-            combined[i] = max(float(tfidf_scores[i]), best_word_fuzz)
+            if best_word_fuzz >= MCQ_MIN_FUZZ_TO_INVOKE / 100.0:
+                combined[i] = max(
+                    float(tfidf_scores[i]),
+                    min(best_word_fuzz, SHORTCUT_ACCEPT_TFIDF - 1e-6),
+                )
+
         top_idx = np.argsort(-combined)[:top_k]
         return [
             (self.canonicals[i], float(combined[i]))
@@ -637,22 +636,27 @@ def correct_match(
             # ── 7. Uncertain band → MCQ eligibility check ───────────
             cand_names = [c[0] for c in candidates[:MCQ_OPTIONS_SHOWN]]
 
-            # Pre-MCQ gate #A: minimum token length. Short tokens (Kane,
-            # Mann, Dante) consistently produce false positives because
-            # TF-IDF char-bigrams over short surfaces are too permissive
-            # and Qwen 1.5B over-trusts the lineup-bias prompt.
-            ent_core = entity_text.strip()
-            if len(ent_core) < MCQ_MIN_TOKEN_LEN:
-                telem.auto_reject_low += 1
-                _cache_store(cache_key, None)
-                continue
-
             # Pre-MCQ gate #B: top candidate's reduced-form fuzz floor.
             # If the best candidate's surname/word doesn't fuzz-match the
             # original at MCQ_MIN_FUZZ_TO_INVOKE, it's a TF-IDF noise hit
             # rather than a real ASR mishearing pair.
             top_reduced = _reduce_to_best_word(entity_text, cand_names[0])
             top_fuzz = fuzz.ratio(entity_text.lower(), top_reduced.lower())
+
+            # Pre-MCQ gate #A: minimum token length. Short tokens (Kane,
+            # Mann, Dante) consistently produce false positives because
+            # TF-IDF char-bigrams over short surfaces are too permissive.
+            # Let through only extremely high-fuzz short typos such as
+            # Sako -> Sakho; Kane -> Mane remains below this bar.
+            ent_core = entity_text.strip()
+            if (
+                len(ent_core) < MCQ_MIN_TOKEN_LEN
+                and top_fuzz < MCQ_SHORT_TOKEN_MIN_FUZZ
+            ):
+                telem.auto_reject_low += 1
+                _cache_store(cache_key, None)
+                continue
+
             if top_fuzz < MCQ_MIN_FUZZ_TO_INVOKE:
                 telem.auto_reject_low += 1
                 _cache_store(cache_key, None)

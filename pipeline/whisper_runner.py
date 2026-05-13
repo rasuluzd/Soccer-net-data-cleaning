@@ -149,6 +149,7 @@ def transcribe(
     log_prob_threshold: float | None = None,
     compression_ratio_threshold: float = 2.6,
     word_timestamps: bool = True,
+    condition_on_previous_text: bool = False,
 ) -> Path:
     """Transcribe one audio file with faster-whisper and write Whisper JSON.
 
@@ -200,7 +201,7 @@ def transcribe(
         hotwords=hotwords or None,
         vad_filter=vad_filter,
         word_timestamps=word_timestamps,
-        condition_on_previous_text=False,         # avoids cascading hallucinations
+        condition_on_previous_text=condition_on_previous_text,
         no_speech_threshold=no_speech_threshold,  # 0.95 (vs default 0.6) keeps soft commentary
         log_prob_threshold=log_prob_threshold,    # None disables low-confidence drop
         compression_ratio_threshold=compression_ratio_threshold,

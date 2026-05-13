@@ -144,3 +144,36 @@ class TestBatchNormalization:
         assert corrected[0].start_time == 10.5
         assert corrected[0].end_time == 15.3
         assert corrected[0].half == 2
+
+    def test_batch_preserves_confidence_metadata_when_unchanged(self):
+        norm = DomainNormalizer("en")
+        seg = Segment(
+            segment_id="0",
+            start_time=0.0,
+            end_time=5.0,
+            text="clean football text",
+            half=1,
+            words=[{"word": "clean", "prob": 0.93}],
+            avg_logprob=-0.1,
+        )
+        corrected, corrections = norm.normalize_batch([seg])
+        assert corrections == []
+        assert corrected[0].words == seg.words
+        assert corrected[0].avg_logprob == -0.1
+
+    def test_batch_drops_word_metadata_when_text_changes(self):
+        norm = DomainNormalizer("en")
+        seg = Segment(
+            segment_id="0",
+            start_time=0.0,
+            end_time=5.0,
+            text="off side call",
+            half=1,
+            words=[{"word": "off", "prob": 0.93}],
+            avg_logprob=-0.1,
+        )
+        corrected, corrections = norm.normalize_batch([seg])
+        assert corrections
+        assert corrected[0].text == "offside call"
+        assert corrected[0].words is None
+        assert corrected[0].avg_logprob == -0.1
