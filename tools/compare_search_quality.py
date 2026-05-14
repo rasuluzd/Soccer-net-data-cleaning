@@ -61,15 +61,23 @@ QUERIES = [
 ]
 
 
-def query_es(match_id: str, q: str, k: int = 5) -> list[dict]:
-    """Hybrid BM25 multi_match — same body as frontend (without k-NN)."""
+def query_es(match_id: str, q: str, k: int = 5,
+             fuzziness: str = "AUTO") -> list[dict]:
+    """Hybrid BM25 multi_match — same body as frontend (without k-NN).
+
+    fuzziness="AUTO" (frontend default): edit distance ≤ 2 for terms ≥ 6 chars.
+    fuzziness="0":   strict lexical only — exposes how much fuzzy hides.
+    """
+    multi_match: dict = {"query": q, "fields": ["text^2", "text.general"]}
+    if fuzziness != "0":
+        multi_match["fuzziness"] = fuzziness
     body = {
         "size": k,
         "query": {
             "bool": {
                 "filter": [{"term": {"match_id": match_id}}],
                 "should": [
-                    {"multi_match": {"query": q, "fields": ["text^2", "text.general"], "fuzziness": "AUTO"}},
+                    {"multi_match": multi_match},
                     {"match_phrase": {"text": {"query": q, "boost": 5}}},
                     {"match_phrase": {"text.general": {"query": q, "boost": 5}}},
                 ],
@@ -151,18 +159,33 @@ def main() -> int:
           ""]
 
     summary = {"A": [0, 0], "B": [0, 0], "C": [0, 0], "D": [0, 0]}  # bucket: [raw_top1_hit, clean_top1_hit]
+    summary_strict = {"A": [0, 0], "B": [0, 0], "C": [0, 0], "D": [0, 0]}
     score_summary = {"raw": [], "clean": []}
+    score_summary_strict = {"raw": [], "clean": []}
 
     for qid, q, targets in QUERIES:
         try:
-            raw_hits = query_es(RAW_ID, q)
-            clean_hits = query_es(CLEAN_ID, q)
+            raw_hits = query_es(RAW_ID, q, fuzziness="AUTO")
+            clean_hits = query_es(CLEAN_ID, q, fuzziness="AUTO")
+            raw_strict = query_es(RAW_ID, q, fuzziness="0")
+            clean_strict = query_es(CLEAN_ID, q, fuzziness="0")
         except Exception as e:
             md.append(f"### {qid}: `\"{q}\"`  ERROR: {e}")
             md.append("")
             continue
 
         md.extend(render(qid, q, targets, raw_hits, clean_hits))
+
+        # Track strict-mode hits for summary
+        bucket = qid[0]
+        if raw_strict and has_target(raw_strict[0].get("text", ""), targets):
+            summary_strict[bucket][0] += 1
+        if clean_strict and has_target(clean_strict[0].get("text", ""), targets):
+            summary_strict[bucket][1] += 1
+        if raw_strict:
+            score_summary_strict["raw"].append(raw_strict[0]["score"])
+        if clean_strict:
+            score_summary_strict["clean"].append(clean_strict[0]["score"])
 
         bucket = qid[0]
         if raw_hits and has_target(raw_hits[0].get("text", ""), targets):
@@ -198,11 +221,40 @@ def main() -> int:
     if score_summary["raw"] and score_summary["clean"]:
         avg_r = sum(score_summary["raw"]) / len(score_summary["raw"])
         avg_c = sum(score_summary["clean"]) / len(score_summary["clean"])
-        md.append(f"## Average top-1 BM25 score")
+        md.append(f"## Average top-1 BM25 score (fuzziness=AUTO)")
         md.append("")
         md.append(f"- RAW: **{avg_r:.2f}**")
         md.append(f"- CLEANED: **{avg_c:.2f}**")
         md.append(f"- Δ: **{avg_c - avg_r:+.2f}** ({(avg_c - avg_r) / avg_r * 100:+.1f}% rel)")
+        md.append("")
+
+    # ── Strict-mode (fuzziness=0) results ─────────────────────────────
+    md.append("---")
+    md.append("")
+    md.append("## Strict mode: fuzziness=0 (no fuzzy match)")
+    md.append("")
+    md.append("This shows what happens when the search backend does NOT have ES's")
+    md.append("`fuzziness: AUTO` safety net. Many production search systems")
+    md.append("(SQL LIKE, plain Lucene, Solr without fuzzy) operate in this mode.")
+    md.append("")
+    md.append("| Category | Queries | RAW strict | CLEANED strict |")
+    md.append("|---|---|---|---|")
+    s_raw, s_clean = 0, 0
+    for k, name in bucket_names.items():
+        r, c = summary_strict[k]
+        n = n_per[k]
+        md.append(f"| {name} | {n} | {r}/{n} | {c}/{n} |")
+        s_raw += r; s_clean += c
+    md.append(f"| **Total** | **{total_n}** | **{s_raw}/{total_n} ({s_raw/total_n*100:.0f}%)** | **{s_clean}/{total_n} ({s_clean/total_n*100:.0f}%)** |")
+    md.append("")
+    if score_summary_strict["raw"] and score_summary_strict["clean"]:
+        avg_r2 = sum(score_summary_strict["raw"]) / max(1, len(score_summary_strict["raw"]))
+        avg_c2 = sum(score_summary_strict["clean"]) / max(1, len(score_summary_strict["clean"]))
+        md.append(f"### Strict-mode top-1 BM25 score")
+        md.append("")
+        md.append(f"- RAW: **{avg_r2:.2f}**")
+        md.append(f"- CLEANED: **{avg_c2:.2f}**")
+        md.append(f"- Δ: **{avg_c2 - avg_r2:+.2f}** ({(avg_c2 - avg_r2) / max(0.01, avg_r2) * 100:+.1f}% rel)")
         md.append("")
 
     md.append("## Interpretation guide")
