@@ -150,6 +150,7 @@ def transcribe(
     compression_ratio_threshold: float = 2.6,
     word_timestamps: bool = True,
     condition_on_previous_text: bool = False,
+    temperature: float = 0.0,
 ) -> Path:
     """Transcribe one audio file with faster-whisper and write Whisper JSON.
 
@@ -191,7 +192,7 @@ def transcribe(
         n_names = hotwords.count(",") + 1 if hotwords else 0
         print(f"Using hotwords biasing ({len(hotwords)} chars, {n_names} names).")
 
-    print(f"Transcribing {audio_path} ...")
+    print(f"Transcribing {audio_path} (temperature={temperature}) ...")
     seg_iter, info = model.transcribe(
         str(audio_path),
         language=language,
@@ -205,6 +206,7 @@ def transcribe(
         no_speech_threshold=no_speech_threshold,  # 0.95 (vs default 0.6) keeps soft commentary
         log_prob_threshold=log_prob_threshold,    # None disables low-confidence drop
         compression_ratio_threshold=compression_ratio_threshold,
+        temperature=temperature,                  # 0.0 = greedy; non-zero gives diverse hypotheses for n-best building
     )
 
     segments: dict[str, dict] = {}

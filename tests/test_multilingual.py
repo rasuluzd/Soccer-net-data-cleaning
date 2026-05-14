@@ -163,15 +163,24 @@ class TestCommentaryValidation:
         assert is_valid_commentary(text, "en") is True
 
     def test_swedish_accepted_for_sv(self):
-        text = "Zlatan gör ett fantastiskt mål och laget leder med två mål till noll"
+        # ≥15 words so the langdetect gate actually fires.
+        text = (
+            "Zlatan gör ett fantastiskt mål och laget leder med två mål till noll "
+            "efter en lång och imponerande prestation från hela laget"
+        )
         assert is_valid_commentary(text, "sv") is True
 
     def test_swedish_rejected_for_en(self):
-        text = "Zlatan gör ett fantastiskt mål och laget leder med två mål till noll"
+        text = (
+            "Zlatan gör ett fantastiskt mål och laget leder med två mål till noll "
+            "efter en lång och imponerande prestation från hela laget"
+        )
         assert is_valid_commentary(text, "en") is False
 
     def test_short_text_always_accepted(self):
-        """Texts under 8 words are too short for reliable detection."""
+        """Texts under MIN_WORDS_FOR_LANGDETECT (15) words are too short for
+        langdetect to be statistically reliable on football jargon, so the
+        function returns True (keep) regardless of language."""
         assert is_valid_commentary("kort text", "en") is True
 
 

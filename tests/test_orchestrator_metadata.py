@@ -22,7 +22,38 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from pipeline.loader import MatchData, Segment  # noqa: E402
-from pipeline.orchestrator import _write_cleaned_output  # noqa: E402
+from pipeline.orchestrator import _collapse_repeated_words, _write_cleaned_output  # noqa: E402
+
+
+class TestCollapseRepeatedWords:
+    """REGRESSION: Earlier impl collapsed any 2+ identical adjacent words.
+    That destroyed legitimate 2-repetitions in GT like 'starry, starry'
+    and 'well, well' — Whisper drops the comma so the dedup ate them.
+    Fix: only collapse 3+ consecutive (Whisper looping pattern)."""
+
+    def test_two_repeats_kept_legitimate_speech(self):
+        # 'well, well' — common pattern, GT keeps both
+        assert _collapse_repeated_words("well well Liverpool") == "well well Liverpool"
+        assert _collapse_repeated_words("starry starry night") == "starry starry night"
+
+    def test_three_or_more_collapsed_whisper_loop(self):
+        # 'Zaha Zaha Zaha' — Whisper looping; collapse to a single token
+        assert _collapse_repeated_words("Zaha Zaha Zaha dribbles") == "Zaha dribbles"
+        assert _collapse_repeated_words("you you you you") == "you"
+
+    def test_case_insensitive(self):
+        # Three "Goal" with same surface (no punct) → collapse to one.
+        # Punct attached to a word makes it different — preserved separately.
+        assert _collapse_repeated_words("Goal goal GOAL dribbles") == "Goal dribbles"
+        assert _collapse_repeated_words("ZAHA Zaha zaha runs") == "ZAHA runs"
+
+    def test_no_dedup_when_no_repeats(self):
+        assert _collapse_repeated_words("the ball goes wide") == "the ball goes wide"
+
+    def test_empty_and_short(self):
+        assert _collapse_repeated_words("") == ""
+        assert _collapse_repeated_words("hi") == "hi"
+        assert _collapse_repeated_words("hi hi") == "hi hi"  # 2 → kept
 
 
 def _seg(sid: str, half: int, text: str = "x", t: float = 0.0) -> Segment:

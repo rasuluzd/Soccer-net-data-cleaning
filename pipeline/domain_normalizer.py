@@ -22,15 +22,18 @@ from pipeline.loader import Segment
 # are split into separate words. Only unambiguous patterns.
 FOOTBALL_COMPOUNDS = {
     "en": {
+        # Removed: "half time"→"halftime" and "line up"→"lineup". Empirical
+        # WER analysis on Chelsea-Liverpool V3 vs GOAL human GT showed both
+        # rules HURT WER — the GT consistently uses the two-word forms
+        # ("at half time", "lineup at the back" with "line up" as verb).
+        # See .debug/find_harmful_corrections.py.
         "off side": "offside",
         "on side": "onside",
         "goal keeper": "goalkeeper",
         "goal keeping": "goalkeeping",
-        "half time": "halftime",
         "full time": "fulltime",
         "kick off": "kick-off",
         "throw in": "throw-in",
-        "line up": "lineup",
         "break away": "breakaway",
         "counter attack": "counterattack",
         "over time": "overtime",

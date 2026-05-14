@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pytest *)",
+      "Bash(python run_pipeline.py *)",
+      "Bash(python .claude/agents/scripts/*)",
+      "Bash(python .claude/skills/*/scripts/*)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(pip install *)",
+      "Bash(pip list *)",
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(gh api *)",
+      "Bash(find *)",
+      "WebSearch",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(\"C:\\\\Users\\\\rasul\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python.exe\" -m pytest tests/ -v --tb=short)",
+      "Bash(python3.11 -m pytest tests/ -v --tb=short)",
+      "Bash(python3.11 run_pipeline.py --match \"West Ham\" --dry-run)",
+      "Bash(python3.11 -m pytest tests/test_domain_normalizer.py -v --tb=short)",
+      "Bash(python3.11 -m pytest tests/test_spell_checker.py -v --tb=short)",
+      "Bash(python3.11 -m pytest tests/test_grammar_corrector.py -v --tb=short)",
+      "Bash(python3.11 -c \"import language_tool_python; print\\('Downloading LanguageTool server...'\\); tool = language_tool_python.LanguageTool\\('en-US'\\); print\\('LanguageTool ready!'\\); matches = tool.check\\('He go to the store.'\\); print\\(f'Test: found {len\\(matches\\)} grammar issue\\(s\\)'\\); tool.close\\(\\)\")",
+      "Bash(python3.11 -m pytest tests/ --tb=short)",
+      "Bash(python3.11 -c \"import language_tool_python; t = language_tool_python.LanguageTool\\('en-US'\\); m = t.check\\('He go to store.'\\)[0]; print\\(dir\\(m\\)\\)\")",
+      "Bash(python3.11 run_pipeline.py --match \"Chelsea\" --dry-run)",
+      "Bash(python3.11 -c ':*)",
+      "Bash(python3.11 -m pytest tests/ --tb=short -q)"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-context.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-pipeline-edit.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

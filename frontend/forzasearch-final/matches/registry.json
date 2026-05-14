@@ -17,22 +17,40 @@
     {
       "id": "orgryte-vs-norrkoping-demo",
       "title": "Örgryte IS 3–0 IFK Norrköping",
-      "subtitle": "Allsvenskan (demo)"
+      "subtitle": "Allsvenskan (demo)",
+      "folder": "orgryte-vs-norrkoping-demo"
     },
     {
       "id": "aik-vs-halmstad-demo",
       "title": "AIK 0–2 Halmstads BK",
-      "subtitle": "Allsvenskan (demo)"
+      "subtitle": "Allsvenskan (demo)",
+      "folder": "aik-vs-halmstad-demo"
     },
     {
       "id": "hammarby-vs-elfsborg-demo",
       "title": "Hammarby IF 3–0 IF Elfsborg",
-      "subtitle": "Allsvenskan (demo)"
+      "subtitle": "Allsvenskan (demo)",
+      "folder": "hammarby-vs-elfsborg-demo"
     },
     {
       "id": "goteborg-vs-norrkoping-demo",
       "title": "IFK Göteborg 2–0 IFK Norrköping",
-      "subtitle": "Allsvenskan (demo)"
+      "subtitle": "Allsvenskan (demo)",
+      "folder": "goteborg-vs-norrkoping-demo"
+    },
+    {
+      "id": "chelsea-liverpool-2016",
+      "title": "Chelsea 1-2 Liverpool",
+      "subtitle": "Premier League 2016-09-16",
+      "folder": "chelsea-liverpool-2016",
+      "date": "2016-09-16",
+      "video": {
+        "type": "direct",
+        "parts": {
+          "1": "/videos/chelsea-liverpool-2016/1.mp4",
+          "2": "/videos/chelsea-liverpool-2016/2.mp4"
+        }
+      }
     }
   ]
 }

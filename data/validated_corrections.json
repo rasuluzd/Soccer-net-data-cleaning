@@ -7,6 +7,14 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "alain pardieu": {
+    "correct": "Alan Pardew",
+    "fuzzy_avg": 83.33333333333334,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
   "alana": {
     "correct": "Lallana",
     "fuzzy_avg": 83.33333333333334,
@@ -15,20 +23,148 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
-  "city": {
-    "correct": "City",
-    "fuzzy_avg": 100.0,
-    "last_updated": "2026-05-08",
+  "alon pardew": {
+    "correct": "Alan Pardew",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "antonio conte": {
+    "correct": "Conte",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
+    ]
+  },
+  "aspilicueta": {
+    "correct": "Azpilicueta",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-12",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
-  "dante": {
-    "correct": "Kante",
+  "bakary saka": {
+    "correct": "Bakary Sako",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "blassie": {
+    "correct": "Bolasie",
+    "fuzzy_avg": 85.71428571428572,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "chelsea 1-1": {
+    "correct": "Chelsea",
+    "fuzzy_avg": 77.77777777777779,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "chennava": {
+    "correct": "Lallana",
     "fuzzy_avg": 80.0,
-    "last_updated": "2026-05-08",
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
+    ]
+  },
+  "conor wickham": {
+    "correct": "Connor Wickham",
+    "fuzzy_avg": 96.2962962962963,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "crystals": {
+    "correct": "Crystal",
+    "fuzzy_avg": 93.33333333333333,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "daily blind": {
+    "correct": "Daley Blind",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "davi": {
+    "correct": "David",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "davide luiz": {
+    "correct": "David Luiz",
+    "fuzzy_avg": 95.23809523809523,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "dele blinde": {
+    "correct": "Daley Blind",
+    "fuzzy_avg": 81.81818181818181,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "diogo costa": {
+    "correct": "Diego Costa",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "fabiansky": {
+    "correct": "Fabianski",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "falco": {
+    "correct": "Falcao",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "favianski": {
+    "correct": "Fabianski",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "fernandes": {
+    "correct": "Fernandez",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
     ]
   },
   "gary cale": {
@@ -39,12 +175,44 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
-  "guardiola": {
-    "correct": "Guardiola",
-    "fuzzy_avg": 100.0,
-    "last_updated": "2026-05-08",
+  "gary kale": {
+    "correct": "Gary Cahill",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
+    ]
+  },
+  "haspilicueta": {
+    "correct": "Azpilicueta",
+    "fuzzy_avg": 86.95652173913044,
+    "last_updated": "2026-05-14",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "havanovic": {
+    "correct": "Ivanovic",
+    "fuzzy_avg": 82.35294117647058,
+    "last_updated": "2026-05-10",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "ivanovich": {
+    "correct": "Ivanovic",
+    "fuzzy_avg": 94.11764705882352,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "jack court": {
+    "correct": "Jack Cork",
+    "fuzzy_avg": 84.21052631578947,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
     ]
   },
   "james milne": {
@@ -55,6 +223,78 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "jason punchin": {
+    "correct": "Jason Puncheon",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "jefferson monteiro": {
+    "correct": "Jefferson Montero",
+    "fuzzy_avg": 97.14285714285714,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "joe ward": {
+    "correct": "Joel Ward",
+    "fuzzy_avg": 94.11764705882352,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "joel ledley": {
+    "correct": "Joe Ledley",
+    "fuzzy_avg": 95.23809523809523,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "john jo shelby": {
+    "correct": "Jonjo Shelvey",
+    "fuzzy_avg": 81.4814814814815,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "john joe shelby": {
+    "correct": "Jonjo Shelvey",
+    "fuzzy_avg": 78.57142857142857,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "joncho shelby": {
+    "correct": "Jonjo Shelvey",
+    "fuzzy_avg": 76.92307692307692,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "jonjo shelby": {
+    "correct": "Jonjo Shelvey",
+    "fuzzy_avg": 88.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "jonjoe shelby": {
+    "correct": "Jonjo Shelvey",
+    "fuzzy_avg": 84.61538461538461,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
   "jürgen klopp": {
     "correct": "Jurgen Klopp",
     "fuzzy_avg": 91.66666666666666,
@@ -63,12 +303,12 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
-  "kane": {
-    "correct": "Mane",
-    "fuzzy_avg": 75.0,
-    "last_updated": "2026-05-08",
+  "kohlerhoff": {
+    "correct": "Kolarov",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
     "matches_seen": [
-      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+      "old_curated"
     ]
   },
   "kosta": {
@@ -79,10 +319,66 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "kurtz": {
+    "correct": "Kurt",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "lega costa": {
+    "correct": "Diego Costa",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
+    ]
+  },
+  "leicester tino": {
+    "correct": "Leicester",
+    "fuzzy_avg": 78.26086956521739,
+    "last_updated": "2026-05-12",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "lucas fabianski": {
+    "correct": "Lukasz Fabianski",
+    "fuzzy_avg": 90.32258064516128,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
   "mann": {
     "correct": "Mane",
     "fuzzy_avg": 75.0,
     "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "marcus alonso": {
+    "correct": "Marcos Alonso",
+    "fuzzy_avg": 92.3076923076923,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "martin anderson": {
+    "correct": "Martin Atkinson",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-10",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "martin skirtle": {
+    "correct": "Martin Skrtel",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-10",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
@@ -95,10 +391,50 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "masic": {
+    "correct": "Matic",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "mati": {
+    "correct": "Matip",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "mcarthur": {
+    "correct": "McCarthy",
+    "fuzzy_avg": 75.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "mignolet-kante": {
+    "correct": "Mignolet",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
+    ]
+  },
   "nathaniel klein": {
     "correct": "Nathaniel Clyne",
     "fuzzy_avg": 80.0,
     "last_updated": "2026-05-08",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "nemanja matic": {
+    "correct": "Nemanja Matić",
+    "fuzzy_avg": 92.3076923076923,
+    "last_updated": "2026-05-13",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
@@ -111,6 +447,14 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "oscars": {
+    "correct": "Oscar",
+    "fuzzy_avg": 90.9090909090909,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
   "oskar": {
     "correct": "Oscar",
     "fuzzy_avg": 80.0,
@@ -119,12 +463,60 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
+  "punched": {
+    "correct": "Puncheon",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "puncher": {
+    "correct": "Puncheon",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "punchin": {
+    "correct": "Puncheon",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
   "ramirez": {
     "correct": "Ramires",
     "fuzzy_avg": 85.71428571428572,
     "last_updated": "2026-05-08",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "rigi": {
+    "correct": "Origi",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-10",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "sakho": {
+    "correct": "Sako",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "scott dan": {
+    "correct": "Scott Dann",
+    "fuzzy_avg": 94.73684210526316,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
     ]
   },
   "shooting daniel sturridge": {
@@ -143,12 +535,52 @@
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
     ]
   },
-  "stewart": {
-    "correct": "Stewart",
-    "fuzzy_avg": 100.0,
-    "last_updated": "2026-05-09",
+  "stilicueta": {
+    "correct": "Azpilicueta",
+    "fuzzy_avg": 76.19047619047619,
+    "last_updated": "2026-05-10",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "tas fabregas": {
+    "correct": "Fabregas",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-10",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "terry": {
+    "correct": "Terry",
+    "fuzzy_avg": 100.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "van persie": {
+    "correct": "Robin van Persie",
+    "fuzzy_avg": 76.92307692307692,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "wayne hennessy": {
+    "correct": "Wayne Hennessey",
+    "fuzzy_avg": 96.55172413793103,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "william": {
+    "correct": "Willian",
+    "fuzzy_avg": 80.0,
+    "last_updated": "2026-05-14",
+    "matches_seen": [
+      "old_curated"
     ]
   },
   "williams": {
@@ -157,6 +589,46 @@
     "last_updated": "2026-05-08",
     "matches_seen": [
       "england_epl__2016-2017__2016_09_16_22_00_Chelsea_1_2_Liverpool"
+    ]
+  },
+  "yannick boulassi": {
+    "correct": "Yannick Bolasie",
+    "fuzzy_avg": 90.32258064516128,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "yohan kabay": {
+    "correct": "Yohan Cabaye",
+    "fuzzy_avg": 86.95652173913044,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "zahar": {
+    "correct": "Zaha",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
+    ]
+  },
+  "zangel di maria": {
+    "correct": "Angel Di Maria",
+    "fuzzy_avg": 96.55172413793103,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2014-2015__2015_02_21_18_00_Swansea_2_1_Manchester_United"
+    ]
+  },
+  "zuma": {
+    "correct": "Zouma",
+    "fuzzy_avg": 88.88888888888889,
+    "last_updated": "2026-05-13",
+    "matches_seen": [
+      "england_epl__2015-2016__2015_08_29_17_00_Chelsea_1_2_Crystal_Palace"
     ]
   }
 }

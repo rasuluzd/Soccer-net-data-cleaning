@@ -93,3 +93,108 @@ class TestRule2CursorBug:
             assert len(set(positions)) == len(positions), (
                 f"Cursor bug regression: positions={positions}"
             )
+
+
+# ─── Rule 3: gazetteer fuzz-match (Apple RAG-NEC) ────────────────────
+
+class TestGazetteerFuzzyHeuristic:
+    """Rule 3 catches ASR mishearings whose surface form looks like a
+    common noun (so spaCy NER misses) but fuzz-matches a known lineup name.
+    Without this rule, "passes to storage" never reaches entity_corrector."""
+
+    GAZ = {
+        "Daniel Sturridge": "Daniel Sturridge", "Sturridge": "Daniel Sturridge",
+        "Sadio Mane": "Sadio Mane",             "Mane": "Sadio Mane",
+        "Jordan Henderson": "Jordan Henderson", "Henderson": "Jordan Henderson",
+        "Eden Hazard": "Eden Hazard",           "Hazard": "Eden Hazard",
+    }
+
+    def test_lowercase_dict_word_with_strong_fuzz_to_canonical_emitted(self):
+        """'sturage' → fuzz('sturage','sturridge')=82, not in dictionary,
+        so Rule 3 emits it for entity_corrector to validate via MCQ."""
+        ents = extract_heuristic_entities(
+            "and the ball goes to sturage on the wing",
+            language="en", gazetteer=self.GAZ,
+        )
+        assert any(
+            e.text.lower() == "sturage" and e.source == "heuristic_gazetteer_fuzz"
+            for e in ents
+        ), f"Expected sturage to be emitted via Rule 3; got: {[(e.text, e.source) for e in ents]}"
+
+    def test_strong_fuzz_dictionary_word_overrides_veto(self):
+        """'storage' IS a real English word, but fuzz('storage','sturridge')
+        is high enough that it can still be considered as a candidate for
+        entity_corrector. Tests that NER_FUZZY_DICT_OVERRIDE is checked."""
+        from rapidfuzz import fuzz
+        score = fuzz.ratio("storage", "sturridge")
+        # If the override threshold (80) is set right, only words scoring
+        # >= 80 against a canonical pass the dictionary veto. Verify the
+        # gating contract holds for either side of the threshold.
+        ents = extract_heuristic_entities(
+            "passes to storage on the right wing",
+            language="en", gazetteer=self.GAZ,
+        )
+        gazetteer_ents = [e for e in ents if e.source == "heuristic_gazetteer_fuzz"]
+        from pipeline.config import NER_FUZZY_DICT_OVERRIDE
+        if score >= NER_FUZZY_DICT_OVERRIDE:
+            assert any(e.text.lower() == "storage" for e in gazetteer_ents), (
+                f"storage(score={score}) should override veto at floor {NER_FUZZY_DICT_OVERRIDE}"
+            )
+        else:
+            assert all(e.text.lower() != "storage" for e in gazetteer_ents), (
+                f"storage(score={score}) below override {NER_FUZZY_DICT_OVERRIDE}, should be vetoed"
+            )
+
+    def test_below_floor_not_emitted(self):
+        """A token that fuzz-matches < 65 to any canonical is dropped by
+        Rule 3 — entity_corrector wouldn't have anything useful to do
+        with such a weak candidate anyway."""
+        ents = extract_heuristic_entities(
+            "the apple fell from the tree onto the ground",
+            language="en", gazetteer=self.GAZ,
+        )
+        gazetteer_ents = [e for e in ents if e.source == "heuristic_gazetteer_fuzz"]
+        # No word here should match any of the 4 player names at >=65 fuzz
+        assert gazetteer_ents == [], (
+            f"Unexpected gazetteer-fuzz emissions: {[e.text for e in gazetteer_ents]}"
+        )
+
+    def test_no_gazetteer_disables_rule_3(self):
+        """When gazetteer=None (back-compat default), Rule 3 doesn't fire
+        — only Rule 1+2 (capitalization-based) run. Important so callers
+        that don't have a gazetteer (legacy code paths, single-segment
+        diagnostic scripts) keep working unchanged."""
+        ents = extract_heuristic_entities(
+            "passes to sturage on the wing",
+            language="en", gazetteer=None,
+        )
+        gazetteer_ents = [e for e in ents if e.source == "heuristic_gazetteer_fuzz"]
+        assert gazetteer_ents == []
+
+    def test_exact_gazetteer_match_skipped(self):
+        """If the token is already an exact gazetteer entry (lowercase),
+        Rule 3 doesn't emit it — entity_corrector's per-match cache will
+        handle it via the existing flow without redundant entity records."""
+        ents = extract_heuristic_entities(
+            "good pass from sturridge to mane",
+            language="en", gazetteer=self.GAZ,
+        )
+        gazetteer_ents = [e for e in ents if e.source == "heuristic_gazetteer_fuzz"]
+        # "sturridge" and "mane" are exact gazetteer entries (case-insensitive).
+        # Rule 3 should skip them.
+        assert all(
+            e.text.lower() not in {"sturridge", "mane"}
+            for e in gazetteer_ents
+        )
+
+    def test_batch_threads_gazetteer_through(self):
+        """extract_entities_batch accepts gazetteer kwarg and passes it
+        to extract_heuristic_entities. Without this plumbing the new rule
+        is dormant in production."""
+        segs = [_seg("the ball goes to sturage on the wing")]
+        result = extract_entities_batch(segs, language="en", gazetteer=self.GAZ)
+        ents = result[(1, "0")]
+        assert any(
+            e.source == "heuristic_gazetteer_fuzz"
+            for e in ents
+        ), f"batch did not surface Rule 3 candidates; got: {[(e.text, e.source) for e in ents]}"

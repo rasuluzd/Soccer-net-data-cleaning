@@ -47,6 +47,8 @@ from pipeline.entity_corrector import correct_match as entity_correct_match
 from pipeline.entity_corrector import get_last_telemetry as entity_last_telemetry
 from pipeline.domain_normalizer import DomainNormalizer
 # SOTA refactor stages — see plans/check-all-files-and-peppy-lemur.md
+from pipeline.nbest_reranker import rerank_match as nbest_rerank_match
+from pipeline.nbest_reranker import get_last_telemetry as nbest_last_telemetry
 from pipeline.llm_corrector import correct_match as llm_correct_match
 from pipeline.llm_corrector import get_last_telemetry as llm_last_telemetry
 from pipeline.punct_restorer import restore_punctuation_batch
@@ -59,15 +61,28 @@ from pipeline.temporal_chunker import (
 
 
 def _collapse_repeated_words(text: str) -> str:
-    """Collapse immediately repeated words: 'Zaha Zaha dribbles' → 'Zaha dribbles'."""
+    """Collapse Whisper-loop word repetitions (3+ consecutive identical) ONLY.
+
+    Why 3+ and not 2: GT often has legitimate 2-repetitions ("well, well",
+    "starry, starry night") that lose comma in Whisper output. Collapsing
+    on 2 destroys those. Whisper LOOPING produces 3+ ("Zaha Zaha Zaha
+    Zaha"), which we flatten to a single token.
+    """
     words = text.split()
-    if len(words) < 2:
+    if len(words) < 3:
         return text
-    result = [words[0]]
-    for w in words[1:]:
-        if w.lower() != result[-1].lower():
-            result.append(w)
-    return " ".join(result)
+    out: list[str] = []
+    i = 0
+    while i < len(words):
+        run = 1
+        while i + run < len(words) and words[i + run].lower() == words[i].lower():
+            run += 1
+        if run >= 3:
+            out.append(words[i])  # collapse Whisper-loop to single token
+        else:
+            out.extend(words[i:i + run])  # keep run-of-1 or legitimate run-of-2
+        i += run
+    return " ".join(out)
 
 
 @dataclass
@@ -123,32 +138,64 @@ def clean_match(
     print(f"{'='*70}")
 
     original_count = len(match.segments)
+    stage_timings: dict[str, float] = {}
+
+    def _t(label: str, fn):
+        t0 = time.perf_counter()
+        result = fn()
+        stage_timings[label] = round(time.perf_counter() - t0, 3)
+        return result
 
     # ── Step 0: Detect commentary language ───────────────────────────
-    detected_lang = detect_commentary_language(match.segments)
-    print(f"  Detected language: {detected_lang}")
+    detected_lang = _t("step0_detect_language",
+                       lambda: detect_commentary_language(match.segments))
+    print(f"  Detected language: {detected_lang} ({stage_timings['step0_detect_language']:.2f}s)")
 
     # ── Step 1: Build gazetteer ──────────────────────────────────────
-    gazetteer, entity_types = build_gazetteer(match.labels)
-    print(f"  Gazetteer: {len(gazetteer)} name entries  Entity types: {len(entity_types)} typed")
+    gazetteer, entity_types = _t("step1_build_gazetteer",
+                                 lambda: build_gazetteer(match.labels))
+    print(f"  Gazetteer: {len(gazetteer)} name entries  Entity types: "
+          f"{len(entity_types)} typed ({stage_timings['step1_build_gazetteer']:.2f}s)")
 
 
     # ── Step 2: Filter hallucinations ────────────────────────────────
-    valid_segments, removed_hallucinations = filter_segments(
-        match.segments, expected_lang=detected_lang
+    valid_segments, removed_hallucinations = _t(
+        "step2_hallucination_filter",
+        lambda: filter_segments(match.segments, expected_lang=detected_lang),
     )
-    print(f"  Hallucinations removed: {len(removed_hallucinations)}")
+    print(f"  Hallucinations removed: {len(removed_hallucinations)} "
+          f"({stage_timings['step2_hallucination_filter']:.2f}s)")
 
     # ── Step 3: De-duplicate ─────────────────────────────────────────
-    deduped_segments, removed_duplicates = deduplicate_segments(valid_segments)
+    def _dedup_with_collapse():
+        out, removed = deduplicate_segments(valid_segments)
+        for i, seg in enumerate(out):
+            collapsed = _collapse_repeated_words(seg.text)
+            if collapsed != seg.text:
+                # Word-level confidence no longer aligns after deleting
+                # repeated tokens, but all other schema-2 metadata remains.
+                out[i] = replace(seg, text=collapsed, words=None)
+        return out, removed
+    deduped_segments, removed_duplicates = _t("step3_deduplicate", _dedup_with_collapse)
+    print(f"  Duplicates removed: {len(removed_duplicates)} "
+          f"({stage_timings['step3_deduplicate']:.2f}s)")
 
-    for i, seg in enumerate(deduped_segments):
-        collapsed = _collapse_repeated_words(seg.text)
-        if collapsed != seg.text:
-            # Word-level confidence no longer aligns after deleting repeated
-            # tokens, but all other schema-2 metadata remains useful.
-            deduped_segments[i] = replace(seg, text=collapsed, words=None)
-    print(f"  Duplicates removed: {len(removed_duplicates)}")
+    # ── Step N: N-best entity-grounded reranking (Apple RAG-NEC) ─────
+    # Pass-through when segments don't carry .nbest (current schema-2
+    # input). When n-best is available, picks the beam alternative whose
+    # entity-shaped tokens score highest against the gazetteer FAISS index.
+    deduped_segments, nbest_telemetry = _t(
+        "stepN_nbest_rerank",
+        lambda: nbest_rerank_match(deduped_segments, gazetteer, language=detected_lang),
+    )
+    if nbest_telemetry.get("segments_replaced", 0) > 0:
+        print(f"  Step N nbest rerank: {nbest_telemetry['segments_replaced']} "
+              f"of {nbest_telemetry['segments_with_nbest']} re-picked "
+              f"({stage_timings['stepN_nbest_rerank']:.2f}s)")
+    elif nbest_telemetry.get("pass_through_reason"):
+        print(f"  Step N nbest rerank: pass-through "
+              f"({nbest_telemetry['pass_through_reason']}, "
+              f"{stage_timings['stepN_nbest_rerank']:.2f}s)")
 
     # entity_corrector builds its own match-wide token frequency for the
     # frequency heuristic; nothing to precompute here.
@@ -159,13 +206,16 @@ def clean_match(
     stage2_corrections: list[dict] = []
 
     if DOMAIN_NORMALIZATION_ENABLED:
-        normalizer = DomainNormalizer(detected_lang)
-        deduped_segments, norm_corrections = normalizer.normalize_batch(deduped_segments)
+        def _normalize():
+            n = DomainNormalizer(detected_lang)
+            return n.normalize_batch(deduped_segments)
+        deduped_segments, norm_corrections = _t("step2A_domain_normalize", _normalize)
         for c in norm_corrections:
             c["match"] = match.match_name
         stage2_corrections.extend(norm_corrections)
         if norm_corrections:
-            print(f"  Stage 2A normalization: {len(norm_corrections)} corrections")
+            print(f"  Stage 2A normalization: {len(norm_corrections)} corrections "
+                  f"({stage_timings['step2A_domain_normalize']:.2f}s)")
 
     # NOTE: Stage 2B (pyspellchecker) + Stage 2C (LanguageTool grammar) were
     # removed in the May 2026 architectural refactor. Both fired ~5 correc-
@@ -198,7 +248,12 @@ def clean_match(
         saved_entities_for_step5 = []
 
         print("  Extracting entities in batch mode...")
-        segment_entities_map = extract_entities_batch(deduped_segments, language=detected_lang)
+        segment_entities_map = _t(
+            "stepNER_extract_entities",
+            lambda: extract_entities_batch(
+                deduped_segments, language=detected_lang, gazetteer=gazetteer,
+            ),
+        )
         for seg in deduped_segments:
             saved_entities_for_step5.append(
                 segment_entities_map.get((seg.half, seg.segment_id), [])
@@ -207,14 +262,17 @@ def clean_match(
 
         # Run the new Validated Entity Corrector (TF-IDF + MCQ judge)
         match_id = generate_match_id(match.league, match.season, match.match_name)
-        corrected_segments, entity_corrections_dicts = entity_correct_match(
-            segments=deduped_segments,
-            gazetteer=gazetteer,
-            entity_types=entity_types,
-            segment_entities_map=segment_entities_map,
-            match_id=match_id,
-            match_name=match.match_name,
-            language=detected_lang,
+        corrected_segments, entity_corrections_dicts = _t(
+            "stepE_entity_corrector",
+            lambda: entity_correct_match(
+                segments=deduped_segments,
+                gazetteer=gazetteer,
+                entity_types=entity_types,
+                segment_entities_map=segment_entities_map,
+                match_id=match_id,
+                match_name=match.match_name,
+                language=detected_lang,
+            ),
         )
         entity_telemetry = entity_last_telemetry()
 
@@ -233,8 +291,10 @@ def clean_match(
                 method=d.get("method", "entity_corrector"),
             ))
 
-        print(f"  Entities detected: {total_entities}")
-        print(f"  Stage E entity corrections applied: {len(all_corrections)}")
+        print(f"  Entities detected: {total_entities} "
+              f"(NER {stage_timings.get('stepNER_extract_entities', 0):.2f}s)")
+        print(f"  Stage E entity corrections applied: {len(all_corrections)} "
+              f"({stage_timings.get('stepE_entity_corrector', 0):.2f}s)")
 
     # NOTE: Stage 3.5 (XLM-R error detection) + Stage 3.7 (LLM MCQ validator) +
     # Stage 4 (mT5 / BERT masked-LM) + Stage 5 (Ollama generative rewriter)
@@ -269,32 +329,48 @@ def clean_match(
     # which now handles all entity-correction work.
 
     # Step L: Confidence-gated GER (Qwen2.5-0.5B + MLM veto).
-    corrected_segments, llm_corrections = llm_correct_match(
-        corrected_segments, gazetteer, entity_types,
-        match_name=match.match_name, language=detected_lang,
+    corrected_segments, llm_corrections = _t(
+        "stepL_llm_ger",
+        lambda: llm_correct_match(
+            corrected_segments, gazetteer, entity_types,
+            match_name=match.match_name, language=detected_lang,
+        ),
     )
     llm_telemetry = llm_last_telemetry()
     if llm_corrections:
         for c in llm_corrections:
             c["match"] = match.match_name
         sota_corrections.extend(llm_corrections)
-        print(f"  Step L LLM GER: {len(llm_corrections)} corrections")
+        print(f"  Step L LLM GER: {len(llm_corrections)} corrections "
+              f"({stage_timings['stepL_llm_ger']:.2f}s)")
+
     # Step P: Punctuation + casing restoration (search-friendly output).
-    corrected_segments, punct_corrections = restore_punctuation_batch(
-        corrected_segments, language=detected_lang,
+    corrected_segments, punct_corrections = _t(
+        "stepP_punct_restore",
+        lambda: restore_punctuation_batch(corrected_segments, language=detected_lang),
     )
     if punct_corrections:
         for c in punct_corrections:
             c["match"] = match.match_name
         sota_corrections.extend(punct_corrections)
-        print(f"  Step P punct restoration: {len(punct_corrections)} segments restyled")
+        print(f"  Step P punct restoration: {len(punct_corrections)} segments restyled "
+              f"({stage_timings['stepP_punct_restore']:.2f}s)")
+
+    # ── Stage timings summary ────────────────────────────────────────
+    stage_timings["total_pipeline"] = round(sum(stage_timings.values()), 3)
+    print(f"\n  ── Per-stage timings (s) ──")
+    for k, v in stage_timings.items():
+        print(f"    {k:32s} {v:8.2f}")
 
     # ── Step 7: Write output ─────────────────────────────────────────
     if not dry_run:
         _write_cleaned_output(match, corrected_segments, all_corrections,
                               removed_hallucinations, removed_duplicates,
                               sota_corrections=sota_corrections,
-                              llm_telemetry=llm_telemetry)
+                              llm_telemetry=llm_telemetry,
+                              stage_timings=stage_timings,
+                              nbest_telemetry=nbest_telemetry,
+                              entity_telemetry=entity_telemetry)
 
     # ── Build result ─────────────────────────────────────────────────
     # Deduplicate corrections for the report
@@ -349,6 +425,9 @@ def _write_cleaned_output(
     removed_duplicates: list[dict],
     sota_corrections: list[dict] | None = None,
     llm_telemetry: dict | None = None,
+    stage_timings: dict | None = None,
+    nbest_telemetry: dict | None = None,
+    entity_telemetry: dict | None = None,
 ) -> None:
     """Write cleaned JSON files mirroring the original directory structure.
 
@@ -433,6 +512,17 @@ def _write_cleaned_output(
                 ],
                 "sota_corrections": sota_for_half,
                 "llm_telemetry": llm_telemetry or {},
+                "stage_timings": stage_timings or {},
+                "nbest_telemetry": nbest_telemetry or {},
+                "entity_telemetry": entity_telemetry or {},
+                "removed_hallucinations": [
+                    r for r in (removed_hallucinations or [])
+                    if r.get("half") == half_num
+                ],
+                "removed_duplicates": [
+                    r for r in (removed_duplicates or [])
+                    if r.get("half") == half_num
+                ],
             },
         }
 
@@ -453,23 +543,6 @@ def _write_cleaned_output(
         print(f"  ES chunks: {len(chunks)} temporal chunks generated")
 
     print(f"  Output written to: {output_dir}")
-
-
-def _init_worker():
-    """Worker initializer: loads heavy ML models once per process.
-
-    Called by ProcessPoolExecutor when spawning each worker.
-    Models are stored in module-level singletons, so subsequent
-    calls within the same worker reuse them instantly.
-
-    NOTE: Only used when explicitly requested. For small batches,
-    lazy loading (letting models load on first use) is faster because
-    it overlaps model loading with computation in other workers.
-    """
-    from pipeline.ner_extractor import get_nlp
-    from pipeline.context_disambiguator import load_model
-    get_nlp()     # Load spaCy model (en_core_web_sm: ~12MB, fast)
-    load_model()  # Load sentence-transformer (~80MB)
 
 
 def _clean_match_wrapper(args: tuple) -> CleaningResult:

@@ -129,8 +129,12 @@ def is_valid_commentary(text: str, expected_lang: str = "en") -> bool:
     if not HAS_LANGDETECT:
         return True
 
-    # langdetect needs enough text to be reliable on sports commentary.
-    if len(text.split()) < 8:
+    # langdetect is unreliable on short, jargon-heavy sports commentary.
+    # Empirical: "get a good tackling, get a good passing" (8 words)
+    # is detected as Afrikaans; many 8-14-word football phrases hit the
+    # same trap. Bumped 8 → 15 so the detector only runs on text long
+    # enough to be statistically meaningful.
+    if len(text.split()) < 15:
         return True
 
     try:

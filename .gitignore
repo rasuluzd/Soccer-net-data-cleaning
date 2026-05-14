@@ -213,3 +213,18 @@ whisper_cache/
 # Dataset itself (~tens of GB) — keep out of git
 path/to/SoccerNet/
 data/SoccerNet/
+
+# Per-thesis archives — built locally, not source
+thesis_bundle*.zip
+
+# Frontend video assets (340 MB; converted from .mkv via ffmpeg) — generate locally
+# See README §5 for the conversion command
+frontend/forzasearch-final/public/videos/
+frontend/forzasearch-final/.next/
+
+# IDE / debug
+.debug/
+.vscode/
+.mcp.json
+.claude/scheduled_tasks.lock
+.claude/settings.local.json

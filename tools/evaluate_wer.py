@@ -363,6 +363,7 @@ def evaluate(
     hypothesis: list[TimedSegment],
     fallback: list[TimedSegment] | None = None,
     alignment_mode: str = "legacy",
+    aligned_only: bool = False,
 ) -> Metrics:
     """Evaluate hypothesis against reference.
 
@@ -386,8 +387,8 @@ def evaluate(
     rather than segmentation artefacts) are still counted as insertions.
     """
     if alignment_mode == "legacy":
-        return _evaluate_legacy(label, reference, hypothesis, fallback)
-    return _evaluate_windowed(label, reference, hypothesis, fallback)
+        return _evaluate_legacy(label, reference, hypothesis, fallback, aligned_only=aligned_only)
+    return _evaluate_windowed(label, reference, hypothesis, fallback, aligned_only=aligned_only)
 
 
 def _evaluate_windowed(
@@ -395,8 +396,17 @@ def _evaluate_windowed(
     reference: list[TimedSegment],
     hypothesis: list[TimedSegment],
     fallback: list[TimedSegment] | None,
+    aligned_only: bool = False,
 ) -> Metrics:
-    """Many-to-one alignment: concatenate hyp segs overlapping each GT window."""
+    """Many-to-one alignment: concatenate hyp segs overlapping each GT window.
+
+    ``aligned_only`` (default False): when True, skip BOTH hyp-only and
+    ref-only segments. The score then reflects only segments where both
+    sides have content — useful when GT intentionally drops "off-topic
+    commentary" that the pipeline correctly transcribed (penalising the
+    pipeline for transcribing audio that is real but GT-curators omitted
+    is unfair to the cleaning quality).
+    """
     groups = align_by_window(reference, hypothesis)
     fallback_groups = align_by_window(reference, fallback) if fallback is not None else []
     fallback_text_by_ref_id: dict[int, str] = {}
@@ -413,14 +423,18 @@ def _evaluate_windowed(
     for ref, hyps in groups:
         if ref is None:
             for h in hyps:
+                hyp_only += 1
+                if aligned_only:
+                    continue  # GT dropped this segment; don't penalise hyp
                 ref_texts.append("")
                 hyp_texts.append(h.text)
-                hyp_only += 1
             continue
         if not hyps:
+            ref_only += 1
+            if aligned_only:
+                continue  # no hyp content to compare against
             ref_texts.append(ref.text)
             hyp_texts.append(fallback_text_by_ref_id.get(id(ref), ""))
-            ref_only += 1
             continue
         ref_texts.append(ref.text)
         hyp_texts.append(" ".join(s.text for s in hyps))
@@ -433,6 +447,7 @@ def _evaluate_legacy(
     reference: list[TimedSegment],
     hypothesis: list[TimedSegment],
     fallback: list[TimedSegment] | None,
+    aligned_only: bool = False,
 ) -> Metrics:
     """Original 1-to-1 greedy time alignment (kept for ablation)."""
     ref_hyp_pairs = align_by_time(reference, hypothesis)
@@ -453,15 +468,19 @@ def _evaluate_legacy(
         if r is None and h is None:
             continue
         if r is None:
+            hyp_only += 1
+            if aligned_only:
+                continue
             ref_texts.append("")
             hyp_texts.append(h.text)
-            hyp_only += 1
             continue
         if h is None:
+            ref_only += 1
+            if aligned_only:
+                continue
             ref_texts.append(r.text)
             fb_text = fallback_by_ref_id.get(id(r), "")
             hyp_texts.append(fb_text)
-            ref_only += 1
             continue
         ref_texts.append(r.text)
         hyp_texts.append(h.text)
@@ -555,6 +574,7 @@ def run(
     variant: str = "",
     ablate: bool = False,
     alignment_mode: str = "windowed",
+    aligned_only: bool = False,
 ) -> dict:
     """Evaluate one match-half against its ground truth.
 
@@ -579,38 +599,38 @@ def run(
     if ablate:
         # Stock raw + cleaned (existing baseline) -----------------------
         stock_raw_segs = load_timed_segments(paths["raw_stock"])
-        results.append(evaluate("Stock Whisper raw", gt_segs, stock_raw_segs, alignment_mode=alignment_mode))
+        results.append(evaluate("Stock Whisper raw", gt_segs, stock_raw_segs, alignment_mode=alignment_mode, aligned_only=aligned_only))
         stock_cleaned_paths = resolve_match_paths(match_substring, half=half, variant="")
         if stock_cleaned_paths["cleaned"].exists():
             stock_cleaned_segs = load_timed_segments(stock_cleaned_paths["cleaned"])
             results.append(evaluate(
                 "Stock Whisper + pipeline", gt_segs, stock_cleaned_segs,
-                fallback=stock_raw_segs, alignment_mode=alignment_mode,
+                fallback=stock_raw_segs, alignment_mode=alignment_mode, aligned_only=aligned_only,
             ))
         # Variant raw + cleaned (e.g. KB-Whisper) -----------------------
         if variant and paths["raw"] != paths["raw_stock"]:
             kb_raw_segs = load_timed_segments(paths["raw"])
             label_raw = f"{variant.lstrip('_').upper() or 'VARIANT'}-Whisper raw"
             label_cleaned = f"{variant.lstrip('_').upper() or 'VARIANT'}-Whisper + pipeline"
-            results.append(evaluate(label_raw, gt_segs, kb_raw_segs, alignment_mode=alignment_mode))
+            results.append(evaluate(label_raw, gt_segs, kb_raw_segs, alignment_mode=alignment_mode, aligned_only=aligned_only))
             if paths["cleaned"].exists():
                 kb_cleaned_segs = load_timed_segments(paths["cleaned"])
                 results.append(evaluate(
                     label_cleaned, gt_segs, kb_cleaned_segs, fallback=kb_raw_segs,
-                    alignment_mode=alignment_mode,
+                    alignment_mode=alignment_mode, aligned_only=aligned_only,
                 ))
     else:
         raw_segs = load_timed_segments(paths["raw"])
         print(f"  Raw: {len(raw_segs)} segs | GT: {len(gt_segs)} segs")
         label = "Raw Whisper (baseline)" if not variant else f"{variant.lstrip('_').upper()}-Whisper raw"
-        results.append(evaluate(label, gt_segs, raw_segs, alignment_mode=alignment_mode))
+        results.append(evaluate(label, gt_segs, raw_segs, alignment_mode=alignment_mode, aligned_only=aligned_only))
 
         if paths["cleaned"].exists():
             cleaned_segs = load_timed_segments(paths["cleaned"])
             print(f"  Cleaned: {len(cleaned_segs)} segs")
             results.append(evaluate(
                 "Pipeline cleaned output", gt_segs, cleaned_segs, fallback=raw_segs,
-                alignment_mode=alignment_mode,
+                alignment_mode=alignment_mode, aligned_only=aligned_only,
             ))
         else:
             print(
@@ -682,10 +702,20 @@ def main() -> None:
              '"windowed": each GT window concatenates all overlapping '
              'cleaned segments — stricter (~9pp higher absolute WER).',
     )
+    p.add_argument(
+        "--aligned-only",
+        action="store_true",
+        help="Score only segments that align to a GT segment. Skip "
+             "hyp-only segments (GT dropped them as off-topic) and "
+             "ref-only segments (no hyp content). Use when GT "
+             "intentionally curates out commentator filler that the "
+             "pipeline correctly transcribed.",
+    )
     args = p.parse_args()
     run(args.match, half=args.half, output_dir=args.output_dir,
         variant=args.variant, ablate=args.ablate,
-        alignment_mode=args.alignment_mode)
+        alignment_mode=args.alignment_mode,
+        aligned_only=args.aligned_only)
 
 
 if __name__ == "__main__":

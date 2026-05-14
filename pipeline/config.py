@@ -131,6 +131,22 @@ SPACY_MODEL = "en_core_web_sm"
 # Entity labels we care about from spaCy's NER output
 ENTITY_LABELS_OF_INTEREST = {"PERSON", "ORG", "GPE", "FAC"}
 
+# ─── NER Rule 3: gazetteer fuzz-match (Apple RAG-NEC) ───────────────
+# Catches ASR mishearings whose surface form is a real English word
+# ("storage" → "Sturridge") that spaCy doesn't tag as PROPN and Step L's
+# logprob-gate doesn't wrap (Whisper was confident in the wrong word).
+# Tokens scoring ≥ NER_FUZZY_FLOOR are emitted to entity_corrector for
+# MCQ + gate validation. NER_FUZZY_DICT_OVERRIDE lets a strong fuzz
+# match override the dictionary veto (skip pyenchant-known words unless
+# they fuzz-match a canonical very strongly).
+NER_FUZZY_FLOOR = 75            # min fuzz.ratio to gazetteer canonical word
+                                # (raised 65→75 May 2026: 65 caught common-word
+                                # FPs like "that"→"thibaut" 73, "they"→"terry" 67,
+                                # "been"→"eden" 75, flooding Stage E with noise)
+NER_FUZZY_DICT_OVERRIDE = 90    # if word is in dict, need this much (raised 80→90)
+NER_FUZZY_MIN_LEN = 5           # skip 4-char fragments — they collide with too
+                                # many common English words (eden, kane, mata, etc)
+
 # ─── Tier 3: AI-Enhanced Correction ─────────────────────────────────
 # Sentence-transformer model for contextual disambiguation
 # all-MiniLM-L6-v2: 80MB, 384-dim, fast — best speed/quality tradeoff
@@ -446,7 +462,7 @@ FREQUENCY_HEURISTIC_THRESHOLD = 5
 # low-confidence tokens are wrapped <token> in the prompt and may be edited.
 # After the LLM proposes an edit, xlm-roberta vetos it if MLM(original)
 # is more plausible than MLM(proposed) by MLM_VETO_RATIO.
-LLM_CORRECTION_ENABLED = True
+LLM_CORRECTION_ENABLED = True   # re-enabled (Step L gives +0.10 Entity F1 — see ablation thesis/pipeline_run_v5.log)
 LLM_MODEL_PATH = str(PROJECT_ROOT / "whisper_cache" / "models"
                      / "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf")
 LLM_MODEL_REPO = "Qwen/Qwen2.5-1.5B-Instruct-GGUF"  # for download
@@ -466,7 +482,7 @@ MLM_VETO_MODEL = "xlm-roberta-base"   # multilingual masked-LM used by Step L ve
 # Stage P: Punctuation/casing restoration (pipeline/punct_restorer.py)
 # oliverguhr/fullstop-punctuation-multilang-large — multilingual,
 # Whisper-friendly. Search-friendly output for downstream NER + ES.
-PUNCT_RESTORATION_ENABLED = True
+PUNCT_RESTORATION_ENABLED = True   # re-enabled (Step P contributes +0.09 Entity F1 via casing — see thesis ablation V5/V6/V3)
 PUNCT_MODEL = "oliverguhr/fullstop-punctuation-multilang-large"
 PUNCT_PRESERVE_EXISTING = True        # only insert; never delete existing punct/casing
 
@@ -528,6 +544,10 @@ MLM_VETO_ON_MCQ_ENABLED = True
 # This eliminates the poison-vector failure mode where one bad correction
 # in match A silently re-fired in matches B-Z.
 VALIDATED_CACHE_PATH = str(PROJECT_ROOT / "data" / "validated_corrections.json")
-VALIDATED_CACHE_MIN_CONSENSUS = 3      # # of matches that must independently pick the mapping
+# Lowered from 3 → 1 so single-match-validated mappings short-circuit MCQ on
+# subsequent runs. Trades some FP risk for the aggressive entity-correction
+# behaviour the OLD learned_dictionary delivered. The dictionary itself is
+# already curated (96 entries on disk); see thesis discussion for tradeoffs.
+VALIDATED_CACHE_MIN_CONSENSUS = 1
 VALIDATED_CACHE_MIN_FUZZY = 75         # fuzz.ratio(orig, corr) must be ≥ this
 VALIDATED_CACHE_ENABLED = True

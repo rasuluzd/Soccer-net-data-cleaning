@@ -118,6 +118,39 @@ class TestFilterSegment:
         is_valid, reason = filter_segment(_seg("3 on 2"))
         assert is_valid is True
 
+    def test_short_english_football_phrase_kept(self):
+        """REGRESSION: langdetect on short football phrases (8-14 words)
+        misclassifies them as foreign languages.
+
+        Empirical: "get a good tackling, get a good passing" (8 words)
+        is detected as 'af' (Afrikaans), and "as Gary was saying no real
+        finger-pointing at him Fabregas" (10 words) hits the same trap.
+        Both were silently dropped on Chelsea-Liverpool V3 — visible as
+        +0.5pp WER each because their content disappeared from the cleaned
+        output but stayed in the GT.
+
+        Fix: bump MIN_WORDS_FOR_LANGDETECT from 8 to 15 so we only invoke
+        langdetect on text long enough for it to be statistically reliable."""
+        is_valid, reason = filter_segment(_seg("get a good tackling, get a good passing"))
+        assert is_valid is True, f"valid English football text rejected: reason={reason}"
+
+        is_valid, reason = filter_segment(
+            _seg("as Gary was saying no real finger-pointing at him Fabregas")
+        )
+        assert is_valid is True, f"valid English football text rejected: reason={reason}"
+
+    def test_obviously_foreign_long_text_still_rejected(self):
+        """A safety check: bumping the langdetect threshold must not let
+        clearly foreign LONG text slip through. 15+ words of Swedish
+        commentary should still be filtered when expected_lang='en'."""
+        sv = _seg(
+            "Spelarna är på sin plats och domaren blåser i visselpipan "
+            "för att starta matchen igen efter halvtidspausen i andra halvlek."
+        )
+        is_valid, reason = filter_segment(sv, expected_lang="en")
+        assert is_valid is False
+        assert reason == "wrong_language_detected"
+
 
 class TestFilterSegments:
     """Tests for filter_segments() — batch filtering."""

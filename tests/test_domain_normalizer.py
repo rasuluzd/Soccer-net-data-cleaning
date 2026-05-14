@@ -59,10 +59,24 @@ class TestCompoundMerging:
         result, _ = norm.normalize_segment("the goal keeper saves it")
         assert "goalkeeper" in result
 
-    def test_halftime(self):
+    def test_halftime_NOT_compounded(self):
+        """REGRESSION: 'half time → halftime' was hurting WER vs GOAL GT
+        which uses two-word form. Empirical: +0.12 WER per occurrence on
+        Chelsea-Liverpool V3 H2. Removed from FOOTBALL_COMPOUNDS."""
         norm = DomainNormalizer("en")
-        result, _ = norm.normalize_segment("half time whistle blows")
-        assert "halftime" in result
+        result, corr = norm.normalize_segment("half time whistle blows")
+        assert "half time" in result
+        assert "halftime" not in result, f"halftime compounding regression: {result!r}"
+        assert all("halftime" not in c.get("corrected", "") for c in corr)
+
+    def test_lineup_NOT_compounded(self):
+        """REGRESSION: 'line up → lineup' was hurting WER vs GOAL GT.
+        GT uses 'line up' as verb ('line up there to shoot') and 'lineup'
+        as noun rarely. The compound was over-applied. Removed."""
+        norm = DomainNormalizer("en")
+        result, corr = norm.normalize_segment("about to line up there to shoot")
+        assert "line up" in result
+        assert "lineup" not in result
 
     def test_already_correct_not_doubled(self):
         norm = DomainNormalizer("en")

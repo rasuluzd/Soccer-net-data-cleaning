@@ -1,0 +1,22 @@
+half,segment_id,start_time,end_time,n_words,alpha_ratio,has_loop,has_verb,lang,label,text
+1,105,431.56,432.46,1,0.86,False,False,,garbage,Nicely.
+1,112,449.0,449.9,1,0.86,False,False,,garbage,Milner.
+1,275,1118.08,1119.0,1,0.9,False,False,,garbage,Brilliant.
+1,315,1276.1399999999999,1276.62,1,0.9,False,False,,garbage,Henderson.
+1,395,1542.0,1542.56,1,0.9,False,False,,garbage,Liverpool.
+1,438,1703.74,1704.18,1,0.83,False,False,,garbage,Oscar.
+1,453,1749.88,1750.24,1,0.88,False,False,,garbage,Lillian.
+1,510,1952.56,1953.12,1,0.8,False,False,,garbage,Time.
+1,554,2108.88,2109.44,1,0.8,False,False,,garbage,Side.
+1,750,2764.58,2766.88,7,0.79,False,True,en,real,It sounds for his half-time team talk.
+1,751,2767.22,2769.88,10,0.8,False,True,en,real,"Friday night's been a fright night so far for Chelsea,"
+1,752,2770.02,2772.32,7,0.81,False,True,en,real,"But not for Liverpool, who've looked excellent."
+1,753,2772.32,2772.84,3,0.79,False,False,,ambiguous,Day and Lover.
+2,31,115.08,115.52,1,0.9,False,True,,garbage,Reminding:
+2,456,1512.82,1512.9,1,0.92,False,False,,garbage,Spinecretta.
+2,541,1874.3200000000002,1875.44,4,0.75,False,False,,ambiguous,I've seen it before.
+2,586,1986.4,1990.1,4,0.71,False,False,,ambiguous,And he hit it.
+2,626,2122.14,2122.7,1,0.8,False,False,,garbage,Mane.
+2,682,2373.1,2373.98,2,0.67,False,False,,garbage,And he's.
+2,773,2737.0,2738.38,4,0.81,False,True,,ambiguous,Played by David Luiz.
+2,774,2739.94,2741.56,4,0.84,False,True,,ambiguous,Liverpool holding a line.

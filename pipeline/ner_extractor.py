@@ -11,6 +11,7 @@ import re
 from dataclasses import dataclass, field
 
 import spacy
+from rapidfuzz import fuzz
 
 from pipeline.config import (
     SPACY_MODEL,
@@ -119,6 +120,7 @@ def extract_heuristic_entities(
     text: str,
     doc=None,
     language: str = "en",
+    gazetteer: dict[str, str] | None = None,
 ) -> list[DetectedEntity]:
     """
     Use rule-based heuristics to find potential entity names that
@@ -126,13 +128,17 @@ def extract_heuristic_entities(
 
     Heuristic rules:
     1. Lone capitalized words in short segments (likely a player name)
-    2. Capitalized words near verbs (detected via POS tagging)
-    3. Capitalized words that aren't common non-name POS tags
+    2. Capitalized words that aren't common non-name POS tags
+    3. (Apple RAG-NEC pattern) Any token (incl. lowercased dictionary words
+       like "storage" → "Sturridge") that fuzz-matches a gazetteer canonical
+       at >= NER_FUZZY_FLOOR. Catches the high-confidence ASR mishearings
+       that Step L's logprob-gate misses and spaCy NER doesn't tag.
 
     Args:
         text: the segment text
         doc: the spaCy Doc object (reuse from NER step to avoid re-processing)
         language: detected commentary language
+        gazetteer: optional name → canonical map; enables Rule 3 fuzz-matching
 
     Returns:
         List of DetectedEntity objects found by heuristics
@@ -236,12 +242,123 @@ def extract_heuristic_entities(
             pos=pos,
         ))
 
+    # Rule 3: Gazetteer fuzz-match (Apple RAG-NEC, arxiv 2409.06062).
+    # For each multi-char alphabetic token, fuzz-match against the gazetteer
+    # canonicals. Catches "storage" → "Sturridge" class: ASR mishearings
+    # whose surface form is a real English word, so spaCy doesn't tag them
+    # as PROPN, and Step L's logprob-gate doesn't wrap them (Whisper was
+    # confident in the wrong word). entity_corrector still validates via
+    # MCQ + MLM, so a low-fuzz match here is filtered downstream.
+    if gazetteer:
+        from pipeline.config import (
+            NER_FUZZY_FLOOR, NER_FUZZY_DICT_OVERRIDE, NER_FUZZY_MIN_LEN,
+        )
+        # Cache the canonical-words list and existing-spans set to make
+        # this scan O(N_tokens × N_canonical_words) — both small per match.
+        canonical_words: set[str] = set()
+        for variant, canonical in gazetteer.items():
+            for w in canonical.split():
+                if len(w) >= NER_FUZZY_MIN_LEN:
+                    canonical_words.add(w)
+            for w in variant.split():
+                if len(w) >= NER_FUZZY_MIN_LEN:
+                    canonical_words.add(w)
+        gaz_lower = {w.lower() for w in canonical_words}
+        existing_spans = {(e.start_char, e.end_char) for e in entities}
+
+        # Dict veto. Try pyenchant first (Hunspell-backed, fast); fall
+        # back to pyspellchecker (pure-Python frequency dict) when the
+        # native Hunspell DLLs are missing — common on Windows.
+        # Without veto, common English words like "that"/"they"/"been"
+        # fuzz-match player surname fragments and flood Stage E with
+        # fake entities (empirically: 99 false "that"→"thibaut", 68
+        # "they"→"terry", 41 "been"→"eden" on Chelsea-Liverpool 2016).
+        _dict = None
+        try:
+            import enchant  # type: ignore
+            _dict_enchant = enchant.Dict("en_US")
+            _dict = ("enchant", _dict_enchant)
+        except Exception:
+            try:
+                from spellchecker import SpellChecker  # type: ignore
+                _dict_spell = SpellChecker(language="en")
+                _dict = ("spellchecker", _dict_spell)
+            except Exception:
+                _dict = None
+
+        def _is_real_word(w: str) -> bool:
+            if _dict is None:
+                return False
+            kind, obj = _dict
+            try:
+                if kind == "enchant":
+                    return obj.check(w)
+                # spellchecker: a word is "known" if its frequency > 0
+                return w.lower() in obj
+            except Exception:
+                return False
+
+        cursor = 0
+        for word in text.split():
+            word_start = text.find(word, cursor)
+            if word_start < 0:
+                continue
+            next_cursor = word_start + len(word)
+            cursor = next_cursor
+
+            clean_word = word.strip(".,!?;:'\"()-—–…")
+            if len(clean_word) < NER_FUZZY_MIN_LEN:
+                continue
+            if not clean_word.replace("'", "").replace("-", "").isalpha():
+                continue
+            cw_lower = clean_word.lower()
+            if cw_lower in gaz_lower:
+                continue  # already an exact gazetteer entry; entity_corrector handles via cache
+
+            # Best fuzz against any canonical word
+            best_score = 0
+            for cand in canonical_words:
+                if abs(len(cand) - len(clean_word)) > 4:
+                    continue
+                s = fuzz.ratio(cw_lower, cand.lower())
+                if s > best_score:
+                    best_score = s
+
+            if best_score < NER_FUZZY_FLOOR:
+                continue
+            # Dictionary veto: if it's a real English word, only emit on
+            # strong fuzz to gazetteer (override threshold). Skips words
+            # like "started", "moves" that randomly fuzz to player names.
+            if len(clean_word) >= 4 and _is_real_word(clean_word):
+                if best_score < NER_FUZZY_DICT_OVERRIDE:
+                    continue
+
+            # Find clean_word's exact start within the word span
+            start_pos = text.find(clean_word, word_start)
+            if start_pos < 0 or start_pos >= next_cursor:
+                continue
+            if (start_pos, start_pos + len(clean_word)) in existing_spans:
+                continue
+            pos = _get_pos_for_word(doc, clean_word, start_pos)
+            entities.append(DetectedEntity(
+                text=clean_word,
+                label="PERSON",
+                start_char=start_pos,
+                end_char=start_pos + len(clean_word),
+                source="heuristic_gazetteer_fuzz",
+                pos=pos,
+            ))
+            existing_spans.add((start_pos, start_pos + len(clean_word)))
+
     return entities
 
 
 # ─── Main Extraction Function ───────────────────────────────────────
 
-def extract_entities(segment: Segment, language: str = "en") -> list[DetectedEntity]:
+def extract_entities(
+    segment: Segment, language: str = "en",
+    gazetteer: dict[str, str] | None = None,
+) -> list[DetectedEntity]:
     """
     Extract named entities from a single ASR segment using both
     spaCy NER and heuristic rules.
@@ -283,7 +400,9 @@ def extract_entities(segment: Segment, language: str = "en") -> list[DetectedEnt
             spacy_spans.add((ent.start_char, ent.end_char))
 
     # ── Step 2: Heuristic rules ──────────────────────────────────────
-    heuristic_entities = extract_heuristic_entities(text, doc=doc, language=language)
+    heuristic_entities = extract_heuristic_entities(
+        text, doc=doc, language=language, gazetteer=gazetteer,
+    )
     for he in heuristic_entities:
         # Only add if not already covered by a spaCy entity
         overlaps = any(
@@ -299,6 +418,7 @@ def extract_entities(segment: Segment, language: str = "en") -> list[DetectedEnt
 def extract_entities_batch(
     segments: list[Segment],
     language: str = "en",
+    gazetteer: dict[str, str] | None = None,
 ) -> dict[tuple[int, str], list[DetectedEntity]]:
     """
     Extract entities from all segments in a batch.
@@ -350,7 +470,7 @@ def extract_entities_batch(
 
         # Heuristic entities (only if not overlapping with spaCy)
         heuristic_entities = extract_heuristic_entities(
-            seg.text.strip(), doc=doc, language=language
+            seg.text.strip(), doc=doc, language=language, gazetteer=gazetteer,
         )
         for he in heuristic_entities:
             overlaps = any(

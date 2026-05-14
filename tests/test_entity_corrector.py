@@ -115,40 +115,32 @@ class TestGazetteerIndex:
 
 class TestValidatedCache:
     def test_lookup_returns_none_when_below_consensus(self):
+        # With MIN_CONSENSUS=1, an empty matches_seen list is the only
+        # state where we're "below consensus".
         cache = {
-            "starridge": {"correct": "Daniel Sturridge", "matches_seen": ["m1", "m2"]}
+            "starridge": {"correct": "Daniel Sturridge", "matches_seen": []}
         }
-        # MIN_CONSENSUS=3 → 2 matches isn't enough
         assert _validated_cache_lookup("starridge", cache) is None
 
     def test_lookup_returns_correction_at_or_above_consensus(self):
         cache = {
             "starridge": {
                 "correct": "Daniel Sturridge",
-                "matches_seen": ["m1", "m2", "m3"],
+                "matches_seen": ["m1"],  # MIN_CONSENSUS=1 → already promoted
             }
         }
         assert _validated_cache_lookup("starridge", cache) == "Daniel Sturridge"
 
     def test_record_promotes_at_consensus_boundary(self):
+        # MIN_CONSENSUS=1: first match-seen *is* the boundary.
         cache = {}
-        # First two matches: not yet promoted
         promoted = _validated_cache_record(
             cache, "starridge", "Daniel Sturridge", "m1", 90.0,
         )
-        assert not promoted
+        assert promoted, "MIN_CONSENSUS=1 should promote on the first sighting"
+        # Second sighting: already validated, no further promotion event
         promoted = _validated_cache_record(
             cache, "starridge", "Daniel Sturridge", "m2", 88.0,
-        )
-        assert not promoted
-        # Third match: promotes
-        promoted = _validated_cache_record(
-            cache, "starridge", "Daniel Sturridge", "m3", 92.0,
-        )
-        assert promoted, "Should have promoted at consensus boundary"
-        # Fourth: already validated, no further promotion event
-        promoted = _validated_cache_record(
-            cache, "starridge", "Daniel Sturridge", "m4", 90.0,
         )
         assert not promoted
 

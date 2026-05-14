@@ -1,0 +1,767 @@
+half,segment_id,start_time,entity,source,is_dup_in_match,context
+1,0,0.0,stamford bridge,spacy,False,and away we go it's a starry starry night here at stamford bridge so many individual talents and
+1,4,25.22,Sturridge,spacy,False,now Sturridge knows all about this place
+1,5,30.539999999999996,Sadio Mane,spacy,False,slightly confusing his teammate to Sadio Mane and maybe it was the other way
+1,6,34.36,Liverpool,spacy,False,around as expected Liverpool straight out of the blocks
+1,8,42.34,Oscar,spacy,False,by Oscar
+1,9,54.5,Wijnaldum,spacy,False,and across there was Wijnaldum
+1,10,59.0,Gary Cahill,spacy,False,got into a good position and Gary Cahill to be fair to him read it well
+1,11,65.82,London,spacy,False,it's been quite a wet 24 hours in the London area
+1,14,81.84,Lega Costa,spacy,False,Lega Costa nearly put through there was a space during William who played the
+1,14,81.84,William,spacy,False,Lega Costa nearly put through there was a space during William who played the
+1,16,95.4,Coutinho Alana,spacy,False,Coutinho Alana
+1,17,97.62,Mane,spacy,False,waiting on the right Mane feeding him get it on his left foot and do that sort
+1,21,112.76,Haspilicueta,heuristic_gazetteer_fuzz,False,Haspilicueta I think knew that Daniel Sturridge
+1,21,112.76,Daniel Sturridge,spacy,False,Haspilicueta I think knew that Daniel Sturridge
+1,27,126.88,Henderson,spacy,False,here's Henderson
+1,32,141.67999999999998,Liverpool,spacy,True,Liverpool love to play with
+1,34,145.82,James Miller,spacy,False,even though James Miller would probably
+1,37,151.1,Jürgen Klopp,spacy,False,for Jürgen Klopp he's the number one choice
+1,40,157.29999999999998,Liverpool,spacy,True,the way Liverpool gave it in
+1,41,159.74,Arsenal,spacy,False,was Arsenal
+1,48,174.26,Jürgen Klopp,spacy,True,the results including the one here last season which gave Jürgen Klopp first Premier League win
+1,48,174.26,Premier League,spacy,False,the results including the one here last season which gave Jürgen Klopp first Premier League win
+1,49,183.34,Sturridge,heuristic_capitalized_non_function,True,Sturridge playing a senior game at Chelsea against Chelsea for the first
+1,49,183.34,Chelsea,spacy,False,Sturridge playing a senior game at Chelsea against Chelsea for the first
+1,49,183.34,Chelsea,spacy,True,Sturridge playing a senior game at Chelsea against Chelsea for the first
+1,50,187.74,Manchester City's,spacy,False,time although we've been calling a only scored here for Manchester City's youth
+1,51,192.88,Chelsea,spacy,True,team in a youth cup final to Chelsea here's David Luiz the second time his
+1,51,192.88,David Luiz,spacy,False,team in a youth cup final to Chelsea here's David Luiz the second time his
+1,52,203.12,Chelsea,spacy,True,stats Chelsea career with a debut at home to Liverpool his point of view it
+1,52,203.12,Liverpool,spacy,True,stats Chelsea career with a debut at home to Liverpool his point of view it
+1,54,215.86,Chelsea,spacy,True,he's definitely added pace since this Chelsea team constantly play at a fire
+1,55,220.5,John Terry,spacy,False,heart for higher John Terry
+1,56,224.64000000000001,Louise,spacy,False,mentioning about Louise the strange thing for me that this attack play out
+1,57,232.12,Lallana,spacy,False,with Lallana
+1,58,237.04000000000002,Leicester,heuristic_capitalized_non_function,False,beautiful goal in that match to ask the least good against Leicester the winner
+1,59,242.78,Sam Allardyce,spacy,False,for Sam Allardyce here is Milner forward again down the
+1,59,242.78,Milner,heuristic_capitalized_non_function,False,for Sam Allardyce here is Milner forward again down the
+1,61,250.24,Mike,spacy,False,Mike was up
+1,63,264.1,Chennava Alana,spacy,False,minute in Chennava Alana squeezed it home the big Sam brain started with a
+1,63,264.1,Sam,spacy,False,minute in Chennava Alana squeezed it home the big Sam brain started with a
+1,65,276.62,Davi,heuristic_capitalized_non_function,False,just going back to Davi Luiz John Terry's shot we know those two can't play
+1,65,276.62,Luiz,heuristic_capitalized_non_function,False,just going back to Davi Luiz John Terry's shot we know those two can't play
+1,65,276.62,John Terry,spacy,True,just going back to Davi Luiz John Terry's shot we know those two can't play
+1,66,280.96,Cale,spacy,False,together it's been proven before I don't think this pair Cale and Luiz were particularly good last time
+1,66,280.96,Luiz,heuristic_capitalized_non_function,True,together it's been proven before I don't think this pair Cale and Luiz were particularly good last time
+1,67,286.5,Conte,spacy,False,so they're going to have to improve and Conte's got his work cut out in terms of moulding them
+1,69,296.37999999999994,Matip,spacy,False,anyway rather sending a jolt of electricity through Matip
+1,71,308.86,Belgium,spacy,False,their country Belgium
+1,73,312.72,Tebow Couture,spacy,False,to Tebow Couture
+1,74,319.9,Belgium,spacy,True,talking of Belgium is in an asshut
+1,75,327.17999999999995,Quetta,spacy,False,as for the Quetta
+1,76,330.09999999999997,Matip,heuristic_short_segment,True,by Matip
+1,77,332.17999999999995,Chelsea,spacy,True,too much of Chelsea
+1,79,336.86,David Luiz,spacy,True,David Luiz
+1,82,346.09999999999997,Chelsea,spacy,True,Chelsea's build up will be a little slower than Liverpool's
+1,82,346.09999999999997,Liverpool,spacy,True,Chelsea's build up will be a little slower than Liverpool's
+1,87,364.3,Pasadena,heuristic_capitalized_non_function,False,Pasadena in the USA in July
+1,87,364.3,USA,spacy,False,Pasadena in the USA in July
+1,87,364.3,July,heuristic_capitalized_non_function,False,Pasadena in the USA in July
+1,89,371.02,Chelsea,spacy,True,and Chelsea finished without Cesc Fabregas who eventually got sent off
+1,89,371.02,Cesc Fabregas,spacy,False,and Chelsea finished without Cesc Fabregas who eventually got sent off
+1,91,378.1,Miss,heuristic_short_segment,False,Miss William
+1,91,378.1,William,spacy,True,Miss William
+1,92,382.82,Diego,spacy,False,teased in towards Diego
+1,96,389.8,Oscar Oqueta,spacy,False,from Oscar Oqueta
+1,97,395.48,Hazard,spacy,False,Hazard
+1,103,419.9,Lovren,spacy,False,"There's Lovren, just trying to guide it down for Coutinho, might come off."
+1,103,419.9,Coutinho,spacy,False,"There's Lovren, just trying to guide it down for Coutinho, might come off."
+1,104,426.92,Henderson,spacy,True,Henderson
+1,106,432.46,Klein,spacy,False,by Klein
+1,108,437.22,Coutinho,heuristic_short_segment,True,Coutinho
+1,112,449.0,Novanovich,heuristic_gazetteer_fuzz,False,Novanovich
+1,114,473.98,CHAMPIONS LEAGUE CHAMPIONS LEAGUE,spacy,False,CHAMPIONS LEAGUE CHAMPIONS LEAGUE
+1,116,489.32,Ivanovic,spacy,False,Ivanovic
+1,118,491.44,iffy,spacy,False,iffy moments
+1,128,512.5,Lovren,spacy,True,to pick up Lovren
+1,131,528.96,Sturridge,spacy,True,he's trying to stay with Sturridge
+1,132,533.4000000000001,Lallana,spacy,True,towards Lallana
+1,133,534.96,Chelsea,spacy,True,and the free kick is given Chelsea's way
+1,134,544.3399999999999,Manchester,spacy,False,it's no doubt the Manchester derby was given an extra dimension by the high
+1,135,548.96,Saturday,heuristic_capitalized_non_function,False,profile nature of the two managers last Saturday we've got the same here this
+1,137,560.96,Klopp,spacy,False,And Klopp.
+1,138,572.16,Coutinho,spacy,True,Coutinho.
+1,140,580.3,Rio Ferdinand,spacy,False,Rio Ferdinand-like.
+1,141,585.7,Clyne,heuristic_short_segment,False,Clyne.
+1,144,600.28,Azpilicueta,spacy,False,Azpilicueta
+1,145,606.52,David Luiz,spacy,True,David Luiz prepared to
+1,148,613.6800000000001,Chelsea,spacy,True,"a little bit risky by Chelsea, whether the"
+1,149,616.26,Van Richemont,spacy,False,"managers to encourage them to do this but Van Richemont, Cahill, David Luiz will be very"
+1,149,616.26,Cahill,spacy,False,"managers to encourage them to do this but Van Richemont, Cahill, David Luiz will be very"
+1,149,616.26,David Luiz,spacy,True,"managers to encourage them to do this but Van Richemont, Cahill, David Luiz will be very"
+1,152,631.06,Liverpool,spacy,True,another team that would want you to pass along the back Liverpool particularly at
+1,153,635.12,Cahill,spacy,True,the edge of your own box Cahill and Luiz are going to have to be careful
+1,153,635.12,Luiz,spacy,True,the edge of your own box Cahill and Luiz are going to have to be careful
+1,154,647.08,Matty,heuristic_short_segment,False,Matty
+1,155,653.48,Alana,spacy,False,Alana
+1,160,667.86,Lucas,heuristic_capitalized_non_function,False,Lucas in the back row there now
+1,164,674.12,Saturday,heuristic_capitalized_non_function,True,before the only goal they conceded for the champions last Saturday
+1,165,678.8,Lallana,heuristic_short_segment,True,here's Lallana
+1,168,690.3,Klein,spacy,True,"come on it, trying to slide it through for Klein"
+1,169,694.16,Chelsea,spacy,True,Chelsea restricted at the moment to try to play on the break here at the bridge
+1,171,701.34,Chelsea,spacy,True,Chelsea
+1,174,717.0600000000001,Chelsea,spacy,True,Chelsea is a five across the pitch Oscar just breaking out now back in tight four and five
+1,174,717.0600000000001,Oscar,spacy,True,Chelsea is a five across the pitch Oscar just breaking out now back in tight four and five
+1,175,727.44,Chelsea,spacy,True,5-1 for Chelsea
+1,178,735.18,Coutinho,spacy,True,to stop Coutinho and Lallana in the spaces they're in now
+1,178,735.18,Lallana,spacy,True,to stop Coutinho and Lallana in the spaces they're in now
+1,181,742.32,Clyde,spacy,False,Clyde
+1,183,746.3,Kasper Lekweta,spacy,False,of Kasper Lekweta
+1,184,748.84,Liverpool,spacy,True,one of Liverpool's Londoners
+1,185,750.68,Nathaniel Clyne,spacy,False,Nathaniel Clyne starting of course at Crystal Palace
+1,185,750.68,Crystal Palace,spacy,False,Nathaniel Clyne starting of course at Crystal Palace
+1,188,766.18,Lovren,spacy,True,that's that black eye that Lovren got
+1,189,769.9,Kevin Stewart,spacy,False,in the collision in the training ground with Kevin Stewart
+1,191,776.66,Jordan Henderson,spacy,False,has the right kind of delivery from Jordan Henderson
+1,197,813.44,Jurgen Klopp,spacy,False,tenure of Jurgen Klopp with away Premier League games
+1,197,813.44,Premier,heuristic_capitalized_non_function,False,tenure of Jurgen Klopp with away Premier League games
+1,197,813.44,League,heuristic_capitalized_non_function,False,tenure of Jurgen Klopp with away Premier League games
+1,200,819.02,Burnley,spacy,False,they have been poor at Burnley this season
+1,201,821.08,Newcastle,spacy,False,they lost at Newcastle
+1,202,823.72,Watford,spacy,False,Watford and others
+1,206,832.46,Manchester City,spacy,False,Manchester City
+1,208,835.84,Chelsea,spacy,True,here at Chelsea
+1,209,841.7,Pep,heuristic_capitalized_non_function,False,I'm not sure Pep Guardiola
+1,209,841.7,Guardiola,heuristic_capitalized_non_function,False,I'm not sure Pep Guardiola
+1,212,846.62,Jurgen Klopp,spacy,True,and I don't think Jurgen Klopp
+1,214,860.7800000000001,David Lewis,spacy,False,David Lewis
+1,215,865.9200000000001,Hazard,spacy,True,to hide Hazard over the head of Klein
+1,215,865.9200000000001,Klein,spacy,True,to hide Hazard over the head of Klein
+1,220,880.48,Europe,heuristic_capitalized_non_function,False,not to be involved in Europe
+1,225,886.7399999999999,the Premier League,spacy,False,think about the Premier League
+1,229,895.9599999999999,Chelsea,spacy,True,and of course really up the ante in terms of Chelsea expectations when he took over in 2003
+1,231,908.8,Liverpool,spacy,True,Liverpool have held the loft both the Champions League and the Europa League trophies in the last five years
+1,231,908.8,the Champions League,spacy,False,Liverpool have held the loft both the Champions League and the Europa League trophies in the last five years
+1,231,908.8,Europa League,spacy,False,Liverpool have held the loft both the Champions League and the Europa League trophies in the last five years
+1,232,912.96,Liverpool,spacy,True,Liverpool of course five times as they're proud to say European Cup stroke Champions League winners
+1,232,912.96,European Cup,spacy,False,Liverpool of course five times as they're proud to say European Cup stroke Champions League winners
+1,232,912.96,Champions League,spacy,False,Liverpool of course five times as they're proud to say European Cup stroke Champions League winners
+1,233,918.78,Europa League,spacy,True,as Europa League finalists only in May
+1,233,918.78,May,heuristic_capitalized_non_function,False,as Europa League finalists only in May
+1,235,928.5,Lovren,spacy,True,on from Lovren
+1,236,933.76,Aldon,spacy,False,Aldon might collect this
+1,237,939.84,Liverpool,spacy,True,Liverpool trying to set the agenda here Chelsea seem happy at the moment just to
+1,237,939.84,Chelsea,spacy,True,Liverpool trying to set the agenda here Chelsea seem happy at the moment just to
+1,247,979.44,Liverpool,spacy,True,variation on the theme from Liverpool
+1,250,987.34,Dayan Lovren,spacy,False,Dayan Lovren
+1,254,994.94,Liverpool,spacy,True,and Liverpool faster out of the blocks here at the bridge
+1,255,998.4,Chelsea,spacy,True,and they lead Chelsea
+1,256,999.86,Chelsea,spacy,True,Chelsea with a goal in the 17th minute from Dejan Lovren.
+1,256,999.86,Dejan Lovren,spacy,False,Chelsea with a goal in the 17th minute from Dejan Lovren.
+1,257,1002.74,Liverpool,spacy,True,"They've been the better team, Liverpool, in these first 15 minutes."
+1,258,1006.2,Chelsea,spacy,True,"It's a short one, they're sleeping Chelsea."
+1,259,1008.6,Chelsea,spacy,True,"The ball goes back and they push up the Chelsea defence,"
+1,260,1011.3,Lovren,spacy,True,but Lovren just pulls out at the back post.
+1,261,1014.98,Chelsea,spacy,True,"It's terrible from Chelsea, they're all over the place on that free kick."
+1,262,1018.6,Ivanovic,spacy,True,"They really are, put under pressure initially from Ivanovic, giving it away."
+1,263,1022.8,Lovren,spacy,True,"He sees it from a long way away, Lovren,"
+1,265,1028.02,Courtois,heuristic_capitalized_non_function,False,"the fact that it hits it into the ground, fills Courtois and gives his team a deserved lead."
+1,266,1035.76,Chelsea,spacy,True,"Well, the player with the black eye has put one in the eye for Chelsea."
+1,267,1044.82,Premier,heuristic_capitalized_non_function,True,It's his first Premier League goal for Liverpool.
+1,267,1044.82,League,heuristic_capitalized_non_function,True,It's his first Premier League goal for Liverpool.
+1,267,1044.82,Liverpool,spacy,True,It's his first Premier League goal for Liverpool.
+1,268,1051.5,Chelsea,spacy,True,"Here's Matic, and it is a consequence of the way Chelsea have started the game."
+1,271,1080.7199999999998,Chelsea,spacy,True,the organisation on the free kick is terrible from Chelsea on the way out as the ball goes back
+1,276,1119.0,Hazard,spacy,True,stripes it to Hazard
+1,278,1123.84,Lekreta,spacy,False,that's for Lekreta
+1,279,1128.04,Mati,heuristic_capitalized_non_function,False,good challenge from Mati
+1,280,1136.5199999999998,Ivanovic,spacy,True,and here's Ivanovic
+1,282,1156.8,Kevin,spacy,False,"with Kevin tonight, did it?"
+1,283,1160.44,Chelsea,spacy,True,Chelsea have got to improve
+1,288,1175.22,Liverpool,spacy,True,Liverpool by far the better team in this opening 20 minutes
+1,289,1178.6399999999999,Chelsea,spacy,True,didn't know whether it was a tactic from Chelsea
+1,297,1207.86,Gary Cale,spacy,False,"out, Gary Cale is pushing out at the end but Lovren just pulls out to the back"
+1,297,1207.86,Lovren,spacy,True,"out, Gary Cale is pushing out at the end but Lovren just pulls out to the back"
+1,299,1217.16,Coutinho,spacy,True,from Coutinho and the finish fantastic from a centre-back
+1,300,1231.4199999999998,Mané,heuristic_capitalized_non_function,False,Mané caught a knock on the nose
+1,301,1237.08,Mané,heuristic_capitalized_non_function,True,well kept by Mané
+1,302,1241.04,Mané,heuristic_short_segment,True,Mané recovers
+1,303,1243.08,Chelsea,spacy,True,Chelsea find a pass through Matic
+1,304,1246.04,Conte,spacy,True,to Conte
+1,305,1250.58,Marinovic,spacy,False,Marinovic
+1,308,1255.06,Guglielmo,heuristic_capitalized_non_function,False,Guglielmo goes the other way
+1,309,1259.98,Coutinho,spacy,True,Coutinho's in
+1,311,1263.1399999999999,Sturridge,heuristic_capitalized_non_function,True,Sturridge didn't have the highs in the back of his head
+1,313,1267.58,Mane,heuristic_short_segment,True,for Mane
+1,314,1270.76,Sturridge,heuristic_short_segment,True,Sturridge again
+1,315,1276.1399999999999,Henderson,spacy,True,Henderson
+1,318,1281.8999999999999,Liverpool,spacy,True,Liverpool
+1,319,1284.4799999999998,David Luiz,spacy,True,David Luiz
+1,321,1289.6599999999999,Chelsea,spacy,True,"look at Chelsea, the static"
+1,322,1291.04,Ivanovic,spacy,True,"Ivanovic stood still, Kante, they're really not mobile"
+1,322,1291.04,Kante,spacy,False,"Ivanovic stood still, Kante, they're really not mobile"
+1,326,1301.54,Chelsea,spacy,True,look at those Chelsea blue shirts
+1,327,1305.66,Martin Atkinson,spacy,False,that's what Martin Atkinson
+1,331,1332.22,Chelsea,spacy,True,turn to Chelsea's colours so far for
+1,332,1333.96,David Luiz,spacy,True,David Luiz
+1,336,1341.88,Liverpool,spacy,True,"from it, they're not making it difficult for Liverpool"
+1,343,1366.7,matt,spacy,False,they're just jogging oscar and matt it's not really getting up to the ball happy just to
+1,344,1371.52,liverpool,spacy,True,let liverpool have it they're at their home for the 40 000 fans friday night they have to go for
+1,345,1375.98,david luis,spacy,False,it you can't just jog out to people sprinting back on this david luis get close enough
+1,347,1388.82,Conte,spacy,True,Conte
+1,351,1394.72,Van Elver,spacy,False,Van Elver
+1,352,1397.1000000000001,Matty,spacy,True,with Matty
+1,360,1411.0,Chelsea,spacy,True,I like mannequins Chelsea
+1,362,1417.8,Liverpool,spacy,True,special Liverpool some of their intricacies been fantastic to watch in
+1,364,1424.1,Chelsea,spacy,True,through Chelsea at the moment and they've won at Arsenal they've drawn at
+1,364,1424.1,Arsenal,spacy,True,through Chelsea at the moment and they've won at Arsenal they've drawn at
+1,365,1429.58,Tottenham,spacy,False,Tottenham leading at Chelsea formative weeks of this new season in a period
+1,365,1429.58,Chelsea,spacy,True,Tottenham leading at Chelsea formative weeks of this new season in a period
+1,367,1445.42,William,spacy,True,presence of mind by William and you had a bit of room
+1,369,1454.38,Chelsea,spacy,True,Chelsea
+1,375,1469.94,Daniel Sturridge,spacy,True,Daniel Sturridge but again
+1,380,1479.6,Alderweireld,spacy,False,and Alderweireld can't just get there
+1,381,1483.48,Daniel Sturridge,spacy,True,there's a shot from Daniel Sturridge
+1,383,1493.28,Daniel,spacy,False,or Daniel's I suppose as well
+1,384,1494.74,Joachim Klopp,spacy,False,but I'm referring to Joachim Klopp
+1,385,1499.6999999999998,Chelsea,spacy,True,four years with Chelsea
+1,386,1505.76,Chelsea,spacy,True,struggling for game time some of the issues with Chelsea that have resurfaced at Liverpool
+1,386,1505.76,Liverpool,spacy,True,struggling for game time some of the issues with Chelsea that have resurfaced at Liverpool
+1,391,1533.22,Chelsea,spacy,True,who's never scored for Chelsea
+1,392,1534.54,Stamford Bridge,spacy,True,at Stamford Bridge
+1,393,1535.5,David Luiz,spacy,True,David Luiz has
+1,395,1542.0,Liverpool,spacy,True,Liverpool
+1,399,1546.46,Alvin,spacy,False,but we find Alvin
+1,401,1548.04,Lallana,heuristic_short_segment,True,that's Lallana
+1,402,1549.8,Henderson,spacy,True,Henderson
+1,404,1558.14,Diogo Costa,spacy,False,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Matic,heuristic_capitalized_non_function,False,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Hazard,spacy,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Matic,heuristic_capitalized_non_function,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Mignolet,spacy,False,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Chelsea,spacy,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Wijnaldum,spacy,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Sturridge,spacy,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,404,1558.14,Hazard,spacy,True,"Strong work by Diogo Costa, out by Matic, who played it to him in the first place, on to Hazard from Matic, scooped up b"
+1,405,1588.46,Chelsea,spacy,True,the risk for Chelsea is the turnovers so quick to spring on to them but the
+1,407,1598.88,Liverpool,spacy,True,Liverpool
+1,408,1603.94,Aspilicueta,spacy,False,Aspilicueta
+1,409,1606.1399999999999,Chelsea,spacy,True,Chelsea fans are a little more interested in this last couple of minutes
+1,412,1628.28,Oscar,spacy,True,Oscar
+1,413,1631.9599999999998,William,spacy,True,William
+1,415,1636.82,Costa Ivanovic,spacy,False,Costa Ivanovic
+1,417,1642.8,Coutinho,heuristic_capitalized_non_function,True,Coutinho thought he was away
+1,418,1644.32,Ivanovic,spacy,True,Ivanovic retrieved it well on the stretch
+1,419,1646.38,Oscar,spacy,True,now Oscar
+1,420,1649.08,Conte,spacy,True,Conte
+1,421,1652.8,Conte,spacy,True,decision making from Conte
+1,423,1657.72,Liverpool,spacy,True,keeping the ball in Liverpool's last third
+1,429,1672.7,Premier,heuristic_capitalized_non_function,True,of course in the Premier League years
+1,429,1672.7,League,heuristic_capitalized_non_function,True,of course in the Premier League years
+1,431,1679.66,Chelsea,spacy,True,19 wins in the league for Chelsea
+1,432,1681.54,Liverpool,spacy,True,18 for Liverpool
+1,435,1689.2,England,spacy,False,of football in England
+1,436,1693.54,Clyde,spacy,True,Clyde
+1,437,1695.7399999999998,Hazard,spacy,True,pushing Hazard
+1,438,1703.74,Oscar,spacy,True,Oscar
+1,440,1712.24,Chelsea,spacy,True,a lot of talk about what they're going to do with it Chelsea
+1,444,1720.8999999999999,Liverpool,spacy,True,Liverpool of course have been
+1,446,1723.16,Anfield,spacy,False,played their first game in Anfield last weekend
+1,449,1729.14,Liverpool,spacy,True,find it inspiring from a Liverpool point of view
+1,451,1740.72,Aspilicueta,spacy,True,to Aspilicueta
+1,453,1749.88,Lillian,spacy,False,Lillian
+1,456,1754.26,Diego Costa-Chelsea,spacy,False,up to Diego Costa-Chelsea and see whether that
+1,460,1762.5600000000002,Liverpool,spacy,True,through Liverpool
+1,461,1767.0400000000002,Lovren,spacy,True,Lovren's header
+1,464,1774.62,Diego Costa,spacy,False,is when they did get it into Diego Costa
+1,465,1779.08,Asa,heuristic_capitalized_non_function,False,Asa always offers them hope.
+1,467,1790.92,Oskar,spacy,False,Oskar.
+1,468,1792.5,Matic,heuristic_capitalized_non_function,True,Back to Matic again.
+1,470,1795.66,Willian,heuristic_capitalized_non_function,False,Willian on the right.
+1,472,1801.54,Coutinho,spacy,True,Coutinho stopped by N'Golo Kante.
+1,472,1801.54,N'Golo Kante,spacy,False,Coutinho stopped by N'Golo Kante.
+1,473,1804.26,Willian,heuristic_short_segment,True,And here's Willian.
+1,475,1813.52,Martin Atkinson,spacy,True,Martin Atkinson waiting for the word
+1,479,1823.74,Manavich,heuristic_short_segment,False,"Manavich, Costa, Matic"
+1,479,1823.74,Costa,spacy,False,"Manavich, Costa, Matic"
+1,480,1825.1,Kane,spacy,False,"Kane, Lewis"
+1,480,1825.1,Lewis,spacy,False,"Kane, Lewis"
+1,483,1835.66,Reese,heuristic_capitalized_non_function,False,mix the Reese looks it across when you lay struggling to get there against the
+1,484,1840.7,Mattage,spacy,False,manual Mattage although the flag had gone up
+1,485,1843.52,Chelsea,spacy,True,it's the Chelsea midfield player
+1,486,1851.1399999999999,Chelsea,spacy,True,won a couple of headers Chelsea that first one and the second one just off
+1,489,1870.86,Mane,spacy,True,Interesting had Mane been able to control that it's a real test for him
+1,490,1881.58,Swapped,heuristic_capitalized_non_function,False,Swapped Mane and Sturridge at the moment Liverpool
+1,490,1881.58,Mane,heuristic_capitalized_non_function,True,Swapped Mane and Sturridge at the moment Liverpool
+1,490,1881.58,Sturridge,heuristic_capitalized_non_function,True,Swapped Mane and Sturridge at the moment Liverpool
+1,490,1881.58,Liverpool,spacy,True,Swapped Mane and Sturridge at the moment Liverpool
+1,491,1890.7,Aspilicueta,spacy,True,sorry he's got to keep an eye on Aspilicueta pushing on
+1,492,1893.94,Cahill,spacy,True,trying to do Cahill but well it's been a rather hapless first half an hour for Chelsea here
+1,492,1893.94,Chelsea,spacy,True,trying to do Cahill but well it's been a rather hapless first half an hour for Chelsea here
+1,496,1917.78,Oscar,spacy,True,challenged by Oscar
+1,497,1924.26,Kante,spacy,True,Kante got in quickly as he
+1,500,1930.0,midfield,spacy,False,with a bit more work to do in midfield
+1,502,1933.68,Diego Costa,spacy,True,here's Diego Costa
+1,503,1934.84,Chelsea,spacy,True,getting better Chelsea
+1,507,1944.02,Filiqueta,spacy,False,that's Filiqueta
+1,517,1961.6,Chelsea,spacy,True,of Chelsea
+1,520,1964.58,Eden Hazard,spacy,False,Eden Hazard
+1,525,1972.26,Williams,spacy,False,and Williams usually is
+1,535,2007.06,David Lewis,spacy,True,could say the tactic worked he stayed in there David Lewis didn't come out and go back in
+1,536,2018.04,Henderson,spacy,True,Henderson
+1,538,2029.5,Chelsea,spacy,True,Chelsea beat Liverpool here
+1,538,2029.5,Liverpool,spacy,True,Chelsea beat Liverpool here
+1,539,2031.66,Martin,spacy,False,they did concede an early goal to Martin
+1,541,2043.18,Conte,spacy,True,Conte
+1,544,2056.14,Stamford Bridge,spacy,True,"Matic, still very subdued at Stamford Bridge"
+1,545,2064.62,Quetta,spacy,True,that's for the Quetta
+1,546,2071.46,Coutinho,heuristic_short_segment,True,to deliver Coutinho
+1,547,2072.76,William,spacy,True,a nice get between William and Ivanovic
+1,547,2072.76,Ivanovic,spacy,True,a nice get between William and Ivanovic
+1,548,2076.52,Costa,heuristic_capitalized_non_function,True,they can't get Costa in the game at all
+1,549,2078.46,Costa,spacy,True,and I always think that Costa is involved in the game
+1,550,2080.7,Chelsea,spacy,True,I see him that he brings a lot to Chelsea you know sometimes he's
+1,552,2096.8,David Lewis,spacy,True,David Lewis
+1,563,2138.7,Jordan Henderson,spacy,True,for Jordan Henderson
+1,565,2144.7200000000003,Liverpool,spacy,True,and Liverpool
+1,566,2146.58,Chelsea,spacy,True,lead Chelsea by two goals to nil
+1,570,2154.92,Jordan Henderson,spacy,True,from Jordan Henderson
+1,571,2155.82,Liverpool,spacy,True,and for Liverpool
+1,572,2157.98,Gary Kane,spacy,False,clearance from Gary Kane
+1,582,2172.36,Courtois,heuristic_capitalized_non_function,True,nothing Courtois can do
+1,583,2173.9,Liverpool,spacy,True,and Liverpool
+1,586,2188.94,Klopp,spacy,True,Klopp celebrates tap-ins like this but that goal was worthy of the fist pump
+1,589,2205.36,Liverpool,spacy,True,old football cliche the most vulnerable when you have just scored as Liverpool
+1,590,2209.22,Paul Ham,spacy,False,Paul Ham
+1,594,2222.74,Willian,heuristic_short_segment,True,Willian
+1,595,2226.7000000000003,Hazard,spacy,True,Hazard picking up the pieces
+1,603,2246.34,Gary,spacy,False,Gary
+1,611,2254.48,Gary Cale's,spacy,False,would be Gary Cale's
+1,615,2258.16,Liverpool,spacy,True,player of Liverpool
+1,619,2265.2,Adam Lallana,spacy,False,off Adam Lallana
+1,625,2285.7000000000003,Willian,heuristic_short_segment,True,Willian twice
+1,626,2288.26,Hazard,spacy,True,back in by Hazard
+1,627,2289.6,David Luiz,spacy,True,towards David Luiz
+1,628,2291.48,Chelsea,spacy,True,and he's run away for another Chelsea corner
+1,631,2298.2,restart,spacy,False,restart
+1,633,2302.42,Chelsea,spacy,True,they've gone two down Chelsea
+1,637,2312.4,Chelsea,spacy,True,Chelsea targets bunching together
+1,639,2317.28,Liverpool,spacy,True,I fancy having a run in on that Liverpool defence
+1,641,2325.44,Jordan Henderson,spacy,True,well Jordan Henderson
+1,643,2327.74,Sunderland,spacy,False,he's lost 7-2 with Sunderland
+1,644,2329.8,Sunderland,spacy,True,5-0 with Sunderland against Chelsea
+1,644,2329.8,Chelsea,spacy,True,5-0 with Sunderland against Chelsea
+1,647,2336.3,Chelsea,spacy,True,from a Chelsea point of view
+1,651,2343.52,Courtois,heuristic_capitalized_non_function,True,it's the height that does Courtois
+1,658,2356.14,Theatric,spacy,False,Theatric
+1,661,2369.02,October,heuristic_capitalized_non_function,False,"in October, shortly after"
+1,662,2371.42,Jurgen Klopp,spacy,True,Jurgen Klopp had arrived
+1,664,2378.34,Ramirez,spacy,False,Ramirez
+1,666,2391.5,Conte,spacy,True,make Conte think about making a change
+1,669,2403.5,Coutinho,heuristic_capitalized_non_function,True,and back by Coutinho
+1,671,2406.82,Nathaniel Clyne,spacy,True,but he looked in the direction of a red shirt which belonged to Nathaniel Clyne.
+1,673,2431.98,Chelsea,spacy,True,and you do feel Chelsea are going to reactivate it.
+1,679,2463.06,Ivanovic,spacy,True,then you can see changes being made Ivanovic
+1,680,2472.7,Milner,spacy,True,dogged work from Milner
+1,681,2475.8,Lovren,spacy,True,away from Lovren
+1,682,2483.72,Wijnaldum,spacy,True,little bit of hesitation there by Wijnaldum there hasn't been much of that from Liverpool
+1,682,2483.72,Liverpool,spacy,True,little bit of hesitation there by Wijnaldum there hasn't been much of that from Liverpool
+1,684,2495.9,Chelsea,spacy,True,than Chelsea
+1,686,2504.54,Aspilicueta,spacy,True,Aspilicueta
+1,687,2509.08,Henderson,spacy,True,Henderson in the way
+1,688,2511.2799999999997,Steven Gerrard,spacy,False,it's a goal Steven Gerrard would have been proud of
+1,692,2530.48,Henderson,spacy,True,Henderson again
+1,694,2538.4,Henderson,spacy,True,Henderson
+1,695,2542.62,Milano,heuristic_short_segment,False,Milano
+1,696,2544.7200000000003,Klein,spacy,True,infield is Klein
+1,698,2546.98,Chelsea,spacy,True,and taking Chelsea on
+1,702,2553.6,Liverpool,spacy,True,there's a little bit of arrogance in Liverpool's play
+1,704,2559.46,Willian,heuristic_short_segment,True,Willian
+1,706,2561.72,Oscar,spacy,True,gets it back again from Oscar
+1,707,2563.32,Chelsea,spacy,True,"and goes on for Chelsea, Diego Costa"
+1,707,2563.32,Diego Costa,spacy,True,"and goes on for Chelsea, Diego Costa"
+1,709,2567.8,Costa,heuristic_capitalized_non_function,True,great turn of pace by Costa
+1,712,2573.96,Chelsea,spacy,True,of a second too long and it's just another Chelsea
+1,715,2581.28,Willian,heuristic_capitalized_non_function,True,needed delivery from Willian
+1,717,2585.96,Chelsea,spacy,True,the goal for Chelsea now
+1,721,2594.94,Mignolet,spacy,True,was never threatening to Mignolet's goal
+1,723,2600.9,Daniel Sturridge,spacy,True,throw it out quickly and Daniel Sturridge stopped
+1,727,2624.84,Coutinho,heuristic_short_segment,True,Coutinho
+1,728,2634.48,Coutinho,spacy,True,"I think he had to foul him because Coutinho had a little pass through, I think it was Mane making the run"
+1,728,2634.48,Mane,spacy,True,"I think he had to foul him because Coutinho had a little pass through, I think it was Mane making the run"
+1,729,2664.98,City,spacy,False,I saw a good fortnight from City in the derby
+1,730,2668.64,City,spacy,True,this has been as good as it was exceptional from City in that period
+1,732,2677.52,Manchester City,spacy,True,because Manchester City did in the last couple of minutes
+1,736,2707.6,Chelsea,spacy,True,Chelsea play Leicester in the EFL Cup
+1,736,2707.6,Leicester,heuristic_capitalized_non_function,True,Chelsea play Leicester in the EFL Cup
+1,736,2707.6,EFL,heuristic_capitalized_non_function,False,Chelsea play Leicester in the EFL Cup
+1,736,2707.6,Cup,heuristic_capitalized_non_function,False,Chelsea play Leicester in the EFL Cup
+1,737,2709.6,Tuesday,heuristic_capitalized_non_function,False,third round Tuesday 7.30
+1,739,2714.6,Northampton,spacy,False,It's Northampton against Manchester United.
+1,739,2714.6,Manchester United,spacy,False,It's Northampton against Manchester United.
+1,741,2720.7200000000003,William,spacy,True,A bit of protest from William.
+1,744,2734.68,Liverpool,spacy,True,Liverpool will go above Chelsea.
+1,744,2734.68,Chelsea,spacy,True,Liverpool will go above Chelsea.
+1,746,2742.98,Antonio Conte,spacy,False,and Antonio Conte will get in and get at them.
+1,748,2751.9,Chelsea,spacy,True,"Because they're nowhere near this first half, Chelsea."
+1,749,2755.62,Liverpool,spacy,True,They've hardly disturbed Liverpool.
+1,751,2767.22,Friday,heuristic_capitalized_non_function,False,"Friday night's been a fright night so far for Chelsea,"
+1,751,2767.22,Chelsea,spacy,True,"Friday night's been a fright night so far for Chelsea,"
+1,752,2770.02,Liverpool,spacy,True,"but not for Liverpool, who've looked excellent."
+2,2,15.459999999999999,Antonio Conte,spacy,True,Antonio Conte has been complimented I think rightly so for his use of
+2,3,19.54,Chelsea,spacy,True,substitutes in his short time as Chelsea boss may well come into play again here
+2,7,46.379999999999995,William,spacy,True,William looks like Oscars gone further forward
+2,7,46.379999999999995,Oscars,spacy,False,William looks like Oscars gone further forward
+2,8,49.28,Diego Costa,spacy,True,closer to Diego Costa can't a Matic a squared off in midfield
+2,8,49.28,Matic,heuristic_capitalized_non_function,True,closer to Diego Costa can't a Matic a squared off in midfield
+2,8,49.28,midfield,spacy,True,closer to Diego Costa can't a Matic a squared off in midfield
+2,9,58.12,Diego,spacy,True,certainly do need to get the ball forward quicker and try and involve Diego costa more
+2,10,69.04,Mattis,heuristic_short_segment,False,Mattis
+2,13,82.36,Liverpool,spacy,True,Liverpool approach it in this situation as well
+2,16,90.32000000000001,Chelsea,spacy,True,Chelsea will surely be better in the second half
+2,19,97.18,Liverpool,spacy,True,Liverpool can
+2,22,102.34,Arsenal,spacy,True,even in the Arsenal game
+2,32,116.44,Martin Atkinson,spacy,True,Martin Atkinson
+2,37,125.54,Costa,spacy,True,you see Costa there
+2,41,134.88,Coutinho,heuristic_short_segment,True,Coutinho
+2,43,155.96,Gary,spacy,True,do you think Gary
+2,44,157.44,Chelsea,spacy,True,that the way Chelsea started
+2,48,164.56,Liverpool,spacy,True,maybe trying to draw the sting out of Liverpool I think so I think during the
+2,50,174.4,Liverpool,spacy,True,that Liverpool were able to sort of get control of the game and Chelsea were in
+2,50,174.4,Chelsea,spacy,True,that Liverpool were able to sort of get control of the game and Chelsea were in
+2,51,177.6,Oscar Acosta,spacy,False,that four five one shape trying to be a bit more purposeful here Oscar Acosta
+2,52,183.78,Ivanovic,spacy,True,but the rashness of Ivanovic and the goal giving away blows the tactics of
+2,56,200.12,Chelsea,spacy,True,you are Chelsea you'll have been thinking about the Lana mana Coutinho in
+2,56,200.12,Lana,heuristic_capitalized_non_function,False,you are Chelsea you'll have been thinking about the Lana mana Coutinho in
+2,56,200.12,Coutinho,heuristic_capitalized_non_function,True,you are Chelsea you'll have been thinking about the Lana mana Coutinho in
+2,60,218.1,Diego Costa,spacy,True,No sympathy for Diego Costa that time.
+2,61,222.46,Kante,spacy,True,"Kante getting back, he gets in so quickly."
+2,62,226.84,Mane,heuristic_capitalized_non_function,True,Mane felt the speed of the challenge there.
+2,63,236.92,Chelsea,spacy,True,"A bit of a brick-by-brick here, Chelsea, you feel."
+2,68,255.87999999999997,Sturridge,spacy,True,here's Sturridge could have gone to Coutinho in the first place
+2,68,255.87999999999997,Coutinho,spacy,True,here's Sturridge could have gone to Coutinho in the first place
+2,70,267.52,William,spacy,True,William counter attack now Liverpool
+2,70,267.52,Liverpool,spacy,True,William counter attack now Liverpool
+2,71,270.82,Chelsea,spacy,True,right brick by brick I thought the most dangerous Chelsea looked at the first half
+2,74,283.32000000000005,Alana,spacy,True,Alana
+2,75,287.90000000000003,Coutinho Alana,spacy,True,lovely from Coutinho Alana
+2,77,306.02,Costa,heuristic_capitalized_non_function,True,very good in terms of quite aggressive in dealing with Costa
+2,79,317.35999999999996,William,spacy,True,William
+2,80,318.32,Coutinho,heuristic_capitalized_non_function,True,moving out to Coutinho
+2,81,320.78,Chelsea,spacy,True,Chelsea a bit lucky to get it back
+2,82,324.64,Lallana,spacy,True,Lallana
+2,84,328.6,James Milner,spacy,False,James Milner
+2,85,333.46000000000004,Lallana,spacy,True,Lallana
+2,86,336.06,Henderson,spacy,True,Henderson
+2,87,337.72,Mane,spacy,True,lovely touch from Mane
+2,88,339.36,Coutinho,heuristic_short_segment,True,and Coutinho
+2,90,342.1,Liverpool,spacy,True,pieced together beautifully by Liverpool then
+2,92,346.04,Coutinho,heuristic_short_segment,True,Coutinho
+2,93,347.22,Sturridge,spacy,True,and Sturridge over on the far side
+2,97,360.2,David Luiz,spacy,True,David Luiz
+2,101,363.44,Liverpool,spacy,True,to Liverpool
+2,104,368.72,England,spacy,True,the south east of England
+2,112,385.68,Willian,heuristic_short_segment,True,Willian
+2,113,388.42,Diego Costa,spacy,True,Diego Costa coming in
+2,115,390.52,Mignolet,spacy,True,by Mignolet
+2,121,398.56,Hazard,spacy,True,Hazard
+2,122,399.74,Conte,spacy,True,and that's Conte
+2,125,406.82,Sadio Mane,spacy,True,Sadio Mane
+2,126,408.68,Klein,spacy,True,Klein
+2,127,411.28000000000003,Conte,spacy,True,Conte who was attacking a moment or two ago is back harassing and fouling
+2,128,415.8,Martin Atkinson's,spacy,False,I don't like it but the whistle hasn't gone because Martin Atkinson's recognised Liverpool's did have the ball
+2,128,415.8,Liverpool,spacy,True,I don't like it but the whistle hasn't gone because Martin Atkinson's recognised Liverpool's did have the ball
+2,130,429.62,Liverpool,spacy,True,I was going to say I'm not sure how the benefit could have been with Liverpool not to have the free kick
+2,133,437.78,Sturridge,spacy,True,will reflect from Sturridge
+2,134,448.3,Chelsea,spacy,True,Chelsea started the evening
+2,138,455.90000000000003,the Premier League,spacy,True,they have never won in the Premier League
+2,141,463.53999999999996,Liverpool,spacy,True,Liverpool passing it looks like combinations it will like single passes from Chelsea there's no
+2,141,463.53999999999996,Chelsea,spacy,True,Liverpool passing it looks like combinations it will like single passes from Chelsea there's no
+2,143,476.46,Costa,spacy,True,Costa having a go on his own challenge by Milner there's a whistle
+2,143,476.46,Milner,heuristic_capitalized_non_function,True,Costa having a go on his own challenge by Milner there's a whistle
+2,144,489.06,Lallana,spacy,True,Lallana
+2,145,489.58,Mane,spacy,True,running it on for Mane trying to take
+2,146,491.96,David Luiz,spacy,True,David Luiz on
+2,149,501.86,David Luiz,spacy,True,"while he's been away, David Luiz"
+2,159,521.52,Cruyff,spacy,False,"he's not tried any Cruyff turns, he's just kicked it out of play"
+2,162,537.6800000000001,David Luiz,spacy,True,you just feel with David Luiz
+2,163,539.44,Chelsea,spacy,True,that Chelsea
+2,172,557.3399999999999,Cahill,spacy,True,he's played with Cahill before
+2,174,560.3,Terry,spacy,False,he's played with Terry before and they don't seem to get
+2,176,565.16,Conte,spacy,True,so I think that now Conte's brought him
+2,178,569.18,Conte,spacy,True,he's a Conte type of player. It's his ball that got Diego Costa chasing there
+2,178,569.18,Diego Costa,spacy,True,he's a Conte type of player. It's his ball that got Diego Costa chasing there
+2,182,588.46,Nemanja Matic,spacy,False,big ball from Nemanja Matic to Willian
+2,182,588.46,Willian,heuristic_capitalized_non_function,True,big ball from Nemanja Matic to Willian
+2,183,593.02,wrong foot's,spacy,False,wrong foot's Milner
+2,184,594.36,Lovren,heuristic_capitalized_non_function,True,Lovren is secure by the near post
+2,186,602.04,Ivanovic,spacy,True,Ivanovic
+2,188,608.42,Chelsea,spacy,True,Chelsea would have been in trouble
+2,189,612.5199999999999,Aspilicueta,spacy,True,here's Aspilicueta
+2,190,613.68,Chelsea,spacy,True,a little bit more fervour in the Chelsea
+2,192,617.36,Chelsea,spacy,True,a little bit more aggression in the Chelsea play
+2,193,626.32,Ivanovic,spacy,True,Ivanovic
+2,195,628.72,Chelsea,spacy,True,when Chelsea
+2,209,643.8000000000001,Liverpool,spacy,True,the face of Liverpool
+2,214,659.88,David Luiz,spacy,True,David Luiz
+2,217,665.3199999999999,Ivanovic,spacy,True,Ivanovic
+2,218,667.9599999999999,Hazard,spacy,True,this is Hazard
+2,221,672.8399999999999,Mane,spacy,True,it was good for Mane
+2,223,676.5799999999999,William,spacy,True,but William
+2,224,677.24,Ivanovic,spacy,True,and team blue in the middle Ivanovic
+2,226,688.02,James,spacy,False,a little closer from James mill to start with but by the time he fell
+2,229,704.24,Chelsea,spacy,True,he played a part in that Chelsea equaliser at Swansea didn't he
+2,229,704.24,Swansea,spacy,False,he played a part in that Chelsea equaliser at Swansea didn't he
+2,230,710.2,Trivian,heuristic_capitalized_non_function,False,"by Trivian, the ball looped up for Costa"
+2,230,710.2,Costa,heuristic_capitalized_non_function,True,"by Trivian, the ball looped up for Costa"
+2,232,713.6,Daniel Sturridge,spacy,True,Daniel Sturridge applauding the Liverpool fans
+2,232,713.6,Liverpool,spacy,True,Daniel Sturridge applauding the Liverpool fans
+2,233,716.52,Chelsea,spacy,True,and not the Chelsea
+2,235,720.4,Divock Origi,spacy,False,and Divock Origi
+2,239,739.42,Fred,spacy,False,goal Fred and hazard in so much space so close to goal it's brilliant with it back from the
+2,243,777.26,Ivanovic,spacy,True,Ivanovic
+2,246,783.1,David Lewis,spacy,True,with David Lewis
+2,260,794.2,Chelsea,spacy,True,at Chelsea
+2,261,795.4,William,spacy,True,you might ask William
+2,265,800.64,Oscar,spacy,True,here's Oscar
+2,267,806.3000000000001,Marcus Alonso,spacy,False,I suppose Marcus Alonso might come
+2,277,825.84,Luis Cahill,spacy,False,three of Luis Cahill
+2,278,827.68,Terry,spacy,True,and Terry here's Coutinho winning it
+2,278,827.68,Coutinho,heuristic_capitalized_non_function,True,and Terry here's Coutinho winning it
+2,279,830.06,Chelsea,spacy,True,the Chelsea fans are angry with their team
+2,280,832.2,Milano,spacy,True,again he's been poor about a bit you have to say Milano back to him from
+2,283,850.22,Coutinho,heuristic_short_segment,True,Coutinho
+2,284,853.24,Reggie,spacy,False,Reggie
+2,287,862.82,Matic,heuristic_capitalized_non_function,True,"from Matic, there you go Kosta"
+2,287,862.82,Kosta,spacy,False,"from Matic, there you go Kosta"
+2,290,892.4200000000001,Ivanovic,spacy,True,"at the moment Matic, Ivanovic"
+2,293,898.9200000000001,Liverpool,spacy,True,his Liverpool team can do that to you
+2,297,906.14,Liverpool,spacy,True,and Liverpool
+2,300,921.5799999999999,Luis,spacy,False,Luis running with the ball
+2,302,931.5799999999999,Willian,heuristic_short_segment,True,now Willian
+2,303,937.18,West,heuristic_capitalized_non_function,False,they've beaten West Ham
+2,303,937.18,Ham,heuristic_capitalized_non_function,False,they've beaten West Ham
+2,304,938.54,Watford,spacy,True,they've won at Watford
+2,305,939.46,Burnley,spacy,True,beaten Burnley here
+2,306,941.08,Swansea,spacy,True,drawn at Swansea
+2,314,956.22,Hofstra,spacy,False,as Hofstra continues
+2,315,959.88,Matic,heuristic_capitalized_non_function,True,but Matic did superbly
+2,319,966.3,Liverpool,spacy,True,so poor for Liverpool
+2,320,967.84,Jordan Henderson,spacy,True,Jordan Henderson there
+2,322,970.82,Adam Milano,spacy,False,even Adam Milano
+2,328,984.94,Diego Costa,spacy,True,"Diego Costa, but I have to say, Liverpool's vulnerability surfacing out of nowhere there, he's alive."
+2,328,984.94,Liverpool,spacy,True,"Diego Costa, but I have to say, Liverpool's vulnerability surfacing out of nowhere there, he's alive."
+2,332,1013.92,Liverpool,spacy,True,Liverpool now can see the free kick that's a completely different game the
+2,335,1029.02,Jurgen Klopp,spacy,True,Jurgen Klopp
+2,342,1038.5,Chelsea,spacy,True,Chelsea might be
+2,346,1050.64,Liverpool,spacy,True,for Liverpool now
+2,347,1051.36,Jurgen Klopp,spacy,True,Jurgen Klopp
+2,351,1066.56,Ivanovic,spacy,True,Ivanovic in the wall so he's hardly had a touch Diego Costa but he's had a telling touch here
+2,351,1066.56,Diego Costa,spacy,True,Ivanovic in the wall so he's hardly had a touch Diego Costa but he's had a telling touch here
+2,352,1071.66,Premier,heuristic_capitalized_non_function,True,to keep his great run going five goals already now in the Premier League this season
+2,352,1071.66,League,heuristic_capitalized_non_function,True,to keep his great run going five goals already now in the Premier League this season
+2,353,1075.92,Jordan Henderson,spacy,True,I just watched out of the line-up and Jordan Henderson the ball gets played off and then both
+2,354,1080.98,Matty,spacy,True,of them so poor Matty so poor and he doesn't have to do a lot in the end just chips it
+2,356,1094.2,Milner,spacy,True,attempted block on the line from Milner he knows the back in the game the eyes
+2,366,1155.3,Premier,heuristic_capitalized_non_function,True,soft goals in the Premier League there was nothing happening on the pitch there and
+2,366,1155.3,League,heuristic_capitalized_non_function,True,soft goals in the Premier League there was nothing happening on the pitch there and
+2,369,1171.58,Pogba,heuristic_capitalized_non_function,False,"Pogba could be in again, here!"
+2,375,1195.12,Olsen,spacy,False,"And Olsen is in, Conte now."
+2,375,1195.12,Conte,spacy,True,"And Olsen is in, Conte now."
+2,376,1197.46,Antonio Conte,spacy,True,Antonio Conte has been talking about the difference between managing in Italy and in England
+2,376,1197.46,Italy,spacy,False,Antonio Conte has been talking about the difference between managing in Italy and in England
+2,376,1197.46,England,spacy,True,Antonio Conte has been talking about the difference between managing in Italy and in England
+2,382,1229.18,Liverpool,spacy,True,that's the Liverpool first game of season 4-3
+2,383,1231.54,Manchester,spacy,True,the Manchester derby and now this one
+2,385,1235.6,Chelsea,spacy,True,you can see there now Chelsea
+2,400,1289.1,Klein,spacy,True,Klein
+2,401,1290.58,Lallana,spacy,True,Lallana
+2,404,1296.8600000000001,Jurgen Klopp,spacy,True,"That's what Jurgen Klopp will be thinking as well, at the end of the goal."
+2,406,1312.1200000000001,Pantiera,spacy,False,"He's getting into the Pantiera and then he's going to say to Chelsea,"
+2,406,1312.1200000000001,Chelsea,spacy,True,"He's getting into the Pantiera and then he's going to say to Chelsea,"
+2,413,1346.18,David Luiz,spacy,True,David Luiz
+2,414,1354.0,David Luiz,spacy,True,"David Luiz, Gattinio nudging it on for Milner, so many chances to get forward in the second half,"
+2,414,1354.0,Gattinio,spacy,False,"David Luiz, Gattinio nudging it on for Milner, so many chances to get forward in the second half,"
+2,414,1354.0,Milner,spacy,True,"David Luiz, Gattinio nudging it on for Milner, so many chances to get forward in the second half,"
+2,415,1359.3,Wijnaldum,spacy,True,"a run for Wijnaldum, Henderson, Gattinio from a standing start,"
+2,415,1359.3,Henderson,spacy,True,"a run for Wijnaldum, Henderson, Gattinio from a standing start,"
+2,415,1359.3,Gattinio,spacy,True,"a run for Wijnaldum, Henderson, Gattinio from a standing start,"
+2,416,1369.72,Origi,spacy,False,good strike from Origi
+2,417,1373.62,Milner,spacy,True,voted in by Milner
+2,418,1374.86,David Luiz,spacy,True,by David Luiz
+2,419,1376.18,Henderson,spacy,True,then Henderson
+2,423,1387.16,Newport,spacy,False,have been good for Newport
+2,430,1410.02,Chelsea,spacy,True,organization again Chelsea in the middle it's not an organization I'm not sure
+2,432,1424.74,Lovren,heuristic_capitalized_non_function,True,Lovren going across the front
+2,434,1430.16,Courtois,heuristic_capitalized_non_function,True,Courtois delighted that he wasn't called upon
+2,435,1432.74,Courtois,heuristic_capitalized_non_function,True,he's helped us Courtois
+2,437,1436.18,Liverpool,spacy,True,or a Liverpool player
+2,439,1438.4,Havanovic,spacy,False,it's Havanovic with a really good defensive header
+2,441,1448.64,Chelsea,spacy,True,the Chelsea
+2,444,1458.1,Liverpool,spacy,True,from the goalkeeper this remember Liverpool they've got the energy
+2,449,1492.08,Hazard,spacy,True,Hazard
+2,450,1493.72,Hazard,spacy,True,Hazard
+2,453,1501.1,Willian,heuristic_short_segment,True,Willian is
+2,455,1506.6799999999998,Ivanovic,spacy,True,Ivanovic
+2,456,1512.82,Spinecretta,spacy,False,Spinecretta
+2,458,1516.1399999999999,Diego Costa,spacy,True,Diego Costa
+2,460,1518.54,Klein,spacy,True,covering by Klein
+2,461,1520.64,Klein,spacy,True,and it was good from Klein
+2,465,1543.5800000000002,Super Sunday Crystal Palace,spacy,False,coming up on Super Sunday Crystal Palace home to Stoke
+2,465,1543.5800000000002,Stoke,spacy,False,coming up on Super Sunday Crystal Palace home to Stoke
+2,466,1548.14,Sky Sports 1,spacy,False,130 Sky Sports 1 followed by Spurs against Sunderland
+2,466,1548.14,Spurs,spacy,False,130 Sky Sports 1 followed by Spurs against Sunderland
+2,466,1548.14,Sunderland,spacy,True,130 Sky Sports 1 followed by Spurs against Sunderland
+2,467,1553.46,Sky,spacy,False,piece themselves together after probably watched on Sky on Monday night
+2,467,1553.46,Monday,heuristic_capitalized_non_function,False,piece themselves together after probably watched on Sky on Monday night
+2,468,1561.54,Everton,spacy,False,Everton put them to the sword in that second half Chelsea could be in trouble here Arnaud is offside
+2,468,1561.54,Chelsea,spacy,True,Everton put them to the sword in that second half Chelsea could be in trouble here Arnaud is offside
+2,468,1561.54,Arnaud,spacy,False,Everton put them to the sword in that second half Chelsea could be in trouble here Arnaud is offside
+2,469,1569.88,Origi,heuristic_capitalized_non_function,True,Origi had the chance to take it on himself
+2,470,1574.38,Sturridge,spacy,True,probably the way you would want Sturridge his left foot there
+2,471,1578.8600000000001,Liverpool,spacy,True,they chose the wrong option it was a big chance for Liverpool
+2,472,1603.62,Antonio Conte,spacy,True,Antonio Conte
+2,480,1621.1599999999999,Fabregas,spacy,False,that's Fabregas
+2,482,1625.38,Michy Batshuayi,spacy,False,Michy Batshuayi has done
+2,486,1636.8799999999999,Victor Moses,spacy,False,Victor Moses as well
+2,487,1638.42,Chelsea,spacy,True,is still a Chelsea player
+2,488,1640.34,Liverpool,spacy,True,lots of loans including one at Liverpool
+2,490,1660.82,Manic,heuristic_short_segment,False,chase by Manic
+2,495,1679.08,Henderson,spacy,True,that's ours turn Henderson keeps it straight to Coutinho
+2,495,1679.08,Coutinho,heuristic_capitalized_non_function,True,that's ours turn Henderson keeps it straight to Coutinho
+2,496,1695.06,Sadio Mane,spacy,True,he's putting in a shift isn't he Sadio Mane with the ball and without it
+2,497,1699.8,Chelsea,spacy,True,the only one Chelsea raising their industry as well encouraged by the goal
+2,498,1720.98,Divock Origi,spacy,True,cricket given against Divock Origi
+2,500,1738.3600000000001,Oscar,spacy,True,dangerous boot in Oscar's face but he shied away from it understandably
+2,501,1743.06,Henderson,spacy,True,Henderson hooked it forward
+2,502,1747.3000000000002,Coutinho,heuristic_short_segment,True,on to Coutinho
+2,504,1760.6799999999998,the Mourinho Benitez,spacy,False,really is a product the rivalry of recent history the Mourinho Benitez
+2,508,1793.9199999999998,Wijnaldum,spacy,True,by Wijnaldum
+2,510,1799.56,Liverpool,spacy,True,Liverpool have got their shape back again
+2,511,1804.1,Chelsea,spacy,True,end looking more orderly Chelsea thought that was really gonna like the blue
+2,516,1834.32,Swansea,spacy,True,in Swansea
+2,517,1835.2,Sunday,heuristic_short_segment,False,last Sunday
+2,519,1837.42,William,spacy,True,here's William
+2,520,1839.62,Loughran,heuristic_short_segment,False,Loughran
+2,524,1846.8999999999999,Liverpool,spacy,True,it didn't surprise me Liverpool
+2,551,1885.14,kick every ball,spacy,False,kick every ball
+2,552,1886.12,Jurgen Klopp,spacy,True,and Jurgen Klopp
+2,555,1889.28,Antonio Conte,spacy,True,Antonio Conte as well
+2,557,1906.46,David Luiz,spacy,True,clearance in the end of it by David Luiz but Chelsea have survived that and the
+2,557,1906.46,Chelsea,spacy,True,clearance in the end of it by David Luiz but Chelsea have survived that and the
+2,558,1911.58,Liverpool,spacy,True,penalty shout by now they were the great piece of retrieving for Liverpool
+2,560,1918.48,Chelsea,spacy,True,that Chelsea need to take
+2,561,1919.94,Liverpool,spacy,True,the better chance Liverpool have got
+2,565,1928.38,Wijnaldum,spacy,True,Wijnaldum
+2,566,1933.1200000000001,Lovren,spacy,True,back from Lovren
+2,567,1935.94,Matip,heuristic_short_segment,True,spots Matip
+2,568,1939.94,Henderson,spacy,True,Henderson
+2,569,1943.6000000000001,Clyne,spacy,True,for Clyne
+2,572,1952.36,Coutinho,heuristic_capitalized_non_function,True,was the little Coutinho
+2,573,1958.74,Chelsea,spacy,True,Chelsea fans still
+2,577,1968.56,Liverpool,spacy,True,Liverpool can be more clinical
+2,579,1974.52,Mané,heuristic_short_segment,True,Mané
+2,580,1975.08,Klein,spacy,True,Klein again
+2,581,1978.68,Coutinho,heuristic_short_segment,True,Coutinho
+2,584,1982.36,Coutinho,spacy,True,Coutinho could have
+2,585,1983.7,Origi,heuristic_capitalized_non_function,True,stepped in there for Origi
+2,587,1990.1,Gary Cale,spacy,True,Gary Cale
+2,590,1993.58,Chelsea,spacy,True,he's pulled back behind the Chelsea defence
+2,592,1995.92,Gary Cale,spacy,True,it's just Gary Cale gets that
+2,595,2004.02,Coutinho,heuristic_capitalized_non_function,True,Coutinho in the earlier one asked too much of him
+2,596,2018.26,Lallana,spacy,True,Lallana
+2,597,2023.6399999999999,Chelsea,spacy,True,they're engaging better Chelsea
+2,603,2053.34,Oscar,spacy,True,Oscar again
+2,605,2057.2200000000003,Conte,spacy,True,Conte getting into the box
+2,606,2059.48,Coutinho,heuristic_capitalized_non_function,True,it's the same problems as Coutinho
+2,608,2064.14,Wijnaldum,spacy,True,Wijnaldum
+2,611,2080.14,Origi,heuristic_short_segment,True,Origi
+2,612,2085.34,Lallana,spacy,True,Lallana
+2,616,2092.4,Liverpool,spacy,True,Liverpool
+2,618,2096.9,Chelsea,spacy,True,Chelsea
+2,620,2102.48,Coutinho,heuristic_short_segment,True,Coutinho
+2,622,2105.92,Liverpool,spacy,True,of course for Liverpool here
+2,625,2114.3,Chelsea,spacy,True,Chelsea actually going to make two changes
+2,627,2124.44,Liverpool,spacy,True,Liverpool keeping possession
+2,630,2131.96,Lallana,spacy,True,Lallana
+2,633,2135.14,Martin Atkinson,spacy,True,and Martin Atkinson
+2,634,2136.3,Coutinho,heuristic_capitalized_non_function,True,a bit of a problem for Coutinho
+2,636,2138.36,Milner,spacy,True,bring it back to Milner and a rigi well that could be a really big moment in the
+2,637,2145.54,Liverpool Courtois,spacy,False,game it was a great chance to wrap it up for Liverpool Courtois kept it out
+2,640,2161.78,Courtois,heuristic_capitalized_non_function,True,passes the deflection is perfect hands it down to be fair to him Courtois
+2,644,2185.32,Lucas,spacy,True,Lucas who played as makeshift centre-back against Leicester Tino not
+2,644,2185.32,Leicester Tino,spacy,False,Lucas who played as makeshift centre-back against Leicester Tino not
+2,646,2198.4,Lucas,spacy,True,defensive change Lucas's last goal for Liverpool was six years ago this very
+2,646,2198.4,Liverpool,spacy,True,defensive change Lucas's last goal for Liverpool was six years ago this very
+2,648,2207.42,Chelsea,spacy,True,Chelsea have three lined up to come on but they make a Mourinho like situation
+2,648,2207.42,Mourinho,heuristic_capitalized_non_function,False,Chelsea have three lined up to come on but they make a Mourinho like situation
+2,651,2231.1200000000003,Hazard,spacy,True,Hazard
+2,653,2240.9,Henderson,spacy,True,Henderson
+2,654,2243.82,David Luiz,spacy,True,down by David Luiz
+2,655,2246.7000000000003,Chelsea,spacy,True,Chelsea triplets still waiting to come on
+2,656,2252.52,Ivanovic,spacy,True,given away by Ivanovic
+2,660,2270.52,Antonio,spacy,False,Comes. Reshuffle from Antonio contact.
+2,661,2278.0600000000004,Victor Moses,spacy,True,Victor Moses for William.
+2,661,2278.0600000000004,William,spacy,True,Victor Moses for William.
+2,662,2287.42,Chelsea,spacy,True,he's getting another chance here at Chelsea discarded him after three
+2,663,2292.98,Cesc Fabregas,spacy,True,seasons after three seasons for other clubs for loan campaigns Cesc Fabregas replaces
+2,664,2298.74,Matic,spacy,True,Matic maybe fine although Matic has found the one pass that's led to a Chelsea goal
+2,664,2298.74,Chelsea,spacy,True,Matic maybe fine although Matic has found the one pass that's led to a Chelsea goal
+2,665,2303.9,Fabregas,heuristic_capitalized_non_function,True,Fabregas the arch-assist and it's Pedro for Oscar
+2,665,2303.9,Pedro,spacy,False,Fabregas the arch-assist and it's Pedro for Oscar
+2,665,2303.9,Oscar,spacy,True,Fabregas the arch-assist and it's Pedro for Oscar
+2,667,2319.88,Ten,heuristic_short_segment,False,Ten minutes.
+2,669,2328.86,Origi,heuristic_short_segment,True,Origi.
+2,670,2329.66,Wijnaldum,spacy,True,Found by Wijnaldum.
+2,672,2335.58,Wijnaldum,spacy,True,Wijnaldum.
+2,675,2344.2799999999997,Chelsea,spacy,True,six minutes by stoppage time Chelsea still chasing
+2,677,2355.3199999999997,Costa,heuristic_capitalized_non_function,True,"through the middle with Costa, Pedro left, Moses right, Rodriguez in midfield"
+2,677,2355.3199999999997,Pedro,spacy,True,"through the middle with Costa, Pedro left, Moses right, Rodriguez in midfield"
+2,677,2355.3199999999997,Moses,heuristic_capitalized_non_function,False,"through the middle with Costa, Pedro left, Moses right, Rodriguez in midfield"
+2,677,2355.3199999999997,Rodriguez,heuristic_capitalized_non_function,False,"through the middle with Costa, Pedro left, Moses right, Rodriguez in midfield"
+2,678,2363.96,Lallana,heuristic_short_segment,True,here's Lallana
+2,681,2369.48,Wijnaldum,spacy,True,so too long for Wijnaldum at this stage
+2,686,2379.2,Dutchman,heuristic_capitalized_non_function,False,"no, it's the thumbs up from the Dutchman"
+2,687,2387.1,David Luiz,spacy,True,David Luiz
+2,689,2394.64,Gary,spacy,True,as Gary was saying no real finger-pointing at him Fabregas
+2,689,2394.64,Fabregas,spacy,True,as Gary was saying no real finger-pointing at him Fabregas
+2,690,2413.4400000000005,Lucas,spacy,True,Lucas right on the scene again Mane Origi Cahill goes across and wins the
+2,690,2413.4400000000005,Mane Origi,spacy,False,Lucas right on the scene again Mane Origi Cahill goes across and wins the
+2,690,2413.4400000000005,Cahill,heuristic_capitalized_non_function,True,Lucas right on the scene again Mane Origi Cahill goes across and wins the
+2,695,2445.86,Pedro,spacy,True,it's Pedro
+2,697,2461.7000000000003,Antonio Conte,spacy,True,Antonio Conte came here of course with a great record of unbeaten home games
+2,698,2468.32,Juventus,spacy,False,home games number one with Juventus already won two out of two in the Premier League
+2,698,2468.32,the Premier League,spacy,True,home games number one with Juventus already won two out of two in the Premier League
+2,700,2486.9,the Premier League,spacy,True,his words in his press conference before the game he mentioned them before about the Premier League
+2,701,2490.96,Moses,heuristic_capitalized_non_function,True,you can never relax here's Moses
+2,702,2499.0,Sunday,heuristic_capitalized_non_function,True,Swansea on Sunday and here tonight is their taste
+2,703,2504.66,Chelsea,spacy,True,scored a lot of late goals Chelsea already this is it around at Watford
+2,703,2504.66,Watford,spacy,True,scored a lot of late goals Chelsea already this is it around at Watford
+2,705,2521.04,Ivanovic,spacy,True,that's a team here's Ivanovic
+2,706,2528.72,Fabregas,spacy,True,Fabregas
+2,707,2533.2000000000003,Azhar,spacy,False,Azhar looking for Moses
+2,707,2533.2000000000003,Moses,heuristic_capitalized_non_function,True,Azhar looking for Moses
+2,710,2541.86,Moses,heuristic_capitalized_non_function,True,Moses has gone again
+2,715,2553.44,Ivanovic,spacy,True,Ivanovic leaving it to Azhar
+2,715,2553.44,Azhar,spacy,True,Ivanovic leaving it to Azhar
+2,717,2559.12,Fabregas,spacy,True,Fabregas
+2,718,2561.1,Lucas Lucas,spacy,False,that's our Lucas Lucas says no says free kick Chelsea we lost out in 50-50 Lucas in the box
+2,718,2561.1,Chelsea,spacy,True,that's our Lucas Lucas says no says free kick Chelsea we lost out in 50-50 Lucas in the box
+2,718,2561.1,Lucas,heuristic_capitalized_non_function,True,that's our Lucas Lucas says no says free kick Chelsea we lost out in 50-50 Lucas in the box
+2,720,2576.82,Lucas,spacy,True,done a lot wrong Lucas
+2,721,2578.44,Hazard,spacy,True,Hazard
+2,724,2583.42,Lucas,spacy,True,Lucas booked
+2,726,2588.98,Liverpool,spacy,True,Liverpool have had
+2,731,2595.84,Antonio Conte,spacy,True,Antonio Conte
+2,735,2600.14,the Premier League,spacy,True,in the Premier League
+2,736,2601.34,David Luiz,spacy,True,and David Luiz
+2,740,2615.62,Adam Lallana,spacy,True,where Adam Lallana is and Wijnaldum
+2,740,2615.62,Wijnaldum,spacy,True,where Adam Lallana is and Wijnaldum
+2,744,2644.6000000000004,Fabregas,spacy,True,I think Fabregas was
+2,746,2650.96,Fabregas,spacy,True,Fabregas
+2,747,2651.6,Liverpool,spacy,True,backing on the fact that Liverpool were concentrating
+2,748,2654.06,David Luiz,spacy,True,on David Luiz
+2,752,2669.46,Kevin Stewart,spacy,True,bringing on Kevin Stewart
+2,753,2671.4,Wijnaldum,spacy,True,for Wijnaldum
+2,755,2677.96,Liverpool,spacy,True,getting a senior career with Liverpool
+2,756,2680.44,Tottenham,spacy,True,he was with Tottenham
+2,757,2682.8,Alex Inglethorpe,spacy,False,Alex Inglethorpe moved from
+2,758,2685.42,Liverpool,spacy,True,Spurs to Liverpool as a coach
+2,759,2686.96,Stuart,spacy,False,when Stuart was released at White Hart Lane
+2,759,2686.96,White Hart Lane,spacy,False,when Stuart was released at White Hart Lane
+2,760,2690.2400000000002,Liverpool,spacy,True,made sure Liverpool
+2,764,2696.56,Lucas,spacy,True,alongside Lucas
+2,769,2708.1,Liverpool,spacy,True,Liverpool that away
+2,773,2737.0,David Luiz,spacy,True,played by David Luiz
+2,774,2739.94,Liverpool,spacy,True,Liverpool holding a line
