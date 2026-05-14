@@ -228,3 +228,4 @@ frontend/forzasearch-final/.next/
 .mcp.json
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
+*.docx
