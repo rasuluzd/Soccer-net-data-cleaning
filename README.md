@@ -9,19 +9,18 @@ Bachelor thesis project. Benchmark match: **Chelsea 1-2 Liverpool, 2016-09-16**
 
 ---
 
-## Headline numbers (V8, full pipeline)
+## Headline numbers (full pipeline)
 
-| Halv | Raw V3 WER | Cleaned WER | Fair WER ⁱ | Raw Entity-F1 | **Cleaned Entity-F1** | Δ F1 (rel) |
-|---|---|---|---|---|---|---|
-| 1 | 25.56% | 26.21% | ~25.71% | 0.484 | **0.603** | **+24.5%** |
-| 2 | 23.86% | 24.30% | ~23.80% | 0.504 | **0.578** | **+14.7%** |
+| Halv | Raw V3 WER | Cleaned WER | Raw Entity-F1 | **Cleaned Entity-F1** | Δ F1 (rel) |
+|---|---|---|---|---|---|
+| 1 | 25.56% | 26.21% | 0.484 | **0.603** | **+24.5%** |
+| 2 | 23.86% | 24.30% | 0.504 | **0.578** | **+14.7%** |
 
-ⁱ "Fair WER" subtracts ~0.5pp pga 3 ekte engelske kommentarsegmenter
-GOAL-curators bevisst utelot. Se `tools/count_gt_dropped_segments.py`.
+**Whisper engine vs SoccerNet bundled (re-transcription win):**
 
-**Entity-F1 er hovedmetric** for downstream event-detection og søk —
-WER er nesten flat fordi korreksjoner som er semantisk riktige
-(`Davi → David`) telles som substitusjoner mot GT.
+| Halv | SoccerNet stock WER | faster-whisper-v3 WER | Δ WER |
+|---|---|---|---|
+| Snitt | 27.32% | 24.71% | **−2.61 pp (−9.6% rel)** |
 
 ---
 
@@ -30,99 +29,89 @@ WER er nesten flat fordi korreksjoner som er semantisk riktige
 ```
 audio.mp3
    │
-   ▼
-[faster-whisper large-v3]  beam=5, T=0.0  →  1_asr_v3.json (schema-2)
-                           beam=1, T=0.4  →  half1_T0.4.json
-                                            │
-                                            └→ time-aligned merge ──→
-                                               1_asr_v3_nbest.json (schema-3)
+   ▼  whisper_runner.transcribe (faster-whisper large-v3)
+   │      beam=5, no_speech_threshold=0.95,
+   │      condition_on_previous_text=False, word_timestamps=True
+   │
+   ▼  {1,2}_asr_v3.json  (schema 2 with per-word probs)
    │
    ▼  pipeline/orchestrator.py:clean_match
    │
-   ├── Step 0  Detect commentary language        (langdetect)
-   ├── Step 1  Build gazetteer + entity types    (Labels-caption.json)
-   ├── Step 2  Hallucination filter              (alpha-ratio + langdetect ≥15w)
-   ├── Step 3  Deduplicate + Whisper-loop collapse (rapidfuzz, 3+ rule)
-   ├── Step N  N-best entity-grounded reranker   (Apple RAG-NEC pattern)
-   ├── Stage 2A Domain normalizer                (regex compounds + disfluencies)
-   ├── NER     Entity extraction                 (spaCy + heuristics + gazetteer fuzz)
-   ├── Stage E Validated entity corrector        (TF-IDF + Qwen MCQ + xlm-r MLM veto + gates)
-   ├── Step L  Confidence-gated GER              (Qwen2.5-1.5B + xlm-r MLM veto + drift guard)
-   └── Step P  Punctuation + casing restoration  (oliverguhr fullstop multilang)
+   ├── Step 0   detect_commentary_language        (langdetect)
+   ├── Step 1   build_gazetteer                    (Labels-caption.json → name dict)
+   ├── Step 2   filter_segments                    (alpha-ratio + langdetect ≥15w)
+   ├── Step 3   deduplicate + Whisper-loop collapse (rapidfuzz, 3+ rule)
+   ├── Stage 2A domain_normalize                   (regex compounds + disfluencies)
+   ├── NER      extract_entities_batch             (spaCy + 3 heuristics)
+   ├── Stage E  entity_corrector.correct_match     (TF-IDF + Qwen MCQ + xlm-r MLM veto)
+   ├── Step L   llm_corrector.correct_match        (Confidence-gated GER, Qwen 1.5B)
+   └── Step P   restore_punctuation_batch          (oliverguhr fullstop multilang)
         │
-        ▼
-   {1,2}_asr_v3_nbest_cleaned.json + es_chunks.json
+        ▼  cleaned_data/.../{1,2}_asr_*_cleaned.json  (schema-1 [start, end, text])
         │
         ▼  tools/export_to_frontend.py
-   frontend/forzasearch-final/matches/<id>/kamp.json
         │
-        ▼  npm run ingest (MiniLM-ONNX + ES bulk)
-   Elasticsearch forzasearch-windows index (BM25 + dense_vector)
+        ▼  frontend/forzasearch-final/matches/<id>/kamp.json
         │
-        ▼  Hybrid BM25 + k-NN search → Mistral 7B rerank → answer
-   Frontend (Next.js) returns video clip with seek-to-segment HLS player
+        ▼  npm run ingest  (MiniLM-ONNX embeddings + ES bulk)
+        │
+        ▼  Elasticsearch hybrid BM25 + k-NN search
+        │
+        ▼  Mistral 7B (Ollama) RAG re-rank + answer
+        │
+        ▼  Next.js frontend → seek-to-segment HLS player
 ```
 
-| Stage | Wall (s, full pipeline V8) | Notes |
+---
+
+## Stage timings on Chelsea-Liverpool (single match, CPU)
+
+| Stage | Wall (s) | Notes |
 |---|---|---|
-| Step 0 detect_language | 1.1 | langdetect on transcript sample |
-| Step 1 build_gazetteer | 0.0 | Labels-caption.json → name dict |
-| Step 2 hallucination_filter | 0.2 | alpha-ratio + langdetect ≥15w gate |
-| Step 3 deduplicate | 0.0 | rapidfuzz + 3+ collapse |
-| Step N nbest_rerank | ~25 | Apple RAG-NEC, FAISS over gazetteer |
+| Step 0  detect_language | 1.1 | langdetect on transcript sample |
+| Step 1  build_gazetteer | 0.0 | parses Labels-caption.json |
+| Step 2  hallucination_filter | 0.2 | alpha-ratio + langdetect ≥15 words |
+| Step 3  deduplicate | 0.0 | rapidfuzz + 3+ collapse |
 | Stage 2A domain_normalize | 0.1 | regex football compounds |
-| NER extract_entities | 7 | spaCy + heuristic + Rule-3 gazetteer fuzz (NER_FLOOR=75) |
-| Stage E entity_corrector | 52 | TF-IDF + Qwen MCQ + 79-entry validated_cache |
-| Step L llm_ger | 1452 | Qwen 1.5B + xlm-r MLM veto |
-| Step P punct_restore | 464 | oliverguhr fullstop multilang |
-| **Total** | **~2245** | ~37 min wall on CPU (single match) |
+| NER     extract_entities | 7 | spaCy + heuristic + Rule 3 fuzz |
+| Stage E entity_corrector | 52 | TF-IDF + Qwen MCQ + 79 cached mappings |
+| Step L  llm_ger | 1452 | Qwen 1.5B + xlm-r MLM veto |
+| Step P  punct_restore | 464 | oliverguhr fullstop multilang |
+| **Total** | **~2245** | ~37 min wall on CPU |
 
 ---
 
 ## Quick start
 
-### 1. Install Python deps + spaCy + Whisper models
-
+### 1. Install
 ```bash
 python -m pip install -r requirements.txt
 python -m spacy download en_core_web_sm
-# Multilingual extras (optional):
+# Multilingual extras:
 # python -m spacy download sv_core_news_sm de_core_news_sm fr_core_news_sm
 ```
 
 ### 2. Run the pipeline on a single match
-
 ```bash
-# Default reads {1,2}_asr.json (schema-1 stock Whisper output)
 python run_pipeline.py --match "Chelsea 1 - 2 Liverpool"
-
-# To run on the n-best-enriched ASR (preferred):
-ASR_INPUT_VARIANT=_v3_nbest python run_pipeline.py --match "Chelsea 1 - 2 Liverpool"
 ```
 
 Output:
-* `cleaned_data/<league>/<season>/<match>/commentary_data/{1,2}_asr*_cleaned.json`
-* `cleaned_data/.../es_chunks.json` (12s rolling-window chunks for ES)
+* `cleaned_data/<league>/<season>/<match>/commentary_data/{1,2}_asr_cleaned.json`
 
-### 3. Evaluate WER + Entity-F1 vs GOAL human GT
-
+### 3. Evaluate WER + Entity-F1 vs GOAL ground truth
 ```bash
 python tools/evaluate_wer.py --match "Chelsea" --half 1
 python tools/evaluate_wer.py --match "Chelsea" --half 2
-# Add --aligned-only to skip hyp-only segments (fair WER):
-python tools/evaluate_wer.py --match "Chelsea" --half 1 --aligned-only --alignment-mode windowed
 ```
 
-### 4. Run all tests (244 unit/integration tests)
-
+### 4. Run all tests (226 unit + integration)
 ```bash
 pytest tests/ -v
 ```
 
 ### 5. End-to-end with the ForzaSearch frontend
-
 ```powershell
-# Convert pipeline output to frontend's kamp.json format
 python tools/export_to_frontend.py `
   --match "Chelsea 1 - 2 Liverpool" `
   --frontend frontend/forzasearch-final `
@@ -130,35 +119,10 @@ python tools/export_to_frontend.py `
   --title "Chelsea 1-2 Liverpool" `
   --subtitle "Premier League 2016-09-16"
 
-# Start ES + ingest + dev server (Docker Desktop must be running)
+# Start ES container + ingest + dev server (Docker Desktop must be running)
 pwsh tools/start_frontend_e2e.ps1
-
-# Then open http://localhost:3000 and pick the match in the dropdown.
+# Then open http://localhost:3000
 ```
-
----
-
-## Key design decisions
-
-1. **No static word lists.** Filtering uses POS tags
-   (`get_rejected_pos_tags(lang)`) and learned models.
-2. **Multilingual by default.** Qwen 1.5B (MCQ + GER), xlm-roberta
-   (MLM veto), oliverguhr fullstop (Step P), paraphrase-MiniLM (Step N
-   FAISS) — all multilingual.
-3. **Confidence-gated edits.** Step L only edits tokens with
-   `avg_logprob > -0.3` per Confidence-Guided EC (arxiv:2509.25048).
-4. **Validated cache with consensus.** `data/validated_corrections.json`
-   stores misspelling→canonical mappings; `MIN_CONSENSUS=1` allows
-   single-match learning while still requiring fuzz≥75 + dictionary veto
-   gates so common words like `that`/`they`/`been` cannot become entities.
-5. **N-best reranker** (Apple RAG-NEC, arxiv:2409.06062). Multi-signal:
-   `entity_grounding + edit_distance + Whisper_confidence − length_penalty`.
-   Hard cap `MAX_LENGTH_DIFF_WORDS=5` prevents structural drift from
-   T=0.4 hallucinations.
-6. **Stage E veto pyramid.** TF-IDF retrieve → cosine shortcuts →
-   frequency heuristic → MCQ pre-gates → Qwen MCQ → MLM veto → C1 fuzz floor
-   → C2 length tolerance → dictionary veto. Each gate addresses a known
-   failure mode of the previous one.
 
 ---
 
@@ -166,62 +130,109 @@ pwsh tools/start_frontend_e2e.ps1
 
 ```
 pipeline/
-  orchestrator.py         clean_match() — runs all stages + per-stage timing
-  whisper_runner.py       faster-whisper transcription
-  loader.py               schema-1/2 ASR JSON parsing
-  config.py               all thresholds, model paths, multilingual maps
-  hallucination_filter.py Tier 1: alpha-ratio + langdetect + repeat-cluster
-  deduplicator.py         Tier 1: rapidfuzz + 3+ word collapse
-  nbest_reranker.py       Step N: Apple RAG-NEC multi-signal scoring
-  domain_normalizer.py    Stage 2A: football compounds + disfluencies
-  ner_extractor.py        NER: spaCy + 3 heuristics
-  gazetteer.py            Labels-caption → name dict + entity types
-  entity_corrector.py     Stage E: TF-IDF + Qwen MCQ + xlm-r MLM veto
-  fuzzy_corrector.py      Validation gates (passes_conservative_gates)
-  llm_corrector.py        Step L: Qwen2.5-1.5B GER + MLM veto + drift guard
-  punct_restorer.py       Step P: oliverguhr fullstop multilang
-  temporal_chunker.py     12s rolling-window chunks for ES
-  report.py               CleaningResult → human-readable summary
+  orchestrator.py         clean_match() — runs Step 0 → P with per-stage timing (505 lines)
+  whisper_runner.py       faster-whisper transcription with lineup hotwords (199)
+  loader.py               schema-1/2 ASR JSON parsing (170)
+  config.py               all thresholds, paths, multilingual model maps (302)
+  hallucination_filter.py Step 2: alpha-ratio + langdetect + repeat-cluster filter (194)
+  deduplicator.py         Step 3: consecutive-segment dedup via rapidfuzz (64)
+  domain_normalizer.py    Stage 2A: regex football compounds + disfluencies (126)
+  ner_extractor.py        spaCy NER + 3 heuristics (lone-word, POS-filtered, gazetteer fuzz) (389)
+  gazetteer.py            Labels-caption → variant→canonical dict + entity types (249)
+  entity_corrector.py     Stage E: TF-IDF retrieve + Qwen MCQ + xlm-r MLM veto + gates (752)
+  fuzzy_corrector.py      Validation gates (passes_conservative_gates) (202)
+  llm_corrector.py        Step L: confidence-gated Qwen GER + MLM veto + drift guard (617)
+  punct_restorer.py       Step P: oliverguhr fullstop multilang (204)
+  report.py               CleaningResult → human-readable summary (181)
 
 tools/
-  build_nbest_chelsea.py        Re-transcribe T=0.4 + merge to schema-3 nbest
-  transcribe_alt_for_nbest.py   Per-segment-progress wrapper
-  evaluate_wer.py               WER + Entity-F1 vs GOAL GT
-  generate_pipeline_walkthrough.py   Renders thesis doc from cleaning_metadata
-  seed_validated_corrections.py Scans raw V3 → propose new validated_cache mappings
-  dump_detected_entities.py     Dumps every NER detection to CSV for verification
-  count_gt_dropped_segments.py  Counts hyp-only segments (real vs garbage)
-  analyze_entity_rejections.py  Per-bucket breakdown of Stage E rejections
-  export_to_frontend.py         Convert cleaned output → frontend kamp.json
-  start_frontend_e2e.ps1        Boot ES + ingest + Next.js dev server
+  evaluate_wer.py                 WER + Entity-F1 vs GOAL GT (legacy + windowed alignment)
+  retranscribe_kb_whisper.py      One-off re-transcription via faster-whisper (CLI wrapper)
+  export_to_frontend.py           Convert cleaned output → frontend kamp.json (schema-1)
+  export_raw_to_frontend.py       Same but for raw V3 (for raw-vs-cleaned ablation)
+  start_frontend_e2e.ps1          Boot ES + ingest + Next.js dev server
+  generate_pipeline_walkthrough.py  Renders thesis doc from cleaning_metadata
+  seed_validated_corrections.py   Scan raw V3 → propose new validated_cache mappings
+  dump_detected_entities.py       Every NER detection to CSV for verification
+  count_gt_dropped_segments.py    Classify hyp-only segments (real commentary vs garbage)
+  count_entity_variants.py        Surface-form variant count per canonical
+  analyze_entity_rejections.py    Why Stage E rejected each candidate
+  compare_search_quality.py       A/B query test against ES (RAW vs CLEANED)
+  compare_llm_answer_quality.py   Mistral RAG answer quality (RAW vs CLEANED indexes)
+  compare_whisper_versions.py     SoccerNet bundled vs faster-whisper-v3 WER + F1
+  download_soccernet_match.py     Download match audio from SoccerNet
+  extract_audio_from_url.py       Extract audio from a video URL
+  fetch_match_metadata.py         Pull lineup + match metadata
+  insert_asr_results_into_docx.py Inject §4.2.1.7-9 results into bachelor.docx
+  integrate_asr_into_thesis.py    Inject ASR pipeline references across chapters 1-3
 
-tests/                  244 unit + integration tests, all green
+tests/                  226 unit + integration tests, all green
 data/
-  validated_corrections.json    79 curated misspelling→canonical mappings
+  validated_corrections.json    79 curated misspelling→canonical mappings (the
+                                 'learned dictionary' that grows over runs)
 cleaned_data/           Pipeline output (per-match, mirrors dataset structure)
 evaluation_results/     WER + F1 markdown reports per half
 frontend/forzasearch-final/   Next.js + ES + Mistral RAG search frontend
-thesis/                 Walkthrough docs, diff examples, entity dumps
-.claude/                Project context for Claude Code (CLAUDE.md, rules, skills)
+thesis/                 Walkthrough docs, diff examples, entity dumps, INDEX.md
+.claude/                Claude Code project context (CLAUDE.md, rules, skills)
 ```
+
+---
+
+## Key design decisions
+
+1. **No static word lists.** Filtering uses POS tags
+   (`get_rejected_pos_tags(lang)`) and learned models, not hand-typed
+   word lists.
+2. **Multilingual by default.** Qwen 1.5B (MCQ + GER), xlm-roberta
+   (MLM veto), oliverguhr fullstop (Step P), paraphrase-MiniLM
+   (frontend embeddings) — all multilingual.
+3. **Confidence-gated edits.** Step L only edits tokens with
+   `avg_logprob > -0.3`. High-confidence tokens are passed through
+   verbatim; the LLM never gets to "improve" already-correct text.
+4. **Validated cache with consensus.** `data/validated_corrections.json`
+   stores misspelling→canonical mappings; `MIN_CONSENSUS=1` allows
+   single-match learning while strict gates (fuzz≥75 + dictionary veto)
+   prevent common words from being mapped to entity names.
+5. **Stage E veto pyramid.** TF-IDF retrieve → cosine shortcuts →
+   frequency heuristic → MCQ pre-gates → Qwen MCQ → MLM veto →
+   C1 fuzz floor → C2 length tolerance → dictionary veto. Each gate
+   addresses a known failure mode of the previous one.
+6. **Schema-1 output for the frontend.** Cleaned files emit
+   `[start_time, end_time, text]` per segment — exactly what
+   `frontend/.../ingest.ts` parses. Schema-2 internals (per-word probs,
+   etc.) live only in the in-memory `Segment` dataclass while the
+   pipeline runs.
+
+---
+
+## What lives where in the pipeline
+
+The cleaning pipeline is organised as one orchestrator + 13 single-responsibility modules:
+
+- **Tier 1 (cheap, deterministic):** `hallucination_filter.py`, `deduplicator.py`, `domain_normalizer.py`. Drop garbage, merge duplicates, fix obvious compound words. Sub-second per match.
+- **Tier 2 (entity correction):** `gazetteer.py` builds the per-match name dict; `ner_extractor.py` finds candidate entities; `entity_corrector.py` runs TF-IDF retrieval + Qwen MCQ judge + xlm-roberta MLM veto + validation gates; `fuzzy_corrector.py` provides the gates.
+- **Tier 3 (segment-level edits):** `llm_corrector.py` runs Confidence-gated GER over each segment with low-confidence tokens wrapped in `<>`. `punct_restorer.py` restores casing and punctuation.
+- **Glue:** `loader.py` parses ASR JSON; `whisper_runner.py` re-transcribes audio when needed; `report.py` formats results; `config.py` centralises every threshold and model name.
 
 ---
 
 ## Thesis documentation
 
-* `thesis/INDEX.md` — bundle index with quick-reference numbers
+* `thesis/INDEX.md` — bundle navigation with quick-reference numbers
 * `thesis/pipeline_detailed_walkthrough.md` — auto-generated per-stage walkthrough
-* `thesis/detected_entities.csv` + `thesis/detected_entities_summary.md` — NER verification (766 entities, top-50 frequencies)
-* `thesis/gt_dropped_segments.csv` — fair-WER discussion data (21 hyp-only segments classified)
-* `thesis/diff_examples/` — concrete before/after diffs from V2-era runs
-* `thesis_bundle_*.zip` (on Desktop) — ready-to-upload archive for Claude in Word
+* `thesis/whisper_versions_comparison.md` — SoccerNet vs faster-whisper-v3 numbers
+* `thesis/search_quality_comparison.md` — RAW vs CLEANED retrieval A/B
+* `thesis/lineup_query_expansion_test.md` — query-time expansion alternative
+* `thesis/detected_entities.csv` + `thesis/detected_entities_summary.md` — NER verification
+* `thesis/gt_dropped_segments.csv` — fair-WER discussion data
 
 ---
 
 ## Research backing
 
-* **N-best entity reranking**: Apple RAG-NEC, [arxiv:2409.06062](https://arxiv.org/abs/2409.06062), 2024 — 33-39% rel WER reduction on entity-heavy queries.
-* **Confidence-gated GER**: [arxiv:2509.25048](https://arxiv.org/abs/2509.25048), 2025 — 68% rel WER reduction by gating edits on Whisper logprob.
+* **N-best retrieval-augmented entity correction**: Apple RAG-NEC, [arxiv:2409.06062](https://arxiv.org/abs/2409.06062), 2024 — 33-39% rel WER reduction on entity-heavy queries.
+* **Confidence-gated GER**: [arxiv:2509.25048](https://arxiv.org/abs/2509.25048), 2025 — 68% rel WER reduction by gating LLM edits on Whisper logprob.
 * **GER on Whisper**: [Whispering LLaMA, EMNLP 2023](https://aclanthology.org/2023.emnlp-main.618.pdf); [Improving GER with LoRA, ACL Findings 2025](https://aclanthology.org/2025.findings-acl.125.pdf).
 * **Multilingual punctuation restoration**: [oliverguhr/fullstop-punctuation-multilang-large](https://huggingface.co/oliverguhr/fullstop-punctuation-multilang-large).
 * **MLM veto via xlm-roberta**: pseudo-likelihood scoring per Wang et al. 2019.
@@ -240,10 +251,8 @@ GOAL benchmark © THU-KEG, 2024.
 
 | Component | State |
 |---|---|
-| Pipeline (Step 0 → P) | ✓ Production, 244/244 tests green |
-| N-best reranker | ✓ Step N wired, multi-signal scoring + hard length cap |
+| Pipeline (Step 0 → P) | ✓ 226 / 226 tests green |
 | Validated_corrections cache | ✓ 79 entries, consensus_min=1 |
-| Multilingual support | ✓ EN/SV/DE/FR/ES/IT/PT/NL via language-conditional models |
-| Frontend (ForzaSearch) | ✓ Indexed and searchable end-to-end |
-| Diarization (pyannote) | ◯ Implemented, off by default (slow on CPU) |
-| Cross-match consensus promotion | ◯ Available (raise MIN_CONSENSUS to 2-3 once 5+ matches indexed) |
+| Multilingual support | ✓ EN/SV/DE/FR/ES/IT/PT/NL via per-language model maps |
+| Frontend (ForzaSearch) | ✓ Indexed and searchable end-to-end (ES + Mistral) |
+| Per-stage ablation | ✓ Documented in thesis/ |
