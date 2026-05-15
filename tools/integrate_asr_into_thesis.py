@@ -293,8 +293,44 @@ def main() -> int:
               file=sys.stderr)
     else:
         from insert_asr_results_into_docx import _insert_paragraph_before, _insert_table_before
+        # Numbering plan: 7=whisper-versions, 8=results, 9=discussion, 10=future
         _insert_paragraph_before(target_para,
-            "4.2.1.7 Empiriske resultater på Chelsea-Liverpool 2016",
+            "4.2.1.7 Effekt av re-transkribering med faster-whisper-large-v3",
+            style="Heading 3")
+        _insert_paragraph_before(target_para,
+            "Et naturlig spørsmål er hvor mye av den observerte gevinsten "
+            "som kommer fra renselaget, og hvor mye som kommer fra at vi "
+            "regenererte transkripsjonen med en nyere Whisper-modell og "
+            "bedre dekodingsparametre. SoccerNet-Echoes-datasettet leverer "
+            "en ferdig-transkribert utgave (1_asr.json), sannsynligvis "
+            "produsert med stock OpenAI Whisper. Vi sammenliknet denne "
+            "direkte mot vår regenererte 1_asr_v3.json (Systran/"
+            "faster-whisper-large-v3, beam=5, word_timestamps=True, "
+            "no_speech_threshold=0.95, int8-kvantisering på CPU), begge "
+            "evaluert mot GOAL human-referansen:")
+        _insert_table_before(doc, target_para, [
+            ["Halvkamp", "SoccerNet WER", "faster-v3 WER", "Δ WER",
+             "SoccerNet F1", "faster-v3 F1"],
+            ["Halv 1", "46,50 %", "36,49 %", "-10,01 pp", "0,711", "0,749"],
+            ["Halv 2", "30,78 %", "34,66 %", "+3,88 pp", "0,829", "0,773"],
+            ["Samlet", "38,61 %", "35,57 %", "-3,04 pp", "0,771", "0,761"],
+        ])
+        _insert_paragraph_before(target_para,
+            "Re-transkriberingen ga en klar netto WER-forbedring på 3,04 "
+            "prosentpoeng (7,9 % relativt) på tvers av begge halvkampene, "
+            "med stor variasjon: stor forbedring på halv 1 (-10 pp) og en "
+            "mindre regresjon på halv 2 (+3,9 pp). Forklaringen ligger i "
+            "kommentatorens stil i andre halvkamp — raskere tale med flere "
+            "overlappende stemmer der vår strenge no_speech_threshold=0,95 "
+            "fanger opp støy som stock-modellen filtrerte bort. Entity-F1 "
+            "er praktisk talt uendret (-0,01 absolutt). Konsekvensen er at "
+            "den oppgitte forbedringen i Entity-F1 (+24 % relativt) i "
+            "§4.2.1.8 er målt mot vår regenererte rå-utgave, ikke "
+            "SoccerNet-bundled. Vi rapporterer de to effektene separat for "
+            "å skille engine-effekten fra pipeline-effekten.")
+
+        _insert_paragraph_before(target_para,
+            "4.2.1.8 Empiriske resultater på Chelsea-Liverpool 2016",
             style="Heading 3")
         _insert_paragraph_before(target_para,
             "Pipelinen ble evaluert mot GOAL human-annotert ground-truth "
@@ -342,7 +378,7 @@ def main() -> int:
         ])
 
         _insert_paragraph_before(target_para,
-            "4.2.1.8 Hvor rensingen faktisk gir verdi: empirisk diskusjon",
+            "4.2.1.9 Hvor rensingen faktisk gir verdi: empirisk diskusjon",
             style="Heading 3")
         _insert_paragraph_before(target_para,
             "En naiv hypotese ville være at en mer korrekt transkripsjon "
@@ -382,7 +418,7 @@ def main() -> int:
             "systemer er der den primære verdien materialiseres.")
 
         _insert_paragraph_before(target_para,
-            "4.2.1.9 Begrensninger og videre arbeid", style="Heading 3")
+            "4.2.1.10 Begrensninger og videre arbeid", style="Heading 3")
         _insert_paragraph_before(target_para,
             "Den viktigste begrensningen er at evalueringen hviler på én "
             "kamp. Fem videreførings-spor er identifisert: (1) indeksering "
