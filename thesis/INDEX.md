@@ -163,7 +163,7 @@ Audio (MP3)
 3. **Confidence-gated edits.** Step L only edits tokens with `avg_logprob > -0.3` (Confidence-Guided EC, arxiv:2509.25048).
 4. **Validated cache with consensus.** `validated_corrections.json` requires `MIN_CONSENSUS=1` match (relaxed from 3) to short-circuit MCQ — gives OLD-style aggressive correction.
 5. **N-best reranker** (Apple RAG-NEC, arxiv:2409.06062). Multi-signal: entity_grounding + edit_distance + Whisper_confidence − length_penalty. Hard cap `MAX_LENGTH_DIFF_WORDS=5` prevents structural drift from T=0.4 hallucinations.
-6. **Hard length cap** prevents the "1073 extra words" merger bug discovered in V2 ablation.
+6. **Hard length cap** in the n-best reranker (MAX_LENGTH_DIFF_WORDS=5) keeps alternative beam hypotheses from drifting structurally far from the primary 1-best.
 
 ## What still needs work
 

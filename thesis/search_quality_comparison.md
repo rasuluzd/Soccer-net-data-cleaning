@@ -163,11 +163,33 @@ entity name we expected (`hit?` column)? Score is the joint BM25
 | D — tricky (validation cases) | 3 | 1/3 | 2/3 |
 | **Total** | **17** | **15/17 (88%)** | **15/17 (88%)** |
 
-## Average top-1 BM25 score
+## Average top-1 BM25 score (fuzziness=AUTO)
 
 - RAW: **15.71**
 - CLEANED: **16.33**
 - Δ: **+0.62** (+3.9% rel)
+
+---
+
+## Strict mode: fuzziness=0 (no fuzzy match)
+
+This shows what happens when the search backend does NOT have ES's
+`fuzziness: AUTO` safety net. Many production search systems
+(SQL LIKE, plain Lucene, Solr without fuzzy) operate in this mode.
+
+| Category | Queries | RAW strict | CLEANED strict |
+|---|---|---|---|
+| A — canonical spelling | 5 | 4/5 | 5/5 |
+| B — Whisper-style misspelling | 5 | 5/5 | 3/5 |
+| C — multi-entity / semantic | 4 | 3/4 | 3/4 |
+| D — tricky (validation cases) | 3 | 1/3 | 2/3 |
+| **Total** | **17** | **13/17 (76%)** | **13/17 (76%)** |
+
+### Strict-mode top-1 BM25 score
+
+- RAW: **14.43**
+- CLEANED: **14.07**
+- Δ: **-0.36** (-2.5% rel)
 
 ## Interpretation guide
 
@@ -175,114 +197,3 @@ entity name we expected (`hit?` column)? Score is the joint BM25
 - **Category B (misspelling)**: This is where cleaning is supposed to win. The user types `Aspilicueta`, RAW only contains canonical `Aspilicueta` (because that's what Whisper said). CLEANED contains `Azpilicueta`. A user who types the canonical form should NOT find any matches in the misspelled-only RAW corpus. ES fuzzy `AUTO` may compensate within edit distance ≤2; cleaning extends the reach beyond that.
 - **Category C (multi-entity/semantic)**: BM25 alone may struggle when only 1 of 2 entities is exact. k-NN re-ranking via embeddings should compensate; cleaning's contribution is marginal here.
 - **Category D (tricky)**: Cases the cleaning pipeline introduced corrections for. If the cleaned corpus *removed* good matches, this is where it shows.
-
-
----
-
-## 🎯 Discussion: Is the cleaning pipeline worth it?
-
-### Empirical finding
-
-**On 17 representative football queries against an Elasticsearch backend
-that already does fuzzy matching (`fuzziness: AUTO` = edit distance ≤ 2)
-+ phrase boost, the cleaning pipeline yields ZERO improvement in top-1
-hit rate (88 % vs 88 %).**
-
-This is a sobering result. The pipeline takes ~37 min CPU per match and
-produces 41 entity corrections + 62 LLM GER edits + 1415 punctuation
-restorations, yet the search experience for a typical user is
-indistinguishable from a raw Whisper index.
-
-### Why does cleaning fail to win on retrieval?
-
-1. **ES fuzzy AUTO already catches edit-distance-1 misspellings.** Most
-   Whisper errors on player names are 1-letter variants:
-     - `Marcus Alonso` → `Marcos Alonso` (1 char)
-     - `Aspilicueta` → `Azpilicueta` (1 char)
-     - `Davi` → `David` (1 char added)
-     - `Diogo Costa` → `Diego Costa` (1 char)
-
-   Lucene's `AUTO` fuzzy matching expands the query to all terms within
-   edit distance ≤ 2 (for terms ≥ 6 chars), which means `"Aspilicueta"`
-   matches `Azpilicueta` at index time without any cleaning needed.
-
-2. **Phrase-match boost (×5) recovers entity-rich segments even when
-   token-level matches are imperfect.** A long descriptive query like
-   `"Coutinho Lallana goal"` triggers phrase boost on whichever variant
-   exists in the corpus.
-
-3. **k-NN semantic similarity** (paraphrase-multilingual-MiniLM-L12-v2)
-   embeds whole windows. Word-level errors in proper nouns barely
-   affect the cosine similarity of a 50-word football-commentary
-   passage — the surrounding context dominates.
-
-### Where DOES cleaning still earn its place?
-
-The retrieval-layer experiment is only one slice of the system. Cleaning
-provides material value at four other points the search-quality
-benchmark cannot see:
-
-| Downstream consumer | Why it needs cleaning |
-|---|---|
-| **LLM RAG answer generation** (Mistral 7B) | Better-named entities → fewer hallucinations in the natural-language answer. `Diogo Costa` and `Diego Costa` confuse the LLM about which player scored. |
-| **NER-based event extraction** ("who scored at minute X") | Downstream NER over the index works on the indexed text. `Marcus Alonso` will be tagged as a PERSON; an event-extraction system grouping all goals by player will fragment the same player into two buckets. |
-| **Human-readable display** | The clip-card UI shows the cleaned text. `Diego Costa-Chelsea` looks like a system bug; `Diego Costa` reads as commentary. |
-| **Cross-corpus search** at scale | When you index 50 + matches, ES `AUTO` fuzzy starts colliding (`Marcus` from a 2024 match retrieves `Marcos Alonso` from 2016 even when the user wanted neither). Per-match canonicalisation suppresses this. |
-
-### Specific cases where cleaning measurably HURT retrieval
-
-- **B5 ("Marcus Alonso run")**: User typed Whisper-style "Marcus" → RAW
-  found 2 matches (top-1 + top-2 same player), CLEANED only 1
-  (canonical "Marcos" matches via fuzzy, but secondary mentions get
-  re-ranked down).
-- **A3 ("Hazard cross")**: RAW had 3 hits; CLEANED only 1 — Step P
-  punctuation re-segmented some passages so the entity got split
-  across windows.
-- **A4 ("Mignolet save")**: RAW had 17.85 score on top-2 (same passage
-  matched twice); CLEANED had 11.81 because punctuation reduced the
-  duplicate-name density per window.
-
-### Specific cases where cleaning measurably HELPED
-
-- **B1 ("Aspilicueta header")**: CLEANED returned 2 "Azpilicueta"
-  matches in top-3; RAW returned 1 "Haspilicueta" and 1 unrelated.
-  CLEANED's canonicalisation lifted the second relevant hit.
-- **D2 ("Willian winger")**: RAW returned 0/3 hits — the user typed
-  "Willian" (canonical, edit dist 1 from "William") but ES fuzzy did
-  not promote the William-occurrences to top-3. CLEANED returned 3/3
-  because it had pre-substituted "Willian" everywhere.
-- **D3 ("Origi striker")**: CLEANED returned 2/3 hits with higher score
-  (18.79 vs 15.04) because "rigi" → "Origi" mapping turned previously
-  unsearchable Whisper artefacts into searchable canonical mentions.
-
-### Take-away for the thesis
-
-Two honest claims to make:
-
-1. **For a single-match search demo with a fuzzy-tolerant backend,
-   cleaning is overkill.** The ES `AUTO` fuzzy + phrase boost handles
-   ≥ 88 % of named-entity queries on raw Whisper, even when the
-   transcript is full of "Davi Luiz" and "Aspilicueta".
-
-2. **Cleaning pays off in three specific scenarios that the retrieval
-   benchmark above cannot measure**:
-     a. *LLM-grounded answer generation* — wrong canonical names cause
-        wrong answers.
-     b. *Cross-match search at scale* — fuzzy collisions between
-        players on different teams compound non-linearly with corpus
-        size.
-     c. *Downstream event/NER extraction* — entity F1 (+24 % rel on
-        Chelsea-Liverpool) is the right metric here, not WER.
-
-The pipeline is not the right solution to "please make ES return the
-right clip." It IS the right solution to "please make the *answer*
-that the LLM generates from those clips refer to the right player."
-
-### Honest limitation
-
-The headline claim of "cleaning improves search" is unsubstantiated for
-a single match. The thesis should report this finding rather than hide
-it. The architecturally-correct framing is: *the cleaning pipeline is a
-producer of canonical entity-grounded transcripts; the retrieval layer
-is one consumer (where the gain is small); the answer-generation layer
-is the other consumer (where the gain is large)*.
