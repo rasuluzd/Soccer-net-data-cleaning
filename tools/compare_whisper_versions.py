@@ -71,17 +71,47 @@ def load_segments(path: Path) -> list[Seg]:
     return sorted(out, key=lambda s: s.start)
 
 
-def time_aligned_pairs(ref: list[Seg], hyp: list[Seg]) -> list[tuple[Seg, str]]:
-    """For each reference segment, concatenate all hypothesis segments
-    that overlap its time window. Returns (ref, joined_hyp_text) pairs."""
-    out = []
+def time_aligned_pairs(ref: list[Seg], hyp: list[Seg],
+                       mode: str = "legacy", tolerance: float = 0.75
+                       ) -> list[tuple[Seg, str]]:
+    """Pair reference segments with hypothesis segments.
+
+    mode='legacy'   — 1-to-1 greedy time alignment by midpoint distance
+                      (matches tools/evaluate_wer.py default behaviour).
+    mode='windowed' — concatenate ALL hyp segs that overlap each GT window
+                      (stricter; gives ~9pp higher WER).
+    """
+    if mode == "windowed":
+        out = []
+        for r in ref:
+            joined = " ".join(
+                h.text for h in hyp
+                if h.start < r.end and h.end > r.start
+            )
+            out.append((r, joined))
+        return out
+
+    # legacy: greedy 1-to-1 by midpoint proximity
+    pairs: list[tuple[Seg, str]] = []
+    used_hyp: set[int] = set()
     for r in ref:
-        joined = " ".join(
-            h.text for h in hyp
-            if h.start < r.end and h.end > r.start
-        )
-        out.append((r, joined))
-    return out
+        r_mid = (r.start + r.end) / 2
+        best_idx = -1
+        best_dist = float("inf")
+        for i, h in enumerate(hyp):
+            if i in used_hyp:
+                continue
+            h_mid = (h.start + h.end) / 2
+            d = abs(r_mid - h_mid)
+            if d < best_dist and d <= tolerance + (h.end - h.start) / 2:
+                best_dist = d
+                best_idx = i
+        if best_idx >= 0:
+            used_hyp.add(best_idx)
+            pairs.append((r, hyp[best_idx].text))
+        else:
+            pairs.append((r, ""))
+    return pairs
 
 
 def compute_wer(ref_texts: list[str], hyp_texts: list[str]) -> dict:
@@ -154,6 +184,9 @@ def main() -> int:
                    default=Path("path/to/SoccerNet/caption-2023"))
     p.add_argument("--out", type=Path,
                    default=Path("thesis/whisper_versions_comparison.md"))
+    p.add_argument("--alignment", choices=["legacy", "windowed"],
+                   default="legacy",
+                   help="Match tools/evaluate_wer.py default (legacy)")
     args = p.parse_args()
 
     # Find match dir
@@ -236,7 +269,7 @@ def main() -> int:
                 md.append(f"| {label} | — | (file missing) | — | — | — |")
                 continue
 
-            pairs = time_aligned_pairs(gt, segs)
+            pairs = time_aligned_pairs(gt, segs, mode=args.alignment)
             ref_texts = [r.text for r, _ in pairs]
             hyp_texts = [h for _, h in pairs]
             wer_stats = compute_wer(ref_texts, hyp_texts)

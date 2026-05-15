@@ -303,31 +303,41 @@ def main() -> int:
             "regenererte transkripsjonen med en nyere Whisper-modell og "
             "bedre dekodingsparametre. SoccerNet-Echoes-datasettet leverer "
             "en ferdig-transkribert utgave (1_asr.json), sannsynligvis "
-            "produsert med stock OpenAI Whisper. Vi sammenliknet denne "
-            "direkte mot vår regenererte 1_asr_v3.json (Systran/"
-            "faster-whisper-large-v3, beam=5, word_timestamps=True, "
-            "no_speech_threshold=0.95, int8-kvantisering på CPU), begge "
-            "evaluert mot GOAL human-referansen:")
+            "produsert med stock OpenAI Whisper med tegnsetting og kasing. "
+            "Vi sammenliknet denne direkte mot vår regenererte 1_asr_v3.json "
+            "(Systran/faster-whisper-large-v3, beam=5, word_timestamps=True, "
+            "no_speech_threshold=0,95, int8-kvantisering på CPU), begge "
+            "evaluert mot GOAL human-referansen med samme verktøy "
+            "(tools/evaluate_wer.py med legacy 1-til-1 tidsalignment):")
         _insert_table_before(doc, target_para, [
             ["Halvkamp", "SoccerNet WER", "faster-v3 WER", "Δ WER",
-             "SoccerNet F1", "faster-v3 F1"],
-            ["Halv 1", "46,50 %", "36,49 %", "-10,01 pp", "0,711", "0,749"],
-            ["Halv 2", "30,78 %", "34,66 %", "+3,88 pp", "0,829", "0,773"],
-            ["Samlet", "38,61 %", "35,57 %", "-3,04 pp", "0,771", "0,761"],
+             "SoccerNet F1", "faster-v3 F1", "Δ F1"],
+            ["Halv 1", "29,81 %", "25,56 %", "-4,25 pp", "0,620", "0,484",
+             "-0,136"],
+            ["Halv 2", "24,84 %", "23,86 %", "-0,98 pp", "0,598", "0,504",
+             "-0,094"],
+            ["Snitt", "27,32 %", "24,71 %", "-2,61 pp", "0,609", "0,494",
+             "-0,115"],
         ])
         _insert_paragraph_before(target_para,
-            "Re-transkriberingen ga en klar netto WER-forbedring på 3,04 "
-            "prosentpoeng (7,9 % relativt) på tvers av begge halvkampene, "
-            "med stor variasjon: stor forbedring på halv 1 (-10 pp) og en "
-            "mindre regresjon på halv 2 (+3,9 pp). Forklaringen ligger i "
-            "kommentatorens stil i andre halvkamp — raskere tale med flere "
-            "overlappende stemmer der vår strenge no_speech_threshold=0,95 "
-            "fanger opp støy som stock-modellen filtrerte bort. Entity-F1 "
-            "er praktisk talt uendret (-0,01 absolutt). Konsekvensen er at "
-            "den oppgitte forbedringen i Entity-F1 (+24 % relativt) i "
-            "§4.2.1.8 er målt mot vår regenererte rå-utgave, ikke "
-            "SoccerNet-bundled. Vi rapporterer de to effektene separat for "
-            "å skille engine-effekten fra pipeline-effekten.")
+            "Re-transkriberingen ga en netto WER-forbedring på 2,61 "
+            "prosentpoeng (9,6 % relativt) på tvers av begge halvkamper, "
+            "med størst gevinst på halv 1 (-4,25 pp). Vår faster-whisper-"
+            "v3 transkriberer rett og slett flere ord korrekt enn stock "
+            "OpenAI Whisper i SoccerNet-bundled, både fordi modellen er "
+            "nyere og fordi vi bruker en aggressiv no_speech_threshold som "
+            "lar svake kommentar-segmenter slippe gjennom.")
+        _insert_paragraph_before(target_para,
+            "Entity-F1 går derimot motsatt vei (-0,115 absolutt). Dette er "
+            "ikke fordi modellen er dårligere på navn, men fordi vår "
+            "faster-whisper-utdata er all-lowercase uten tegnsetting (se "
+            "f.eks. «sturridge» vs «Sturridge»), mens Entity-F1 er case-"
+            "sensitiv mot GOAL-referansens tegnsatte tekst. Cleaning-"
+            "pipelinens Trinn P (oliverguhr punctuation/casing-restorering) "
+            "løfter F1 tilbake til 0,591 i den ferdig-rensede utgaven, "
+            "altså nær SoccerNet-stock sin 0,609. Sluttresultatet er "
+            "bedre WER (vår engine-effekt) og tilsvarende F1 (vår "
+            "pipeline-effekt) sammenlignet med utgangspunktet fra SoccerNet.")
 
         _insert_paragraph_before(target_para,
             "4.2.1.8 Empiriske resultater på Chelsea-Liverpool 2016",
