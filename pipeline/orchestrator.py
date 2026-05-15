@@ -46,18 +46,19 @@ from pipeline.fuzzy_corrector import (
 from pipeline.entity_corrector import correct_match as entity_correct_match
 from pipeline.entity_corrector import get_last_telemetry as entity_last_telemetry
 from pipeline.domain_normalizer import DomainNormalizer
-# SOTA refactor stages — see plans/check-all-files-and-peppy-lemur.md
-from pipeline.nbest_reranker import rerank_match as nbest_rerank_match
-from pipeline.nbest_reranker import get_last_telemetry as nbest_last_telemetry
 from pipeline.llm_corrector import correct_match as llm_correct_match
 from pipeline.llm_corrector import get_last_telemetry as llm_last_telemetry
 from pipeline.punct_restorer import restore_punctuation_batch
-from pipeline.temporal_chunker import (
-    generate_match_id,
-    generate_segment_global_id,
-    create_temporal_chunks,
-    chunks_to_es_bulk,
-)
+
+
+def generate_match_id(league: str, season: str, match_name: str) -> str:
+    """Composite match identifier (replaces deleted temporal_chunker)."""
+    safe = match_name.replace(" ", "_").replace("/", "_")
+    return f"{league}_{season}_{safe}"
+
+
+def generate_segment_global_id(match_id: str, half: int, segment_id: str) -> str:
+    return f"{match_id}__h{half}__s{segment_id}"
 
 
 def _collapse_repeated_words(text: str) -> str:
@@ -179,23 +180,6 @@ def clean_match(
     deduped_segments, removed_duplicates = _t("step3_deduplicate", _dedup_with_collapse)
     print(f"  Duplicates removed: {len(removed_duplicates)} "
           f"({stage_timings['step3_deduplicate']:.2f}s)")
-
-    # ── Step N: N-best entity-grounded reranking (Apple RAG-NEC) ─────
-    # Pass-through when segments don't carry .nbest (current schema-2
-    # input). When n-best is available, picks the beam alternative whose
-    # entity-shaped tokens score highest against the gazetteer FAISS index.
-    deduped_segments, nbest_telemetry = _t(
-        "stepN_nbest_rerank",
-        lambda: nbest_rerank_match(deduped_segments, gazetteer, language=detected_lang),
-    )
-    if nbest_telemetry.get("segments_replaced", 0) > 0:
-        print(f"  Step N nbest rerank: {nbest_telemetry['segments_replaced']} "
-              f"of {nbest_telemetry['segments_with_nbest']} re-picked "
-              f"({stage_timings['stepN_nbest_rerank']:.2f}s)")
-    elif nbest_telemetry.get("pass_through_reason"):
-        print(f"  Step N nbest rerank: pass-through "
-              f"({nbest_telemetry['pass_through_reason']}, "
-              f"{stage_timings['stepN_nbest_rerank']:.2f}s)")
 
     # entity_corrector builds its own match-wide token frequency for the
     # frequency heuristic; nothing to precompute here.
@@ -369,7 +353,6 @@ def clean_match(
                               sota_corrections=sota_corrections,
                               llm_telemetry=llm_telemetry,
                               stage_timings=stage_timings,
-                              nbest_telemetry=nbest_telemetry,
                               entity_telemetry=entity_telemetry)
 
     # ── Build result ─────────────────────────────────────────────────
@@ -426,18 +409,15 @@ def _write_cleaned_output(
     sota_corrections: list[dict] | None = None,
     llm_telemetry: dict | None = None,
     stage_timings: dict | None = None,
-    nbest_telemetry: dict | None = None,
     entity_telemetry: dict | None = None,
 ) -> None:
     """Write cleaned JSON files mirroring the original directory structure.
 
-    Generates globally unique IDs for each segment and creates
-    temporal chunks for Elasticsearch-ready search indexing.
-
-    The output JSON now also includes optional schema-2 enrichments
-    (per-word probabilities, n-best alternatives, speaker_id) when the
-    upstream Whisper run produced them — useful for downstream event
-    detection and confidence-aware search.
+    Output is schema-1 compatible (start_time, end_time, text per segment)
+    matching what the ForzaSearch frontend's ingest.ts actually consumes.
+    Schema-2 fields (per-word probs, nbest, no_speech_prob) are persisted
+    in the same file but not extracted by the frontend; they remain
+    available for any future consumer that wants confidence-aware search.
     """
     # Create output directory mirroring the match structure
     relative_path = match.match_dir.relative_to(match.match_dir.parents[3])
@@ -460,25 +440,15 @@ def _write_cleaned_output(
             continue
 
         def _seg_payload(s: Segment) -> dict:
-            payload = {
+            # Schema-1 compatible payload. Frontend's ingest.ts reads only
+            # start, end, text. Schema-2 enrichments (words.prob, nbest)
+            # were stripped out — no consumer was using them.
+            return {
                 "global_id": s.global_id,
                 "start_time": s.start_time,
                 "end_time": s.end_time,
                 "text": s.text,
             }
-            # Persist schema-2 enrichments when present (downstream event
-            # detection / confidence-aware search wants these).
-            if s.words is not None:
-                payload["words"] = s.words
-            if s.avg_logprob is not None:
-                payload["avg_logprob"] = s.avg_logprob
-            if s.no_speech_prob is not None:
-                payload["no_speech_prob"] = s.no_speech_prob
-            if s.nbest is not None:
-                payload["nbest"] = s.nbest
-            if s.speaker_id is not None:
-                payload["speaker_id"] = s.speaker_id
-            return payload
 
         # Half-aware slice of SOTA corrections (R/L/P stages).
         # Filter on the half tag ONLY — segment_id is not unique across halves
@@ -513,7 +483,6 @@ def _write_cleaned_output(
                 "sota_corrections": sota_for_half,
                 "llm_telemetry": llm_telemetry or {},
                 "stage_timings": stage_timings or {},
-                "nbest_telemetry": nbest_telemetry or {},
                 "entity_telemetry": entity_telemetry or {},
                 "removed_hallucinations": [
                     r for r in (removed_hallucinations or [])
@@ -531,17 +500,9 @@ def _write_cleaned_output(
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=4, ensure_ascii=False)
 
-    # Generate temporal chunks for ES search indexing
-    chunks = create_temporal_chunks(
-        segments, match_id, match.league, match.season,
-    )
-    if chunks:
-        es_docs = chunks_to_es_bulk(chunks)
-        es_output_path = output_dir / "es_chunks.json"
-        with open(es_output_path, "w", encoding="utf-8") as f:
-            json.dump(es_docs, f, indent=2, ensure_ascii=False)
-        print(f"  ES chunks: {len(chunks)} temporal chunks generated")
-
+    # NOTE: temporal chunk output (es_chunks.json) was removed in May 2026.
+    # The frontend's ingest.ts builds its own segment windows from kamp.json
+    # and never consumed our pre-built chunks.
     print(f"  Output written to: {output_dir}")
 
 
