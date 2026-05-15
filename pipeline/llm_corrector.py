@@ -1,48 +1,14 @@
-"""
-pipeline/llm_corrector.py — confidence-gated Generative Error Correction.
+"""Step L: confidence-gated Generative Error Correction.
 
-Step L of the SOTA refactor (see plans/check-all-files-and-peppy-lemur.md).
-This module replaces the legacy Tier 2 / Tier 3 / Stage 4 / Stage 4B /
-learned_dictionary cascade with one coherent decision-maker:
+For each segment:
+  1. Wrap low-logprob tokens in <token>; leave high-confidence tokens alone.
+  2. Prompt Qwen2.5-1.5B-Instruct (GGUF via llama-cpp-python) with the
+     match's typed gazetteer + neighbouring segments.
+  3. xlm-roberta-base masks each proposed edit and vetos any where the
+     original has higher pseudo-log-likelihood by MLM_VETO_RATIO.
 
-  1. **Confidence gating.** Every segment's words come with an avg
-     ``probability`` from faster-whisper (``Segment.words``). Tokens with
-     ``log(prob) > LLM_LOGPROB_GATE`` are deemed acoustically confident
-     and stay verbatim; only the low-confidence tokens are wrapped
-     ``<token>`` in the LLM prompt. The LLM is instructed to leave
-     unwrapped tokens untouched. This is the "Confidence-Guided Error
-     Correction" pattern (arxiv:2509.25048) — its key insight is that
-     LLMs over-correct already-correct text, and constraining the LLM
-     to only edit low-confidence regions eliminates that failure mode.
-
-  2. **Match-context prompt.** Each prompt carries the gazetteer typed
-     by entity (Players / Teams / Referee / Venue / Coaches) plus
-     ``LLM_CTX_PREVIOUS_SEGMENTS`` previous segments and
-     ``LLM_CTX_NEXT_SEGMENTS`` next segments for local context. This is
-     the "domain-aware GER" pattern (Whispering-LLaMA EMNLP 2023, GER-
-     LoRA ACL Findings 2025).
-
-  3. **MLM veto.** After the LLM proposes an edit, we mask the proposed
-     token in context and ask the existing xlm-roberta-base handle from
-     ``pipeline.error_detector`` whether the *original* token has a
-     higher pseudo-log-likelihood than the proposed one. If it does by a
-     factor ``MLM_VETO_RATIO`` or more, we reject the LLM edit. This
-     catches the residual over-correction failure mode and keeps the
-     pipeline language-agnostic (no static word lists).
-
-Backend
--------
-Qwen2.5-0.5B-Instruct (q4_k GGUF) via ``llama-cpp-python``. CPU-friendly:
-~500-800 ms per segment on a single thread; gated to ~30-50% of segments
-by the confidence filter so a 600-segment match takes ~5 minutes of LLM
-time.
-
-Graceful degradation
---------------------
-If the GGUF model file is not present or ``llama-cpp-python`` is not
-installed, the module is a no-op (prints a warning, returns segments
-unchanged). The orchestrator continues with the rest of the pipeline.
-"""
+CPU-friendly. If the GGUF or llama-cpp-python is missing, this module
+becomes a no-op and the pipeline continues."""
 
 from __future__ import annotations
 
@@ -83,7 +49,7 @@ _MLM_HANDLE = None
 
 
 def _ensure_llm() -> bool:
-    """Lazy-load Qwen via llama-cpp-python. Returns True if available."""
+    """Lazy-load Qwen via llama-cpp-python. True iff the model is ready."""
     global _LLM, _LLM_LOAD_ERROR
     if _LLM is not None:
         return True
@@ -147,7 +113,7 @@ def _ensure_llm() -> bool:
 
 
 def _ensure_mlm():
-    """Lazy-load xlm-roberta MLM handle (reuses error_detector's loader)."""
+    """Lazy-load the xlm-roberta MLM handle used for the veto."""
     global _MLM_HANDLE
     if _MLM_HANDLE is not None:
         return _MLM_HANDLE
@@ -183,41 +149,23 @@ def _wrap_low_confidence_tokens(
     gazetteer: dict[str, str] | None = None,
     language: str = "en",
 ) -> tuple[str, int, list[bool]]:
-    """Return (wrapped_text, n_wrapped, per_word_editable_mask).
+    """Returns (wrapped_text, n_wrapped, editable_mask).
 
-    The mask aligns 1:1 with the words of ``segment.text`` (after
-    whitespace split): True at indices of low-confidence tokens that the
-    LLM is allowed to edit, False everywhere else. This mask is used to
-    HARD-CONSTRAIN the LLM output later — any change at a False position
-    is treated as drift and the entire correction is rejected.
+    The mask is 1:1 with segment.text.split() — True for tokens the LLM is
+    allowed to edit. Used downstream to reject drift outside those positions.
 
-    Two paths:
-      * Schema-2 (``segment.words`` present): use per-word
-        ``avg_logprob`` and gate by ``LLM_LOGPROB_GATE``.
-      * Schema-1 (``segment.words`` is None): fall back to capitalised
-        tokens, but POS-filter sentence-start common words (``And``,
-        ``It's``, ``He``, ``The``, ...). This stops the LLM from being
-        invited to "improve" segments where every sentence-start cap
-        is grammar, not an entity. Mid-sentence capitalised tokens stay
-        editable. Tokens whose stripped form is in the gazetteer also
-        stay editable regardless of POS (so known canonical names like
-        ``David Luiz`` still pass even if a small POS model labels them
-        oddly).
-    """
+    Schema-2 path: gate by per-word avg_logprob.
+    Schema-1 fallback: wrap capitalised tokens, but skip sentence-start
+    common words via POS to avoid wrapping plain grammar."""
     seg_words = segment.text.split()
-    # Frozen positions (set by entity_corrector) that Step L must NEVER edit.
-    # Even if the word would normally be wrapped, we force mask[i]=False here
-    # so the editable-drift guard rejects any LLM proposal that touches a
-    # canonical name we just placed.
+    # Indices entity_corrector marked as canonical — Step L must never edit them.
     frozen = set(segment.frozen_word_indices or [])
     if segment.words:
         wrapped: list[str] = []
         n_wrapped = 0
         mask: list[bool] = []
-        # Align segment.words to whitespace tokens. faster-whisper's word
-        # tokens often include leading whitespace and may not 1:1 with
-        # the .split() tokens. We use the .split() tokens as the truth
-        # and look up each one's average prob from the words list.
+        # faster-whisper's word tokens may not 1:1 with .split(); align by
+        # walking both and matching on stripped surface form.
         word_iter = iter(segment.words)
         cur_word = next(word_iter, None)
         for i, tok in enumerate(seg_words):
@@ -247,7 +195,7 @@ def _wrap_low_confidence_tokens(
                 mask.append(False)
         return " ".join(wrapped).strip(), n_wrapped, mask
 
-    # ── Schema-1 fallback: POS-filtered capitalised-token wrapping ──
+    # Schema-1 fallback: wrap capitalised tokens, POS-filter sentence-starts.
     pos_tags = _pos_tags_for(segment.text, language)
     rejected = get_rejected_pos_tags(language)
     gaz_lc = {k.lower() for k in (gazetteer or {})}
@@ -283,14 +231,7 @@ def _wrap_low_confidence_tokens(
 
 
 def _pos_tags_for(text: str, language: str) -> dict[int, str]:
-    """Return {whitespace_index → POS tag} for ``text``. Empty on failure.
-
-    Lightweight wrapper around ``pipeline.ner_extractor.get_nlp(language)``
-    that maps spaCy's character offsets back to whitespace-split indices.
-    Returning an empty dict (not raising) keeps the LLM corrector usable
-    when spaCy is unavailable — the wrapper degrades to wrapping every
-    capitalised token, which was the previous behaviour.
-    """
+    """{whitespace_index -> POS tag}. Returns {} on any error."""
     try:
         from pipeline.ner_extractor import get_nlp
         nlp = get_nlp(language)
@@ -304,7 +245,7 @@ def _pos_tags_for(text: str, language: str) -> dict[int, str]:
     seg_words = text.split()
     if not seg_words:
         return tags
-    # Map by walking both sequences in lockstep on stripped surface form.
+    # Walk both sequences in lockstep, matching stripped surface forms.
     spacy_iter = iter([t for t in doc if not t.is_space])
     cur = next(spacy_iter, None)
     for i, tok in enumerate(seg_words):
@@ -326,24 +267,18 @@ def _strip_punct(s: str) -> str:
 def _editable_drift(
     original: str, corrected: str, editable_mask: list[bool]
 ) -> bool:
-    """True if the LLM changed words at positions that were NOT marked editable.
-
-    This is the hard constraint that prevents Qwen-0.5B from "improving"
-    the segment by inserting articles, rewording for fluency, etc. Any
-    change outside the bracketed-token positions is treated as drift and
-    triggers rejection of the whole correction.
-    """
+    """True if the LLM changed any non-editable position. Hard reject."""
     o, n = original.split(), corrected.split()
     if len(o) != len(n):
-        return True   # length mismatch — easiest signal of rewriting
+        return True
     for i, (ow, nw) in enumerate(zip(o, n)):
         if ow == nw:
             continue
-        # Tolerate punctuation-only differences at any position
+        # Tolerate punctuation-only differences.
         if _strip_punct(ow).lower() == _strip_punct(nw).lower():
             continue
         if i >= len(editable_mask) or not editable_mask[i]:
-            return True  # change at non-editable position
+            return True
     return False
 
 
@@ -357,7 +292,7 @@ def _build_context_prompt(
     match_name: str,
     half: int,
 ) -> str:
-    """Build the per-segment context string injected into the LLM prompt."""
+    """Per-segment context block: typed lineup + neighbouring segments."""
     by_type: dict[str, list[str]] = {}
     for canon, etype in entity_types.items():
         by_type.setdefault(etype, []).append(canon)
@@ -405,9 +340,8 @@ _SYSTEM_PROMPT_TEMPLATE = (
 )
 
 
-# Tokens that signal the LLM is echoing the prompt instead of correcting.
-# If any whole-word match shows up in the LLM output, we treat the call
-# as failed and keep the original segment.
+# If the LLM output contains any of these, it echoed the prompt instead
+# of correcting — we drop the proposal and keep the original segment.
 _PROMPT_ECHO_MARKERS = {
     "Match:", "Half:", "Teams:", "Players:", "Coaches:", "Referee:",
     "Venue:", "Prev:", "Next:", "Input:", "Output:", "Corrected:",
@@ -419,7 +353,7 @@ def _llm_correct(
     segment_text_wrapped: str,
     context_block: str,
 ) -> Optional[str]:
-    """One LLM call. Returns corrected sentence or None on failure."""
+    """One LLM call. Corrected sentence or None on failure."""
     if not _ensure_llm():
         return None
     system_msg = _SYSTEM_PROMPT_TEMPLATE.format(context=context_block)
@@ -442,30 +376,23 @@ def _llm_correct(
 
 
 def _clean_llm_output(text: str) -> str:
-    """Strip wrapper artefacts (quotes, leading 'Corrected:', etc.) from LLM output."""
+    """Strip leading "Output:"/"Corrected:" prefixes, surrounding quotes,
+    and anything after the first line."""
     text = text.strip()
-    # Drop any leading "Output:" / "Corrected:" / "Answer:" prefix.
     text = re.sub(r"^(corrected|output|answer)\s*[:\-]\s*", "", text, flags=re.IGNORECASE)
     if text.startswith(('"', "'")) and text.endswith(('"', "'")):
         text = text[1:-1]
     text = text.strip()
-    # Take only the first line — the model sometimes continues with extra text.
     text = text.split("\n", 1)[0].strip()
     return text
 
 
 def _is_prompt_echo(output: str) -> bool:
-    """Detect prompt-echo failures (Qwen-0.5B leaks the system context)."""
     return any(marker in output for marker in _PROMPT_ECHO_MARKERS)
 
 
 def _is_length_anomaly(original: str, output: str) -> bool:
-    """Reject outputs that are wildly different in length from the input.
-
-    GER should make the SMALLEST possible edit. An output that's <50% or
-    >150% of the input length is almost always a hallucination or a
-    rephrase that hurts WER more than it helps.
-    """
+    """True when output is <50% or >150% of input length — likely a rewrite."""
     o, n = len(original.split()), len(output.split())
     if o == 0:
         return n > 0
@@ -478,7 +405,7 @@ def _is_length_anomaly(original: str, output: str) -> bool:
 def _mlm_pseudo_logprob(
     sentence_tokens: list[str], idx: int, candidate: str,
 ) -> Optional[float]:
-    """Compute log P(candidate | context) by masking ``sentence_tokens[idx]``."""
+    """log P(candidate | context) by masking sentence_tokens[idx]."""
     handle = _ensure_mlm()
     if handle is None:
         return None
@@ -506,16 +433,14 @@ def _mlm_pseudo_logprob(
 
 
 def _veto(original_text: str, corrected_text: str) -> str:
-    """Apply MLM veto on a per-token-edit basis. Rejects edits where MLM
-    prefers the original token by a factor of MLM_VETO_RATIO or more.
-    Returns the (possibly rolled-back) corrected text.
-    """
+    """Per-token MLM veto. Rolls back any edit where MLM prefers the original
+    by MLM_VETO_RATIO. Returns the possibly rolled-back text."""
     if not MLM_VETO_ENABLED:
         return corrected_text
     orig_toks = original_text.split()
     new_toks = corrected_text.split()
     if len(orig_toks) != len(new_toks):
-        return corrected_text  # length mismatch — let the change stand
+        return corrected_text
     out_toks: list[str] = list(new_toks)
     for i, (o, n) in enumerate(zip(orig_toks, new_toks)):
         if o == n:
@@ -524,8 +449,6 @@ def _veto(original_text: str, corrected_text: str) -> str:
         lp_new = _mlm_pseudo_logprob(out_toks, i, n)
         if lp_orig is None or lp_new is None:
             continue
-        # Reject the LLM edit if the original is more plausible by the
-        # configured margin (log-ratio ≥ log(MLM_VETO_RATIO)).
         if lp_orig - lp_new >= math.log(MLM_VETO_RATIO):
             out_toks[i] = o
     return " ".join(out_toks)
@@ -535,7 +458,7 @@ def _veto(original_text: str, corrected_text: str) -> str:
 
 @dataclass
 class LlmCorrection:
-    """One per-token edit recorded by the LLM corrector."""
+    """One per-token edit applied by Step L."""
     segment_id: str
     half: int
     original: str
@@ -549,13 +472,8 @@ _LAST_TELEMETRY: dict = {}
 
 
 def get_last_telemetry() -> dict:
-    """Return the telemetry dict from the most recent ``correct_match`` call.
-
-    The orchestrator can persist this to ``cleaning_metadata.llm_telemetry``
-    so per-rejection counts (drift, prompt echo, MLM veto, etc.) appear
-    next to the corrections themselves and downstream eval can ratio
-    accepted/proposed edits without re-running the LLM.
-    """
+    """Telemetry from the latest correct_match() call. The orchestrator
+    persists this in cleaning_metadata.llm_telemetry."""
     return dict(_LAST_TELEMETRY)
 
 
@@ -582,11 +500,7 @@ def correct_match(
     match_name: str = "",
     language: str = "en",
 ) -> tuple[list[Segment], list[dict]]:
-    """Run confidence-gated GER over a full match. Honours config flags.
-
-    Side effect: populates ``_LAST_TELEMETRY`` with per-stage counts so
-    the orchestrator can persist them. Reset on every call.
-    """
+    """Run Step L over a match. Honours config flags. Resets telemetry."""
     global _LAST_TELEMETRY
     telem = {
         "total_segments": len(segments),
@@ -618,7 +532,6 @@ def correct_match(
 
     out: list[Segment] = []
     corrections: list[dict] = []
-    # We do per-segment processing; build prev/next windows on the fly.
     for i, seg in enumerate(segments):
         wrapped_text, n_wrapped, editable_mask = _wrap_low_confidence_tokens(
             seg, gazetteer=gazetteer, language=language,
@@ -668,7 +581,7 @@ def correct_match(
                 )
             out.append(seg)
             continue
-        # MLM veto pass — count when it rolled back AT LEAST one token
+        # MLM veto. Count if at least one token got rolled back.
         final_text = _veto(seg.text, proposal)
         if final_text == seg.text:
             telem["no_op"] += 1

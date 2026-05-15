@@ -1,27 +1,7 @@
-"""
-Entity helpers (formerly Tier 2 fuzzy corrector).
-
-After the May 2026 architectural refactor, the heavy Tier 2 fuzzy + phonetic
-+ context scoring logic was replaced by ``pipeline/entity_corrector.py``
-(TF-IDF retrieval + Qwen MCQ judge + 2-layer cache). This module is now a
-slim home for the surface-form helpers that the new architecture still
-needs:
-
-  • ``Correction`` dataclass — simple typed record of one applied edit
-  • ``extract_entity_core`` / ``extract_and_rebuild_entity`` — strip and
-    re-attach punctuation/possessives around an entity span (preserves
-    Germanic genitive ``-s`` for sv/de/no/da)
-  • ``passes_conservative_gates`` — dictionary veto + C1 fuzzy floor + C2
-    length tolerance, applied to every accepted correction regardless of
-    which stage proposed it
-  • ``compute_phonetic_score`` / ``_strip_accents`` — kept for the
-    multilingual test suite; not used in production paths anymore
-
-The DROPPED functions (compute_combined_score, find_best_match,
-correct_segment_text) were the Tier 2 fuzzy/phonetic/context cascade. They
-are obsolete: the new entity_corrector retrieves with TF-IDF char n-grams
-(language-agnostic, no Metaphone) and reranks with the Qwen MCQ judge.
-"""
+"""Surface-form helpers + validation gates used by entity_corrector.
+The heavy fuzzy/phonetic scoring lives in entity_corrector.py now;
+this module just keeps the boundary-handling and gate logic + the
+phonetic helpers the multilingual test suite still imports."""
 
 from __future__ import annotations
 
@@ -43,7 +23,7 @@ from pipeline.config import (
 
 @dataclass
 class Correction:
-    """A single entity correction made by any pipeline stage."""
+    """One entity correction. Produced by any stage that edits entities."""
     original: str
     corrected: str
     combined_score: float
@@ -59,7 +39,7 @@ class Correction:
 # ─── Surface-form parsing (entity span ↔ canonical name) ─────────────
 
 def _split_entity_parts(original_text: str) -> tuple[str, str, str, str, str]:
-    """Split entity text into (core, leading_punct, trailing_possessive, trailing_text, trailing_punct)."""
+    """Returns (core, leading_punct, trailing_possessive, trailing_text, trailing_punct)."""
     temp = original_text.strip()
 
     trailing_punct = ""
@@ -87,7 +67,7 @@ def _split_entity_parts(original_text: str) -> tuple[str, str, str, str, str]:
 
 
 def extract_entity_core(original_text: str) -> str:
-    """Return the bare entity text (no leading/trailing punct or possessive)."""
+    """Bare entity, no surrounding punct or possessive."""
     core, _, _, _, _ = _split_entity_parts(original_text)
     return core
 
@@ -97,13 +77,9 @@ def extract_and_rebuild_entity(
     corrected_name: str,
     language: str = "en",
 ) -> str:
-    """Strip punct/possessive, swap the name, rebuild the original wrapping.
-
-    For Germanic languages (sv, de, no, da) — preserve a bare trailing ``-s``
-    on the original as a genitive marker even when the canonical form drops
-    it (ASR transcribes "Guidettis boll" → fuzzy maps to "Guidetti" → we
-    re-append the s so the genitive survives).
-    """
+    """Swap the name in-place, keep punctuation/possessive wrapping.
+    For sv/de/no/da, re-attach a Germanic genitive -s if the original had one
+    ("Guidettis boll" stays a genitive after correcting to "Guidetti")."""
     core, leading_punct, trailing_possessive, trailing_text, trailing_punct = (
         _split_entity_parts(original_text)
     )
@@ -123,8 +99,7 @@ def extract_and_rebuild_entity(
 # ─── Phonetic helpers (kept for multilingual test suite) ─────────────
 
 def _strip_accents(text: str) -> str:
-    """NFKD-decompose and drop combining marks. Used for accent-neutral
-    phonetic comparison across Nordic / Romance / Germanic alphabets."""
+    """NFKD-decompose and drop combining marks (accent-neutral comparison)."""
     nfkd = unicodedata.normalize("NFKD", text)
     return "".join(c for c in nfkd if not unicodedata.combining(c))
 
@@ -138,14 +113,8 @@ def _phonetic_distance_score(code_a: str, code_b: str) -> float:
 
 
 def compute_phonetic_score(entity: str, candidate: str, language: str = "en") -> float:
-    """Continuous (0-100) phonetic similarity of two strings.
-
-    Used by the multilingual test suite to verify phonetic fallback works
-    for non-English. Production entity correction (entity_corrector.py)
-    does not use this function — TF-IDF char n-grams replaced it because
-    Metaphone+Jaro-Winkler over short codes produces prefix-collision
-    artifacts on football-name pairs (Saturday/Sturridge ≈ 0.92).
-    """
+    """Phonetic similarity 0-100. Only used by the multilingual test suite —
+    production entity correction uses TF-IDF instead."""
     try:
         if language == "en":
             scores = []
@@ -183,19 +152,14 @@ def compute_phonetic_score(entity: str, candidate: str, language: str = "en") ->
 
 _SPELLCHECKER_CACHE: dict = {}
 
-# Threshold at which a fuzzy ratio is high enough to indicate a genuine
-# ASR mishearing rather than a cross-domain accident. Above this we
-# trust the fuzzy similarity and skip the dictionary veto.
+# Above this fuzz ratio we treat the pair as a genuine mishearing
+# and skip the dictionary veto.
 _DICTIONARY_VETO_FUZZY_TRUST = 75
 
 
 def _is_dictionary_word(word: str, language: str = "en") -> bool:
-    """True iff ``word.lower()`` is in the language's spell-check dictionary.
-
-    Uses pyspellchecker (already a project dep). Cached per language.
-    Returns False on any error so a missing dictionary degrades to
-    "veto disabled" rather than crashing.
-    """
+    """True if word is in the language spell dict. Cached per language.
+    Returns False on any error (degrades to 'no veto' rather than crashing)."""
     try:
         sc = _SPELLCHECKER_CACHE.get(language)
         if sc is None:
@@ -210,22 +174,9 @@ def _is_dictionary_word(word: str, language: str = "en") -> bool:
 def passes_conservative_gates(
     original: str, corrected: str, language: str = "en",
 ) -> bool:
-    """Return True iff the correction passes ALL safety gates.
-
-    Gates (fail-fast order):
-
-      • C1 fuzzy floor: ``fuzz.ratio(orig, corr) ≥ CONSERVATIVE_C1_FUZZY_FLOOR``.
-        Rejects wildly-different replacements (Kommer→Kouame ≈ 20).
-      • Dictionary veto: if the ORIGINAL is a real ``language`` word
-        (length ≥ ``DICTIONARY_VETO_MIN_LEN``) AND the fuzzy ratio to
-        the proposed correction is below ``_DICTIONARY_VETO_FUZZY_TRUST``,
-        reject. The fuzzy-trust escape lets legitimate ASR mishearings
-        like Williams→Willian (ratio 80) and Klein→Clyne (ratio 80)
-        through, while still blocking cross-domain accidents like
-        Saturday→Sturridge (ratio 59) and Dutchman→Mane (ratio 50).
-      • C2 length tolerance: ``|len(corr) − len(orig)| ≤ max(2, tol × len(orig))``.
-        Rejects runaway expansions/contractions.
-    """
+    """All-gates check: C1 fuzz floor, dictionary veto, C2 length tolerance.
+    The fuzz-trust line lets Williams->Willian (80) through while blocking
+    Saturday->Sturridge (59) and similar cross-domain mishaps."""
     if not original or not corrected:
         return False
     if original.strip().lower() == corrected.strip().lower():

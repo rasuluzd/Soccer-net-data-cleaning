@@ -1,36 +1,13 @@
-"""
-Validated Entity Corrector — replaces legacy Tier 2 + Tier 3 cascade.
+"""Stage E: TF-IDF retrieval + Qwen MCQ judge for entity correction.
 
-Architecture (May 2026 redesign — see plans/check-all-files-and-peppy-lemur.md):
-
-    For each NER-detected entity in a segment:
-      1. VALIDATED-CACHE LOOKUP — if a (entity → canonical) mapping has been
-         independently picked by the MCQ judge in N>=VALIDATED_CACHE_MIN_CONSENSUS
-         distinct matches with high fuzzy similarity, apply directly.
-      2. PER-MATCH CACHE — if the same (entity, top-K candidates) tuple was
-         already decided earlier in this match, reuse the decision.
-      3. TF-IDF RETRIEVE — char-bigram TF-IDF over gazetteer canonical names
-         returns top-K candidates (no Metaphone — multilingual, robust).
-      4. AUTO-ACCEPT SHORTCUT — if best cosine ≥ SHORTCUT_ACCEPT_TFIDF AND
-         beats #2 by ≥ SHORTCUT_ACCEPT_GAP AND validation gates pass: apply.
-      5. AUTO-REJECT LOW — if best cosine < SHORTCUT_REJECT_TFIDF: skip.
-      6. UNCERTAIN-BAND MCQ JUDGE — uncertain (0.40-0.89) → ask the Qwen
-         GGUF (loaded by llm_corrector) to pick A/B/C/D=keep/E=unsure
-         given segment + neighbouring segments + lineup roster.
-      7. ALL paths run through validation framework:
-            - Dictionary veto with fuzz-trust line
-            - Conservative C1+C2 gates
-            - Frequency heuristic (don't correct common words seen often)
-
-The discriminative MCQ pattern follows DeRAGEC (ACL 2025) and
-RECOVER (arxiv:2603.16411 March 2026): the LLM verifies among
-pre-retrieved candidates rather than freely generating, which empirically
-reduces FP rate from ~43% to ~14%.
-
-Two-layer cache reduces CPU cost without the poison-vector failure mode of
-the deleted learned_dictionary.py:
-    - Per-match cache: dropped at end of match, zero risk
-    - Cross-match cache: requires N-match consensus before short-circuiting
+Per detected entity:
+  1. Validated cross-match cache hit -> apply.
+  2. Per-match cache hit -> reuse.
+  3. TF-IDF char-bigram retrieve top-K canonical candidates.
+  4. Auto-accept on high cosine + clear winner. Auto-reject on low cosine.
+  5. Uncertain band -> Qwen MCQ judge (A/B/C/D=keep/E=unsure).
+  6. xlm-roberta MLM veto on the MCQ pick.
+  7. Final validation gates (dict veto, fuzz floor, length tolerance).
 """
 
 from __future__ import annotations
@@ -65,14 +42,14 @@ from pipeline.config import (
 from pipeline.loader import Segment
 
 
-# ─── Calibrated thresholds (Chelsea-Liverpool ablation, May 2026) ────
+# ─── Thresholds ───────────────────────────────────────────────────────
 
-SHORTCUT_ACCEPT_TFIDF = 0.90    # cosine ≥ this AND clear winner → auto-accept
-SHORTCUT_ACCEPT_GAP   = 0.10    # margin over second-best required for shortcut
-SHORTCUT_REJECT_TFIDF = 0.40    # cosine < this → out-of-distribution, don't ask LLM
-TOP_K_CANDIDATES      = 5       # retrieved per uncertain entity
-MCQ_OPTIONS_SHOWN     = 3       # # of candidates given to LLM (A/B/C + D=keep + E=unsure)
-TFIDF_NGRAM_RANGE     = (2, 4)  # char_wb 2-4 — bigrams to 4-grams capture name morphology
+SHORTCUT_ACCEPT_TFIDF = 0.90    # auto-accept when cosine clears this with a clear gap
+SHORTCUT_ACCEPT_GAP   = 0.10
+SHORTCUT_REJECT_TFIDF = 0.40    # below this, skip the entity entirely
+TOP_K_CANDIDATES      = 5
+MCQ_OPTIONS_SHOWN     = 3       # A/B/C in the MCQ prompt (+ D=keep + E=unsure)
+TFIDF_NGRAM_RANGE     = (2, 4)  # char_wb bigrams to 4-grams
 
 
 # ─── Telemetry ────────────────────────────────────────────────────────
@@ -128,8 +105,7 @@ def _cache_store(key: tuple, decision: Optional[str]) -> None:
 # ─── Cross-match validated cache (consensus-based) ───────────────────
 
 def _load_validated_cache() -> dict:
-    """Load cross-match cache from disk. Format documented in
-    config.VALIDATED_CACHE_PATH section."""
+    """Load the on-disk cross-match cache. Returns {} on any error."""
     p = Path(VALIDATED_CACHE_PATH)
     if not p.exists():
         return {}
@@ -149,7 +125,7 @@ def _save_validated_cache(cache: dict) -> None:
 
 
 def _validated_cache_lookup(entity_lower: str, cache: dict) -> Optional[str]:
-    """Return cached canonical IFF mapping has reached MIN_CONSENSUS, else None."""
+    """Cached canonical when consensus has been reached, else None."""
     entry = cache.get(entity_lower)
     if not entry:
         return None
@@ -162,17 +138,15 @@ def _validated_cache_record(
     cache: dict, entity_lower: str, correction: str,
     match_id: str, fuzz_score: float,
 ) -> bool:
-    """Record an MCQ-accepted correction. Returns True iff this entry just
-    crossed the consensus threshold (newly promoted)."""
+    """Record one MCQ-accepted correction. True iff the entry just hit consensus."""
     if fuzz_score < VALIDATED_CACHE_MIN_FUZZY:
-        return False  # noisy mapping, don't pollute cache
+        return False
     entry = cache.setdefault(entity_lower, {
         "correct": correction,
         "matches_seen": [],
         "fuzzy_avg": 0.0,
     })
-    # Refuse to overwrite an established mapping with a different one.
-    # Prevents one match's bad pick from poisoning future runs.
+    # Don't let a different correction overwrite an established mapping.
     if entry["correct"] != correction:
         return False
     if match_id in entry["matches_seen"]:
@@ -189,13 +163,7 @@ def _validated_cache_record(
 # ─── TF-IDF retrieval over gazetteer ─────────────────────────────────
 
 class _GazetteerIndex:
-    """TF-IDF char-n-gram retrieval index over gazetteer canonical names.
-
-    Built once per match (gazetteer is per-match). Avoids Metaphone — pure
-    string-similarity is multilingual and more robust to short tokens, which
-    is the regime where Metaphone+Jaro-Winkler produces prefix-collision FPs
-    (Saturday/Sturridge ≈ 0.92 — see audit comment in fuzzy_corrector.py).
-    """
+    """Char n-gram TF-IDF index over gazetteer canonicals. Built once per match."""
 
     def __init__(self, gazetteer: dict[str, str]):
         self.canonicals: list[str] = sorted(set(gazetteer.values()))
@@ -218,9 +186,8 @@ class _GazetteerIndex:
         q_lower = query.lower()
         combined = np.array(tfidf_scores, dtype=float, copy=True)
 
-        # Rescue high-confidence ASR typos whose char n-gram cosine is just
-        # below the reject floor. Clamp fuzz-only rescue below the shortcut
-        # threshold so these candidates still go through MCQ + validation.
+        # Rescue high-fuzz typos whose cosine fell below the reject floor.
+        # Clamp them below shortcut so they still go through MCQ + gates.
         for i, canon in enumerate(self.canonicals):
             words = canon.split() or [canon]
             best_word_fuzz = max(
@@ -239,27 +206,17 @@ class _GazetteerIndex:
         ]
 
 
-# ─── Validation gates (delegated to fuzzy_corrector for now) ─────────
-# When fuzzy_corrector is deleted in Phase 3, the helpers below will be
-# moved into this module or a shared entity_helpers.py.
+# ─── Validation gates (live in fuzzy_corrector for now) ─────────────
 
 def _validation_gate(original: str, corrected: str, language: str = "en") -> bool:
-    """Wrap passes_conservative_gates so we can swap implementation later."""
     from pipeline.fuzzy_corrector import passes_conservative_gates
     return passes_conservative_gates(original, corrected, language=language)
 
 
 def _reduce_to_best_word(entity: str, canonical: str) -> str:
-    """If ``entity`` is one word and ``canonical`` is multi-word, return the
-    canonical word with the highest fuzzy similarity to entity (typically the
-    surname). Else return canonical unchanged.
-
-    Replicates the legacy Tier 2 "single-word logic": ASR rarely produces
-    "Daniel Sturridge" — it produces "Sturridge" or "Starridge". So when the
-    detected entity is one token, swap to the matching canonical token rather
-    than expanding to the full canonical name (which would fail the C1 fuzzy
-    floor and produce ASR-vs-GT alignment errors anyway).
-    """
+    """If entity is one word and canonical is multi-word, pick the closest
+    canonical word (usually the surname). ASR rarely produces full names so
+    expanding to "Daniel Sturridge" would trip the fuzz floor anyway."""
     if not entity or not canonical:
         return canonical
     if " " in entity or " " not in canonical:
@@ -286,12 +243,9 @@ def _rebuild(original_text: str, canonical: str, language: str) -> str:
 
 # ─── MCQ Judge prompt (Qwen via llm_corrector handle) ────────────────
 
-# Calibrated for Qwen 1.5B (May 2026): the model defaults to picking A
-# for any short ambiguous token. The rules + few-shot examples force it
-# to use D when the original is itself a known entity from elsewhere
-# (other-team players, common cities, calendar words). Without these,
-# Kane→Mane / Dante→Kante / Northampton→Southampton false positives
-# slipped through.
+# Qwen 1.5B has a strong "always pick A" bias on short ambiguous tokens.
+# The rules + negative examples push it toward D when the original is itself
+# a real entity (other-team player, city, day of week).
 _MCQ_SYSTEM_TEMPLATE = (
     "You correct football commentary transcribed by Whisper. "
     "Pick the candidate ONLY when the original token is clearly an ASR "
@@ -378,7 +332,7 @@ def _single_mcq_sample(
     original: str, candidates: list[str], prev_text: str, next_text: str,
     segment_text: str, context_block: str, temperature: float = 0.0,
 ) -> Optional[str]:
-    """One Qwen MCQ call. Returns the letter A-E or None on failure."""
+    """One Qwen MCQ call. Returns A-E or None on failure."""
     from pipeline import llm_corrector as lc
     if not lc._ensure_llm():
         return None
@@ -410,17 +364,11 @@ def _mcq_call(
     segment_text: str,
     context_block: str,
 ) -> Optional[str]:
-    """MCQ with optional self-consistency. ``MCQ_SELF_CONSISTENCY_SAMPLES``
-    controls how many samples are drawn — first at temp=0, rest at temp=0.3.
-    Default is 1: empirically Qwen 1.5B with a single-letter constrained
-    output is fully deterministic across temperatures, so extra samples
-    add no diversity and only wall-time. Majority logic is preserved so
-    bumping the constant to 3 keeps working if a less-greedy LLM is wired
-    in later. If no clear majority emerges, returns ``D`` (keep).
-    """
+    """MCQ with majority-vote self-consistency. First sample at temp 0,
+    rest at temp 0.3. Default samples=1 since Qwen 1.5B is deterministic
+    on single-letter output. No clear majority -> 'D' (keep)."""
     samples: list[str] = []
     for i in range(MCQ_SELF_CONSISTENCY_SAMPLES):
-        # First sample at temp 0 (deterministic baseline), rest at temp 0.3
         temp = 0.0 if i == 0 else 0.3
         result = _single_mcq_sample(
             original, candidates, prev_text, next_text,
@@ -430,13 +378,12 @@ def _mcq_call(
             samples.append(result)
     if not samples:
         return None
-    # Majority vote — ties broken by D (conservative)
     from collections import Counter
     counts = Counter(samples)
     top_letter, top_count = counts.most_common(1)[0]
     if top_count > len(samples) / 2:
         return top_letter
-    return "D"  # no majority → conservative keep
+    return "D"
 
 
 # ─── MLM veto on MCQ picks (reuses xlm-roberta from llm_corrector) ──
@@ -444,25 +391,14 @@ def _mcq_call(
 def _mlm_veto_mcq_pick(
     original: str, picked: str, segment_text: str,
 ) -> bool:
-    """Return True iff MLM (xlm-roberta) prefers the original over the
-    picked correction by ``MLM_VETO_RATIO`` margin.
-
-    Reuses the xlm-roberta handle that llm_corrector already loaded
-    for Step L's per-token veto. Same masking + log-prob comparison,
-    but applied at the entity-token level here.
-
-    This is the second discriminative line of defense after MCQ:
-    Qwen 1.5B may pick A based on lineup-bias, but xlm-roberta scores
-    the actual masked-position likelihood — a much harder signal to fool.
-    """
+    """True iff xlm-roberta prefers the original over the MCQ pick by
+    MLM_VETO_RATIO. Reuses the MLM handle from Step L."""
     if not MLM_VETO_ON_MCQ_ENABLED:
         return False
     try:
         from pipeline import llm_corrector as lc
         from pipeline.config import MLM_VETO_RATIO
-        # Tokenise on whitespace and find the entity position.
         tokens = segment_text.split()
-        # Try exact match; fall back to lowercased
         idx = -1
         ent_clean = original.strip(" .,!?;:'\"()-").lower()
         for i, tok in enumerate(tokens):
@@ -475,7 +411,6 @@ def _mlm_veto_mcq_pick(
         lp_pick = lc._mlm_pseudo_logprob(tokens, idx, picked)
         if lp_orig is None or lp_pick is None:
             return False
-        # Reject MCQ pick if MLM prefers original by ratio margin
         return (lp_orig - lp_pick) >= math.log(MLM_VETO_RATIO)
     except Exception:
         return False
@@ -492,13 +427,7 @@ def correct_match(
     match_name: str = "",
     language: str = "en",
 ) -> tuple[list[Segment], list[dict]]:
-    """Run validated entity correction over a full match.
-
-    ``segment_entities_map`` is keyed by (half, segment_id) → list of
-    DetectedEntity objects (from pipeline.ner_extractor.extract_entities_batch).
-
-    Returns (corrected_segments, corrections_metadata_list).
-    """
+    """Run Stage E across a match. segment_entities_map keys are (half, segment_id)."""
     global _LAST_TELEMETRY
     telem = _Telemetry()
 
@@ -530,10 +459,8 @@ def correct_match(
             continue
 
         text = seg.text
-        # Track word indices we corrected so Step L can mark them non-editable.
-        # We compute final word-indices on the OUTPUT text after all per-segment
-        # corrections are applied (entities processed right-to-left so the
-        # output text only stabilises at the end).
+        # Word indices we corrected, so Step L can freeze them.
+        # Computed on the FINAL text after all per-segment edits land.
         corrected_canonicals: list[str] = []
         # Process right-to-left so character offsets stay valid.
         sorted_ents = sorted(entities, key=lambda e: e.start_char, reverse=True)
@@ -588,7 +515,7 @@ def correct_match(
 
             # ── 4. Frequency heuristic ──────────────────────────────
             if token_freq.get(ent_lower, 0) >= FREQUENCY_HEURISTIC_THRESHOLD:
-                # Common-word rejection (e.g. Swedish "kommer" 17×)
+                # Probably a common word (e.g. Swedish "kommer" appearing 17x).
                 telem.auto_reject_freq_heuristic += 1
                 _cache_store(cache_key, None)
                 continue
@@ -604,8 +531,8 @@ def correct_match(
                 best_score >= SHORTCUT_ACCEPT_TFIDF
                 and (best_score - second_score) >= SHORTCUT_ACCEPT_GAP
             ):
-                # Single-word entity → reduce to closest canonical word
-                # (e.g. "Sturridge" → "Sturridge" not "Daniel Sturridge")
+                # For one-word entities, swap to the matching canonical word
+                # ("Sturridge" not "Daniel Sturridge").
                 applied_canon = _reduce_to_best_word(entity_text, best_canon)
                 if _validation_gate(entity_text, applied_canon, language):
                     text = _splice(text, entity, applied_canon, language)
@@ -636,18 +563,13 @@ def correct_match(
             # ── 7. Uncertain band → MCQ eligibility check ───────────
             cand_names = [c[0] for c in candidates[:MCQ_OPTIONS_SHOWN]]
 
-            # Pre-MCQ gate #B: top candidate's reduced-form fuzz floor.
-            # If the best candidate's surname/word doesn't fuzz-match the
-            # original at MCQ_MIN_FUZZ_TO_INVOKE, it's a TF-IDF noise hit
-            # rather than a real ASR mishearing pair.
+            # Top candidate's word-level fuzz to the original. Filters TF-IDF
+            # noise hits where cosine is high but the actual tokens are unrelated.
             top_reduced = _reduce_to_best_word(entity_text, cand_names[0])
             top_fuzz = fuzz.ratio(entity_text.lower(), top_reduced.lower())
 
-            # Pre-MCQ gate #A: minimum token length. Short tokens (Kane,
-            # Mann, Dante) consistently produce false positives because
-            # TF-IDF char-bigrams over short surfaces are too permissive.
-            # Let through only extremely high-fuzz short typos such as
-            # Sako -> Sakho; Kane -> Mane remains below this bar.
+            # Block short tokens unless fuzz is very high. Catches Sako->Sakho
+            # while keeping Kane->Mane (~75) blocked.
             ent_core = entity_text.strip()
             if (
                 len(ent_core) < MCQ_MIN_TOKEN_LEN
@@ -738,14 +660,11 @@ def correct_match(
                     telem.cache_promoted_this_run += 1
             _cache_store(cache_key, picked)
 
-        # Compute frozen word indices on the FINAL corrected text so Step L
-        # can mask those positions as non-editable.
+        # Frozen word indices on the FINAL text — Step L treats these as non-editable.
         frozen: list[int] = []
         if corrected_canonicals:
             words_lower = [w.strip(" .,!?;:'\"()-").lower() for w in text.split()]
             for canon in corrected_canonicals:
-                # Iterate through the canonical's whitespace-tokens; mark
-                # the matching word indices.
                 for canon_word in canon.split():
                     cw_lower = canon_word.strip(" .,!?;:'\"()-").lower()
                     for i, w in enumerate(words_lower):

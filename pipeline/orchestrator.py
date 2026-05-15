@@ -1,25 +1,8 @@
-"""
-Pipeline Orchestrator — runs all cleaning steps on each match.
+"""Run every cleaning step on a match.
 
-Processing order per match (post-May-2026 architecture):
-    1. Load ASR JSONs + Labels-caption.json
-    2. Build gazetteer + entity-type map from labels
-    3. Detect language (langdetect on full transcript sample)
-    4. Stage 1: Hallucination filter
-    5. Stage 1: Deduplicator
-    6. Stage 2A: Domain normalizer (scores, times)
-    7. NER + heuristic entity extraction
-    8. Stage E: ValidatedEntityCorrector  ← TF-IDF retrieve + Qwen MCQ judge
-    9. Step L: Confidence-gated GER (Qwen + MLM veto + drift guard)
-    10. Step P: Punctuation + casing restoration
-    11. Write cleaned JSON output (schema-2 enrichments + telemetry)
-    12. Generate temporal chunks for ES indexing
-
-The legacy heuristic cascade (Tier 2 fuzzy/phonetic/context, Tier 3 cosine
-disambiguator, mT5/BERT span-infill, Ollama Mistral rewriter, MCQ
-validator) was replaced by Stage E + Step L. See plans/check-all-files-
-and-peppy-lemur.md for rationale.
-"""
+Per match: load -> gazetteer -> detect language -> hallucination filter ->
+dedup -> domain normalize -> NER -> Stage E (TF-IDF + MCQ) ->
+Step L (Qwen GER + MLM veto) -> Step P (punctuation/casing) -> write JSON."""
 
 import json
 import os
@@ -52,7 +35,7 @@ from pipeline.punct_restorer import restore_punctuation_batch
 
 
 def generate_match_id(league: str, season: str, match_name: str) -> str:
-    """Composite match identifier (replaces deleted temporal_chunker)."""
+    """Composite identifier used in segment global_ids."""
     safe = match_name.replace(" ", "_").replace("/", "_")
     return f"{league}_{season}_{safe}"
 
@@ -62,13 +45,8 @@ def generate_segment_global_id(match_id: str, half: int, segment_id: str) -> str
 
 
 def _collapse_repeated_words(text: str) -> str:
-    """Collapse Whisper-loop word repetitions (3+ consecutive identical) ONLY.
-
-    Why 3+ and not 2: GT often has legitimate 2-repetitions ("well, well",
-    "starry, starry night") that lose comma in Whisper output. Collapsing
-    on 2 destroys those. Whisper LOOPING produces 3+ ("Zaha Zaha Zaha
-    Zaha"), which we flatten to a single token.
-    """
+    """Flatten 3+ consecutive identical words to one. Leaves 2-repetitions
+    alone (GT has legit ones like "well, well")."""
     words = text.split()
     if len(words) < 3:
         return text
@@ -79,16 +57,16 @@ def _collapse_repeated_words(text: str) -> str:
         while i + run < len(words) and words[i + run].lower() == words[i].lower():
             run += 1
         if run >= 3:
-            out.append(words[i])  # collapse Whisper-loop to single token
+            out.append(words[i])
         else:
-            out.extend(words[i:i + run])  # keep run-of-1 or legitimate run-of-2
+            out.extend(words[i:i + run])
         i += run
     return " ".join(out)
 
 
 @dataclass
 class CleaningResult:
-    """Results from cleaning a single match."""
+    """Per-match cleaning stats and applied corrections."""
     match_name: str
     original_segment_count: int
     hallucinations_removed: int
@@ -99,11 +77,8 @@ class CleaningResult:
     corrections: list[dict]
     removed_hallucinations: list[dict]
     removed_duplicates: list[dict]
-    tier12_corrections: list = field(default_factory=list)  # Raw Correction objects for learned dict merge
-    # Stage 2: general text correction tracking
+    tier12_corrections: list = field(default_factory=list)
     text_corrections: list[dict] = field(default_factory=list)
-    # Stage 3.5: XLM-R detection flags (signals, not corrections — tracked
-    # separately so they don't inflate the "Text corrections" report total).
     flagged_words_count: int = 0
     correction_breakdown: dict = field(default_factory=lambda: {
         "normalization": 0,
@@ -121,17 +96,7 @@ def clean_match(
     max_tier: int = 3,
     learned_dict: dict | None = None,
 ) -> CleaningResult:
-    """
-    Run the full cleaning pipeline on a single match.
-
-    Args:
-        match: the MatchData object to clean
-        dry_run: if True, don't write output files (just report what would change)
-        max_tier: maximum tier to run (2=fuzzy only, 3=fuzzy+context)
-
-    Returns:
-        CleaningResult with all statistics
-    """
+    """Run the full pipeline on one match. dry_run skips writing JSON output."""
     print(f"\n{'='*70}")
     print(f"Processing: {match.match_name}")
     print(f"  League: {match.league} | Season: {match.season}")
@@ -181,12 +146,9 @@ def clean_match(
     print(f"  Duplicates removed: {len(removed_duplicates)} "
           f"({stage_timings['step3_deduplicate']:.2f}s)")
 
-    # entity_corrector builds its own match-wide token frequency for the
-    # frequency heuristic; nothing to precompute here.
+    # entity_corrector builds its own match-wide token-frequency map.
 
-    # ── Stage 2: General text correction (spell-check, grammar, normalization)
-    # This seam is where new correction modules plug in.
-    # Each module receives segments and returns corrected segments + corrections.
+    # ── Stage 2: text correction modules ─────────────────────────────
     stage2_corrections: list[dict] = []
 
     if DOMAIN_NORMALIZATION_ENABLED:
@@ -201,24 +163,10 @@ def clean_match(
             print(f"  Stage 2A normalization: {len(norm_corrections)} corrections "
                   f"({stage_timings['step2A_domain_normalize']:.2f}s)")
 
-    # NOTE: Stage 2B (pyspellchecker) + Stage 2C (LanguageTool grammar) were
-    # removed in the May 2026 architectural refactor. Both fired ~5 correc-
-    # tions per match (mostly punctuation) and were superseded by Step P
-    # (oliverguhr punctuation restorer) plus Step L (Qwen confidence-gated
-    # GER which catches grammar drift via the editable-mask constraint).
-
     if stage2_corrections:
         print(f"  Stage 2 text corrections: {len(stage2_corrections)}")
 
     # ── Stage E: Validated Entity Correction ─────────────────────────
-    # Replaces the legacy Tier 2 (fuzzy/phonetic/context) + Tier 3 (cosine
-    # disambiguator) cascade. Architecture:
-    #   1. TF-IDF char-bigram retrieval over gazetteer (no Metaphone)
-    #   2. Auto-accept on cosine ≥0.90 + clear winner
-    #   3. Auto-reject on cosine <0.40
-    #   4. MCQ judge (Qwen GGUF) for the uncertain 0.40-0.89 band
-    #   5. Two-layer cache: per-match decisions + cross-match validated
-    #      cache (3-match consensus required) — see entity_corrector.py
     all_corrections: list[Correction] = []
     corrected_segments: list[Segment] = []
     total_entities = 0
@@ -244,7 +192,6 @@ def clean_match(
             )
             total_entities += len(segment_entities_map.get((seg.half, seg.segment_id), []))
 
-        # Run the new Validated Entity Corrector (TF-IDF + MCQ judge)
         match_id = generate_match_id(match.league, match.season, match.match_name)
         corrected_segments, entity_corrections_dicts = _t(
             "stepE_entity_corrector",
@@ -260,7 +207,7 @@ def clean_match(
         )
         entity_telemetry = entity_last_telemetry()
 
-        # Convert dicts → Correction records for downstream metadata writers.
+        # Convert dicts to Correction records for the metadata writers.
         for d in entity_corrections_dicts:
             d["match"] = match.match_name
             all_corrections.append(Correction(
@@ -280,39 +227,17 @@ def clean_match(
         print(f"  Stage E entity corrections applied: {len(all_corrections)} "
               f"({stage_timings.get('stepE_entity_corrector', 0):.2f}s)")
 
-    # NOTE: Stage 3.5 (XLM-R error detection) + Stage 3.7 (LLM MCQ validator) +
-    # Stage 4 (mT5 / BERT masked-LM) + Stage 5 (Ollama generative rewriter)
-    # were all removed in the May 2026 cleanup. They were either gated off,
-    # produced 0 net corrections, or have been superseded by the SOTA Step L
-    # (pipeline/llm_corrector.py — confidence-gated GER with Qwen + MLM veto).
-    # See plans/check-all-files-and-peppy-lemur.md.
-    flagged_words_count = 0  # kept in CleaningResult for backward-compat reports
+    flagged_words_count = 0  # kept on CleaningResult for older report formats
 
-    # ── Step 6: Collect Tier 1/2 corrections for learned dict ────────
-    # Only Tier 1/2 corrections — Tier 3 context_similarity
-    # corrections are less certain and could poison future runs.
-    # Also exclude corrections that target team/venue names to
-    # prevent cross-match contamination (e.g. City ↔ United).
+    # Tier1/2 corrections used for the legacy learned-dict batch update.
+    # Skip context_similarity since those are less certain.
     tier12_corrections = [
         c for c in all_corrections
         if not c.method.startswith("context_similarity")
     ]
-    # NOTE: We do NOT update the learned dictionary here.
-    # Corrections are returned to the caller for batch update
-    # after all matches complete (enables safe parallel execution).
 
-    # ── SOTA Refactor — Steps R, L, P (see plan + module docstrings) ─
-    # These run AFTER the legacy correction stages so that legacy can be
-    # re-enabled via config flags for ablation comparison without code
-    # changes. With defaults (legacy stages = False), legacy is a no-op
-    # and `corrected_segments` here is the dedup+text-clean output.
+    # ── Step L: Qwen GER + MLM veto ──────────────────────────────────
     sota_corrections: list[dict] = []
-    # NOTE: Step R (n-best entity rerank) was removed in May 2026 — it was
-    # a no-op since the Whisper output schema-1 doesn't carry n-best
-    # alternatives. The architectural slot is preserved in entity_corrector
-    # which now handles all entity-correction work.
-
-    # Step L: Confidence-gated GER (Qwen2.5-0.5B + MLM veto).
     corrected_segments, llm_corrections = _t(
         "stepL_llm_ger",
         lambda: llm_correct_match(
@@ -328,7 +253,7 @@ def clean_match(
         print(f"  Step L LLM GER: {len(llm_corrections)} corrections "
               f"({stage_timings['stepL_llm_ger']:.2f}s)")
 
-    # Step P: Punctuation + casing restoration (search-friendly output).
+    # ── Step P: punctuation + casing ─────────────────────────────────
     corrected_segments, punct_corrections = _t(
         "stepP_punct_restore",
         lambda: restore_punctuation_batch(corrected_segments, language=detected_lang),
@@ -411,38 +336,25 @@ def _write_cleaned_output(
     stage_timings: dict | None = None,
     entity_telemetry: dict | None = None,
 ) -> None:
-    """Write cleaned JSON files mirroring the original directory structure.
-
-    Output is schema-1 compatible (start_time, end_time, text per segment)
-    matching what the ForzaSearch frontend's ingest.ts actually consumes.
-    Schema-2 fields (per-word probs, nbest, no_speech_prob) are persisted
-    in the same file but not extracted by the frontend; they remain
-    available for any future consumer that wants confidence-aware search.
-    """
-    # Create output directory mirroring the match structure
+    """Write cleaned JSON files mirroring the original directory layout.
+    Schema-1 compatible payload (start_time, end_time, text)."""
     relative_path = match.match_dir.relative_to(match.match_dir.parents[3])
     output_dir = CLEANED_OUTPUT_DIR / relative_path / "commentary_data"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Generate composite match ID for globally unique segment IDs
     match_id = generate_match_id(match.league, match.season, match.match_name)
 
-    # Assign global IDs to segments
     for seg in segments:
         seg.global_id = generate_segment_global_id(
             match_id, seg.half, seg.segment_id,
         )
 
-    # Split segments by half
     for half_num in [1, 2]:
         half_segments = [s for s in segments if s.half == half_num]
         if not half_segments:
             continue
 
         def _seg_payload(s: Segment) -> dict:
-            # Schema-1 compatible payload. Frontend's ingest.ts reads only
-            # start, end, text. Schema-2 enrichments (words.prob, nbest)
-            # were stripped out — no consumer was using them.
             return {
                 "global_id": s.global_id,
                 "start_time": s.start_time,
@@ -450,10 +362,8 @@ def _write_cleaned_output(
                 "text": s.text,
             }
 
-        # Half-aware slice of SOTA corrections (R/L/P stages).
-        # Filter on the half tag ONLY — segment_id is not unique across halves
-        # (both halves use "0", "1", "2", ...), so any segment_id-based fallback
-        # silently leaks cross-half corrections into the wrong file.
+        # Filter on half ONLY — segment_id isn't unique across halves so any
+        # id-based fallback would leak corrections into the wrong file.
         sota_for_half = [
             c for c in (sota_corrections or [])
             if c.get("half") == half_num
@@ -500,14 +410,11 @@ def _write_cleaned_output(
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=4, ensure_ascii=False)
 
-    # NOTE: temporal chunk output (es_chunks.json) was removed in May 2026.
-    # The frontend's ingest.ts builds its own segment windows from kamp.json
-    # and never consumed our pre-built chunks.
     print(f"  Output written to: {output_dir}")
 
 
 def _clean_match_wrapper(args: tuple) -> CleaningResult:
-    """Wrapper for ProcessPoolExecutor.map() — unpacks the args tuple."""
+    """Unpack args for ProcessPoolExecutor.map()."""
     match, dry_run, max_tier, learned_dict = args
     return clean_match(
         match,
@@ -523,21 +430,8 @@ def run_pipeline(
     max_tier: int = 3,
     workers: int | None = None,
 ) -> list[CleaningResult]:
-    """
-    Run the full pipeline on all discovered matches.
-
-    Args:
-        match_filter: optional substring to filter matches by name
-                     (e.g., "Manchester City" to process only that match)
-        dry_run: if True, just preview changes without writing
-        max_tier: max correction tier (2=fuzzy+phonetic, 3=+context AI)
-        workers: number of parallel worker processes.
-                 None/0 = auto-detect (use config MAX_WORKERS or CPU count).
-                 1 = sequential (no parallelism).
-
-    Returns:
-        List of CleaningResult objects, one per match
-    """
+    """Process every discovered match. match_filter does substring matching
+    on the match folder name. workers=None auto-picks based on CPU count."""
     print("Soccer ASR Data Cleaning Pipeline")
     print("=" * 70)
     mode_parts = []
@@ -549,11 +443,9 @@ def run_pipeline(
     print(f"Mode: {' | '.join(mode_parts)}")
     print()
 
-    # Discover all matches
     matches = discover_matches()
     print(f"Discovered {len(matches)} match(es) with ASR data")
 
-    # Apply filter if provided
     if match_filter:
         matches = [m for m in matches if match_filter.lower() in m.match_name.lower()]
         print(f"After filter '{match_filter}': {len(matches)} match(es)")
@@ -562,11 +454,8 @@ def run_pipeline(
         print("No matches to process!")
         return []
 
-    # Resolve worker count.
-    # With en_core_web_sm (~12MB), model loading is fast (~2-5s per process).
-    # The sentence-transformer (~80MB) is the main startup cost.
-    # For very small batches, sequential avoids process spawn overhead.
-    PARALLEL_THRESHOLD = 3  # Matches needed before parallelism helps
+    # Sequential below this threshold to avoid process-spawn overhead.
+    PARALLEL_THRESHOLD = 3
     if workers is None or workers == 0:
         if MAX_WORKERS > 0:
             effective_workers = MAX_WORKERS
@@ -577,19 +466,14 @@ def run_pipeline(
             effective_workers = 1  # Sequential for small batches
     else:
         effective_workers = workers
-    # Don't spawn more workers than matches
     effective_workers = min(effective_workers, len(matches))
 
-    # Legacy learned_dictionary removed — entity_corrector now owns the
-    # validated cross-match cache (per-match decision cache + safe-cache
-    # requiring 3-match consensus).
+    # entity_corrector owns the cross-match cache now; no learned_dict here.
     learned_dict: dict = {}
 
     start_time = time.time()
 
-    # ── Process matches ──────────────────────────────────────────────
     if effective_workers <= 1:
-        # Sequential mode
         print(f"Processing {len(matches)} match(es) sequentially...")
         results = []
         for match in matches:
@@ -601,32 +485,21 @@ def run_pipeline(
             )
             results.append(result)
     else:
-        # Parallel mode
         print(f"Processing {len(matches)} match(es) in parallel ({effective_workers} workers)...")
         args_list = [
             (match, dry_run, max_tier, learned_dict)
             for match in matches
         ]
-        with ProcessPoolExecutor(
-            max_workers=effective_workers,
-            # No initializer — models load lazily via singletons.
-            # This is faster for small batches because model loading
-            # in one worker overlaps with computation in others.
-        ) as pool:
+        # No initializer — models load lazily so loading in one worker
+        # can overlap computation in others.
+        with ProcessPoolExecutor(max_workers=effective_workers) as pool:
             results = list(pool.map(_clean_match_wrapper, args_list))
 
     elapsed = time.time() - start_time
     print(f"\nAll matches processed in {elapsed:.1f}s")
 
-    # ── Batch-update learned dictionary with corrections from all matches ──
     all_tier12 = []
-    # Collect entity_types and gazetteers for validation
-    # (re-build for each match's corrections is not feasible here;
-    #  we pass None to skip per-match validation in batch mode)
     for result in results:
         all_tier12.extend(result.tier12_corrections)
-
-    # The validated cross-match cache (entity_corrector owns it) updates
-    # itself in-process per match; nothing to batch-write here.
 
     return results

@@ -1,10 +1,5 @@
-"""
-Hallucination & Garbage Filter — removes invalid ASR segments.
-
-Whisper sometimes produces garbled output: non-Latin characters, wrong-language
-text, single-word noise, or nonsensical fragments. This module detects and flags
-these segments so they can be excluded from the cleaned output.
-"""
+"""Drop hallucinated/garbage segments: empty text, non-Latin scripts,
+all-symbols garbage, wrong language, repeated single-name loops."""
 
 import re
 from typing import Optional
@@ -24,8 +19,8 @@ except ImportError:
     HAS_LANGDETECT = False
 
 
-# Regex pattern matching non-Latin scripts (CJK, Arabic, Cyrillic, etc.)
-# These should NOT appear in Latin-script soccer commentary
+# Non-Latin script chars (CJK / Arabic / Cyrillic / Korean / Japanese).
+# These don't appear in any of our supported commentary languages.
 NON_LATIN_PATTERN = re.compile(
     r"[\u0400-\u04FF"   # Cyrillic
     r"\u0600-\u06FF"    # Arabic
@@ -38,32 +33,12 @@ NON_LATIN_PATTERN = re.compile(
 
 
 def compute_alpha_ratio(text: str) -> float:
-    """
-    Calculate the ratio of alphabetic characters to total content characters.
-
-    A low ratio indicates the text contains a lot of numbers or symbols
-    — a hallmark of Whisper hallucinations.
-
-    Uses c.isalpha() (not c.isascii()) so accented Latin characters
-    (å, ä, ö, é, ü, etc.) are correctly counted. Non-Latin scripts
-    are already rejected by Rule 2 (has_non_latin_characters) which
-    runs before this check.
-
-    Args:
-        text: the segment text
-
-    Returns:
-        Ratio between 0.0 and 1.0
-    """
+    """Ratio of Latin-script alpha chars to non-space chars (0.0..1.0).
+    Low ratio = lots of numbers/symbols, typically a hallucination."""
     if not text:
         return 0.0
-    # Count Latin-script alphabetic characters (ASCII + accented Latin).
-    # CJK/Arabic/Cyrillic are excluded by the Unicode range check (< U+0250
-    # covers Basic Latin, Latin-1 Supplement, Latin Extended-A/B).
-    # Non-Latin scripts are already caught by Rule 2 (has_non_latin_characters)
-    # but this is defensive.
+    # < U+0250 covers Basic Latin + Latin-1 + Latin Extended A/B (incl. å/ä/ö/é/ü).
     alpha_count = sum(1 for c in text if c.isalpha() and c < '\u0250')
-    # Don't count spaces/punctuation in the denominator — focus on "content" chars
     content_chars = sum(1 for c in text if not c.isspace())
     if content_chars == 0:
         return 0.0
@@ -71,28 +46,15 @@ def compute_alpha_ratio(text: str) -> float:
 
 
 def has_non_latin_characters(text: str) -> bool:
-    """Check if the text contains any non-Latin script characters."""
     return bool(NON_LATIN_PATTERN.search(text))
 
 
 def detect_commentary_language(segments: list[Segment], sample_size: int = 20) -> str:
-    """
-    Detect the primary language of commentary from a sample of segments.
-
-    Samples the longest segments (more text = more reliable detection),
-    concatenates them, and runs langdetect.
-
-    Args:
-        segments: list of Segment objects from a match
-        sample_size: max number of segments to sample
-
-    Returns:
-        ISO 639-1 language code (e.g., 'en', 'sv', 'de'). Defaults to 'en'.
-    """
+    """Run langdetect on the longest segments and return an ISO 639-1 code.
+    Falls back to 'en' if langdetect isn't installed or can't decide."""
     if not HAS_LANGDETECT or not segments:
         return "en"
 
-    # Pick segments with the most words for reliable detection
     candidates = sorted(segments, key=lambda s: len(s.text.split()), reverse=True)
     sample_texts = [s.text for s in candidates[:sample_size] if len(s.text.split()) >= 5]
 
@@ -102,38 +64,21 @@ def detect_commentary_language(segments: list[Segment], sample_size: int = 20) -
     combined = " ".join(sample_texts)
     try:
         lang = detect_language(combined)
-        # Map to supported language family key
         for family_key, family_set in LANGUAGE_FAMILIES.items():
             if lang in family_set:
                 return family_key
-        # Unknown language — return as-is (will use "default" multilingual models)
         return lang
     except LangDetectException:
         return "en"
 
 
 def is_valid_commentary(text: str, expected_lang: str = "en") -> bool:
-    """
-    Check if text matches the expected commentary language family.
-
-    Replaces the old is_likely_english() — now supports any language.
-    When expected_lang="en", behavior is identical to the original.
-
-    Args:
-        text: the segment text
-        expected_lang: the detected match language (e.g., 'en', 'sv', 'de')
-
-    Returns:
-        True if text matches the expected language family (or detection is uncertain).
-    """
+    """True if text could plausibly be in expected_lang's family."""
     if not HAS_LANGDETECT:
         return True
 
-    # langdetect is unreliable on short, jargon-heavy sports commentary.
-    # Empirical: "get a good tackling, get a good passing" (8 words)
-    # is detected as Afrikaans; many 8-14-word football phrases hit the
-    # same trap. Bumped 8 → 15 so the detector only runs on text long
-    # enough to be statistically meaningful.
+    # langdetect mis-labels short football phrases (e.g. "get a good tackling,
+    # get a good passing" -> Afrikaans). Only run on long-enough text.
     if len(text.split()) < 15:
         return True
 
@@ -149,43 +94,22 @@ def filter_segment(
     segment: Segment,
     expected_lang: str = "en",
 ) -> tuple[bool, Optional[str]]:
-    """
-    Check a single segment and determine if it should be kept or removed.
-
-    Args:
-        segment: the Segment to evaluate
-        expected_lang: the detected match language
-
-    Returns:
-        Tuple of (is_valid, reason).
-        - is_valid=True, reason=None → keep the segment
-        - is_valid=False, reason="..." → remove the segment, reason explains why
-    """
+    """Returns (keep?, reason). reason is None when the segment is kept."""
     text = segment.text.strip()
 
-    # ── Rule 1: Empty or whitespace-only ─────────────────────────────
     if not text:
         return False, "empty_segment"
 
-    # ── Rule 2: Contains non-Latin characters ────────────────────────
     if has_non_latin_characters(text):
         return False, "non_latin_characters"
 
-    # ── Rule 3: Low alpha ratio ──────────────────────────────────────
     alpha_ratio = compute_alpha_ratio(text)
     if alpha_ratio < HALLUCINATION_MIN_ALPHA_RATIO:
         return False, f"low_alpha_ratio ({alpha_ratio:.2f})"
 
-    # Rule 4 was "too few words" (reject < MIN_SEGMENT_WORD_COUNT) but
-    # with MIN_SEGMENT_WORD_COUNT=1 it was unreachable — Rule 1 already
-    # catches empty text. Removed (A8/F10). Single-word commentary
-    # exclamations like "GOAL!" are valid.
-
-    # ── Rule 5: Wrong language detected ──────────────────────────────
     if not is_valid_commentary(text, expected_lang):
         return False, "wrong_language_detected"
 
-    # ── All checks passed ────────────────────────────────────────────
     return True, None
 
 
@@ -194,24 +118,9 @@ def find_repeated_name_hallucinations(
     min_cluster_size: int = 3,
     cluster_window_s: float = 60.0,
 ) -> set[tuple[int, str]]:
-    """Return segment_ids of "stuck on a name" hallucinations.
-
-    Whisper sometimes gets stuck outputting a single capitalized word for
-    multiple segments in a rapid cluster (e.g. "Hansson." repeated 6 times
-    in 30 seconds). Real commentator callouts of a player name are
-    typically spread across the whole match, not clustered.
-
-    Rule: flag a run of ≥3 single-title-case-word segments with the SAME
-    text that fall within a ``cluster_window_s`` time window. Only the
-    segments in the offending cluster(s) are flagged — not other
-    occurrences of that name elsewhere in the match.
-
-    Calibration:
-      - AIK: 6 identical "Hansson." in ~30s window → flagged (correct)
-      - West Ham: 16 "Neves." spread across 90 min → not flagged (correct,
-        they're real commentary callouts)
-    """
-    # Index single-word capitalized-segment occurrences by token
+    """Catch Whisper getting stuck on a name. Flags >=3 identical single-word
+    segments within cluster_window_s. Other occurrences of that name
+    elsewhere in the match stay untouched."""
     from collections import defaultdict
 
     by_token: dict[str, list[Segment]] = defaultdict(list)
@@ -227,19 +136,16 @@ def find_repeated_name_hallucinations(
             continue
         by_token[w.lower()].append(seg)
 
-    # (half, segment_id) tuple — segment_id alone is not unique across halves.
+    # Key by (half, segment_id) — segment_id alone isn't unique across halves.
     bad_ids: set[tuple[int, str]] = set()
     for token, occurrences in by_token.items():
         if len(occurrences) < min_cluster_size:
             continue
-        # Sort by start_time and find clusters
         occs = sorted(occurrences, key=lambda s: s.start_time)
-        # Sliding-window cluster detection
         i = 0
         while i < len(occs):
             j = i
-            # Extend cluster while segments are within window of the FIRST
-            # cluster element
+            # Extend cluster while next is within the window of the first.
             while j + 1 < len(occs) and (
                 occs[j + 1].start_time - occs[i].start_time <= cluster_window_s
             ):
@@ -256,22 +162,7 @@ def filter_segments(
     segments: list[Segment],
     expected_lang: str = "en",
 ) -> tuple[list[Segment], list[dict]]:
-    """
-    Filter a list of segments, removing hallucinated/garbage entries.
-
-    Applies per-segment rules (1-5) plus batch-level Rule 6 (repeated
-    single-name hallucinations).
-
-    Args:
-        segments: list of Segment objects to filter
-        expected_lang: the detected match language
-
-    Returns:
-        Tuple of:
-        - kept: list of valid Segment objects
-        - removed: list of dicts with { segment, reason } for logging
-    """
-    # Batch-level pre-pass: identify "stuck on a name" hallucinations
+    """Returns (kept, removed). removed entries carry a reason string."""
     repeated_name_ids = find_repeated_name_hallucinations(segments)
 
     kept = []

@@ -1,14 +1,4 @@
-"""
-Cleaning Report Generator — produces human-readable statistics.
-
-After the pipeline runs, this module creates a summary report showing:
-- Total segments processed vs. retained
-- Number and examples of hallucinations removed
-- Number of duplicates removed
-- Full list of entity corrections with scores and methods
-- Per-match summary table
-- Low-confidence corrections flagged for manual review
-"""
+"""Build a human-readable summary report from CleaningResult objects."""
 
 import sys
 
@@ -16,15 +6,7 @@ from pipeline.orchestrator import CleaningResult
 
 
 def generate_report(results: list[CleaningResult]) -> str:
-    """
-    Generate a comprehensive cleaning report from pipeline results.
-
-    Args:
-        results: list of CleaningResult objects (one per match)
-
-    Returns:
-        Formatted report string
-    """
+    """Format a multi-match report. Returns the rendered string."""
     lines = []
     lines.append("=" * 70)
     lines.append("  SOCCER ASR DATA CLEANING — REPORT")
@@ -39,14 +21,12 @@ def generate_report(results: list[CleaningResult]) -> str:
     total_entities = sum(r.entities_detected for r in results)
     total_corrections = sum(r.entities_corrected for r in results)
     total_text_corrections = sum(len(r.text_corrections) for r in results)
-    # Stage 3.5 XLM-R detection flags are SIGNALS (consumed by mT5), not
-    # corrections. Tracked separately so the "Text corrections" total
-    # isn't inflated by hundreds of flags that never became changes.
+    # XLM-R flags are signals not corrections — kept separate so the report
+    # total isn't inflated by detections that never became edits.
     total_flagged_words = sum(
         getattr(r, "flagged_words_count", 0) for r in results
     )
 
-    # Aggregate correction breakdown across all matches
     total_breakdown = {
         "normalization": 0, "spell_check": 0, "grammar": 0,
         "entity": 0, "neural": 0, "llm": 0,
@@ -75,6 +55,7 @@ def generate_report(results: list[CleaningResult]) -> str:
     if active_stages:
         lines.append("CORRECTION BREAKDOWN BY STAGE")
         lines.append("-" * 40)
+        # Stage labels are kept for legacy report-format compatibility.
         stage_labels = {
             "normalization": "Stage 2A (Domain Normalization)",
             "spell_check":   "Stage 2B (Spell-Check)",
@@ -116,7 +97,6 @@ def generate_report(results: list[CleaningResult]) -> str:
         lines.append("ENTITY CORRECTIONS")
         lines.append("-" * 90)
 
-        # Group by confidence level
         high_conf = [c for c in all_corrections if c["score"] >= 80]
         medium_conf = [c for c in all_corrections if 70 <= c["score"] < 80]
         low_conf = [c for c in all_corrections if c["score"] < 70]
@@ -156,7 +136,7 @@ def generate_report(results: list[CleaningResult]) -> str:
     lines.append("-" * 70)
     example_count = 0
     for r in results:
-        for h in r.removed_hallucinations[:5]:  # show up to 5 per match
+        for h in r.removed_hallucinations[:5]:
             lines.append(
                 f"  [{h['reason']}] \"{h['text']}\""
             )
@@ -190,13 +170,11 @@ def generate_report(results: list[CleaningResult]) -> str:
 
 
 def print_report(results: list[CleaningResult]) -> None:
-    """Generate and print the cleaning report."""
     report = generate_report(results)
     sys.stdout.buffer.write((report + "\n").encode("utf-8"))
 
 
 def save_report(results: list[CleaningResult], filepath: str = "cleaning_report.txt") -> None:
-    """Generate and save the cleaning report to a file."""
     report = generate_report(results)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(report)

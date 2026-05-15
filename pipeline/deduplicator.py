@@ -1,10 +1,4 @@
-"""
-Duplicate Segment Remover — detects and merges consecutive duplicate segments.
-
-Whisper often produces the same text repeated across multiple consecutive
-segments (e.g., "De Bruyne" appears 6 times in a row). This module keeps
-only the first occurrence and extends its time span to cover all duplicates.
-"""
+"""Merge consecutive segments that Whisper repeated (e.g. "De Bruyne" x6)."""
 
 from dataclasses import replace
 
@@ -15,13 +9,7 @@ from pipeline.loader import Segment
 
 
 def _normalize_for_dedup(text: str) -> str:
-    """Strip surrounding whitespace and trailing punctuation.
-
-    This makes "Hansson.", "Hansson!", "Hansson," all dedup-equivalent —
-    they're the same word from Whisper's perspective, just with different
-    punctuation. Without this, the fuzz.ratio comparison distinguishes
-    them and they slip past dedup individually.
-    """
+    # Strip trailing punct so "Hansson.", "Hansson!", "Hansson," compare equal.
     return text.strip().rstrip(".,!?;:").strip()
 
 
@@ -29,23 +17,7 @@ def deduplicate_segments(
     segments: list[Segment],
     threshold: int = DUPLICATE_SIMILARITY_THRESHOLD,
 ) -> tuple[list[Segment], list[dict]]:
-    """
-    Remove consecutive segments with near-identical text.
-
-    When duplicates are found:
-    - Keep the FIRST occurrence
-    - Extend its end_time to the last duplicate's end_time
-    - Log which segments were removed
-
-    Args:
-        segments: list of Segments (should already be time-sorted)
-        threshold: similarity score (0–100) above which segments are "duplicates"
-
-    Returns:
-        Tuple of:
-        - deduped: list of Segment objects with duplicates removed
-        - removed: list of dicts with info about removed segments
-    """
+    """Drop consecutive near-identical segments. Keep the first, extend its end_time."""
     if not segments:
         return [], []
 

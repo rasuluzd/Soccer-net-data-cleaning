@@ -1,10 +1,5 @@
-"""
-Gazetteer Builder — creates a name lookup dictionary from Labels-caption.json.
-
-The gazetteer is the "source of truth" for correct names. It maps every known
-name variant (surname, short_name, long_name) to its canonical full form.
-This is what the fuzzy matcher compares ASR entities against.
-"""
+"""Build a name-variant -> canonical map from Labels-caption.json.
+Stage E retrieves against this gazetteer for every detected entity."""
 
 import json
 from typing import Optional
@@ -13,31 +8,12 @@ from pipeline.config import LEARNED_CORRECTIONS_PATH, LEARNED_MIN_SEEN_COUNT, LE
 
 
 def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, str]]:
-    """
-    Extract all proper names from a Labels-caption.json and build a
-    gazetteer mapping every variant to its canonical form.
-
-    Sources of names:
-        - Players (home + away, starting + subs): long_name, short_name, name
-        - Coaches: long_name, short_name
-        - Referees: referee_matched or referee field
-        - Teams: gameHomeTeam, gameAwayTeam, team names
-        - Venue: from the venue field
-
-    Args:
-        labels: parsed Labels-caption.json dict
-
-    Returns:
-        Tuple of:
-            - Dict mapping name variants -> canonical name
-            - Dict mapping canonical name -> entity type
-              ("player", "coach", "referee", "team", "venue")
-    """
+    """Pull every name (players/coaches/referees/teams/venue) out of Labels-caption.json.
+    Returns (variant -> canonical, canonical -> entity_type)."""
     gazetteer: dict[str, str] = {}
     entity_types: dict[str, str] = {}  # canonical_name → type
 
     def add_name(canonical: str, *variants: str, entity_type: str = "player"):
-        """Register a canonical name and all its variants."""
         canonical = canonical.strip()
         if not canonical:
             return
@@ -50,13 +26,10 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
                 gazetteer[v] = canonical
 
     def extract_surname(full_name: str) -> str:
-        """Extract likely surname from a full name. Handles multi-word surnames."""
+        """Best-effort surname extraction. Keeps "De Bruyne" together."""
         parts = full_name.strip().split()
         if len(parts) <= 1:
             return full_name.strip()
-        # For names like "Kevin De Bruyne", surname is "De Bruyne"
-        # For names like "Sergio Agüero", surname is "Agüero"
-        # Heuristic: if the second part is lowercase (de, van, el, etc.), include it
         first = parts[0]
         rest = " ".join(parts[1:])
         if rest:
@@ -64,32 +37,24 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
         return first
 
     def bigram_variants(full_name: str) -> list[str]:
-        """Phase C3 — generate bigram + initial-abbreviation variants.
+        """For a 3+ word name, produce 2-word subsequences and initial-abbreviated
+        forms. Catches mishearings of slurred adjacent tokens.
 
-        For a 3+ word name, produce every 2-word subsequence plus
-        initial-letter abbreviations. This catches compound mishearings
-        where Whisper slurred adjacent tokens (e.g. 'Hansstyrkosen' could
-        match 'Mads Thychosen' once the bigram variant exists).
-
-        Example: "Mads Döhr Thychosen" →
-            bigrams:       ["Mads Döhr", "Mads Thychosen", "Döhr Thychosen"]
-            initials:      ["M. Döhr Thychosen", "M. Thychosen", "M.D. Thychosen"]
-        """
+        "Mads Döhr Thychosen" -> "Mads Döhr", "Mads Thychosen", "Döhr Thychosen",
+        "M. Thychosen", "M.D. Thychosen"."""
         parts = full_name.strip().split()
         variants: list[str] = []
         if len(parts) < 3:
             return variants
-        # Non-adjacent 2-grams (skip adjacent since surname is already added)
+        # 2-grams (surname is already added, so we keep all pairs).
         for i, a in enumerate(parts):
             for b in parts[i + 1:]:
                 variants.append(f"{a} {b}")
-        # Initial-letter abbreviations
-        # "Mads Döhr Thychosen" → "M. Thychosen", "M.D. Thychosen"
+        # Initial-letter abbreviations.
         if len(parts) >= 2:
             initial = f"{parts[0][0]}."
-            variants.append(f"{initial} {parts[-1]}")  # "M. Thychosen"
+            variants.append(f"{initial} {parts[-1]}")
             if len(parts) >= 3:
-                # "M.D. Thychosen" for 3+ parts
                 initials = ".".join(p[0] for p in parts[:-1]) + "."
                 variants.append(f"{initials} {parts[-1]}")
         return variants
@@ -106,7 +71,6 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
             if long_name:
                 surname = extract_surname(long_name)
                 add_name(long_name, short_name, name, surname, entity_type="player")
-                # Phase C3 — bigram / initial-abbreviation variants.
                 for variant in bigram_variants(long_name):
                     if variant not in gazetteer:
                         gazetteer[variant] = long_name
@@ -148,10 +112,8 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
                 gazetteer[alt_name] = main_name or alt_name
                 entity_types[main_name or alt_name] = "team"
 
-    # Also accept a top-level "teams" list of *additional* teams that may
-    # be referenced in commentary (e.g. league-table mentions, rivals).
-    # Each entry registers itself as a canonical team so the pipeline does
-    # not try to fuzzy-correct it to a player surname.
+    # Top-level "teams" lists rivals / league-table mentions. Register them
+    # so the pipeline doesn't fuzzy-correct them to player surnames.
     for extra_team in labels.get("teams", []):
         if extra_team and extra_team not in gazetteer:
             add_name(extra_team, entity_type="team")
@@ -159,7 +121,7 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
     # ── Venue ────────────────────────────────────────────────────────
     for venue in labels.get("venue", []):
         if venue:
-            # Strip parenthetical suffixes: "Stamford Bridge (London)" → "Stamford Bridge"
+            # "Stamford Bridge (London)" -> "Stamford Bridge"
             import re
             venue_clean = re.sub(r"\s*\(.*?\)\s*$", "", venue).strip()
             if venue_clean:
@@ -169,16 +131,10 @@ def extract_names_from_labels(labels: dict) -> tuple[dict[str, str], dict[str, s
 
 
 def load_learned_corrections() -> dict[str, dict]:
-    """
-    Load the self-learning correction dictionary.
-
-    Returns:
-        Dict mapping lowercase misspelling -> {"correct": str, "confidence": float, "seen_count": int}
-    """
+    """Load the on-disk learned-corrections JSON. Returns {} on empty/missing/bad."""
     if not LEARNED_CORRECTIONS_PATH.exists():
         return {}
 
-    # Empty file (e.g. after an interrupted write) → treat as fresh start
     if LEARNED_CORRECTIONS_PATH.stat().st_size == 0:
         return {}
 
@@ -190,7 +146,6 @@ def load_learned_corrections() -> dict[str, dict]:
 
 
 def save_learned_corrections(corrections: dict[str, dict]) -> None:
-    """Save the updated learned corrections dictionary."""
     LEARNED_CORRECTIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LEARNED_CORRECTIONS_PATH, "w", encoding="utf-8") as f:
         json.dump(corrections, f, indent=2, ensure_ascii=False)
@@ -200,27 +155,14 @@ def get_team_words(
     entity_types: dict[str, str],
     gazetteer: dict[str, str],
 ) -> set[str]:
-    """
-    Extract all individual words from team-type gazetteer entries.
-
-    Used for detecting team name fragments in entities, e.g. 'Palace'
-    from 'Crystal Palace', 'Ham' from 'West Ham'.
-
-    Args:
-        entity_types: canonical name → type mapping
-        gazetteer: variant → canonical mapping
-
-    Returns:
-        Set of lowercase words that appear in any team name.
-        Only words with 3+ characters are included.
-    """
+    """Lowercase words appearing in any team or venue name (3+ chars).
+    Used to detect 'Palace' as part of 'Crystal Palace', 'Ham' from 'West Ham', etc."""
     team_words: set[str] = set()
     for canonical, etype in entity_types.items():
         if etype == "team":
             for word in canonical.split():
                 if len(word) >= 3:
                     team_words.add(word.lower())
-    # Also include venue words (stadiums should not be corrected to players)
     for canonical, etype in entity_types.items():
         if etype == "venue":
             for word in canonical.split():
@@ -233,23 +175,9 @@ def build_firstname_map(
     gazetteer: dict[str, str],
     entity_types: dict[str, str],
 ) -> dict[str, list[str]]:
-    """
-    Build a mapping from first names to their player canonical names.
-
-    Used by the orchestrator to enrich context_names: if "Yannick" appears
-    in a segment, we know "Bolasie" is likely nearby and can boost it.
-
-    Only includes player/coach entries (not teams/venues/referees) and
-    only first names with 4+ characters to avoid common-word collisions.
-
-    Args:
-        gazetteer: variant → canonical mapping
-        entity_types: canonical name → entity type
-
-    Returns:
-        Dict mapping lowercase first name → list of canonical full names.
-        e.g. {"yannick": ["Yannick Bolasie"], "eden": ["Eden Hazard"]}
-    """
+    """Map first name (lowercase) -> list of canonical full names.
+    Skips first names <4 chars (Ed/Mo collide with common words).
+    Players + coaches only."""
     firstname_map: dict[str, list[str]] = {}
     seen_canonicals: set[str] = set()
 
@@ -265,7 +193,6 @@ def build_firstname_map(
             continue
 
         first_name = parts[0].lower()
-        # Skip very short first names (collision risk: "Ed", "Mo", etc.)
         if len(first_name) < 4:
             continue
 
@@ -280,30 +207,14 @@ def build_gazetteer(
     labels: Optional[dict],
     include_learned: bool = True
 ) -> tuple[dict[str, str], dict[str, str]]:
-    """
-    Build the complete gazetteer for a match.
-
-    Combines:
-        1. Names extracted from Labels-caption.json (match-specific)
-        2. Previously learned corrections (cross-match knowledge)
-
-    Args:
-        labels: parsed Labels-caption.json dict (or None)
-        include_learned: whether to merge the learned correction dictionary
-
-    Returns:
-        Tuple of:
-            - Complete gazetteer dict: variant -> canonical name
-            - Entity types dict: canonical name -> type
-    """
+    """Build the gazetteer for a match. Merges Labels-caption.json names with
+    the on-disk learned dict (high-confidence entries only)."""
     gazetteer = {}
     entity_types = {}
 
-    # Step 1: Match-specific names from Labels
     if labels:
         gazetteer, entity_types = extract_names_from_labels(labels)
 
-    # Step 2: Merge learned corrections (only high-confidence entries)
     if include_learned:
         learned = load_learned_corrections()
         for misspelling, info in learned.items():
@@ -320,7 +231,7 @@ def build_gazetteer(
 
 
 if __name__ == "__main__":
-    # Quick test: build gazetteer for a sample match
+    # Quick smoke test: build the gazetteer for the first match found.
     from pipeline.loader import discover_matches
 
     matches = discover_matches()

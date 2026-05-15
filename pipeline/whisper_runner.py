@@ -1,41 +1,13 @@
-"""
-pipeline/whisper_runner.py — language-aware Whisper transcription via faster-whisper.
+"""Language-aware Whisper transcription via faster-whisper.
 
-Provides the low-level transcription primitive used by both the CLI
-``tools/retranscribe_kb_whisper.py`` and the orchestrator-facing
-``pipeline.asr_router.transcribe_match_half``. Centralising it here keeps
-``pipeline/`` self-contained (it does not import from ``tools/``).
+Output schema=2:
+  {"schema_version": 2, "language": "en", "language_probability": 0.99,
+   "segments": {"0": {"start", "end", "text", "avg_logprob",
+                      "no_speech_prob", "compression_ratio", "temperature",
+                      "words": [{"word", "start", "end", "prob"}, ...]}, ...}}
 
-Per-language model defaults live in ``pipeline.config.ASR_MODELS``; the
-``initial_prompt`` builder reads team and player names from
-``Labels-caption.json`` and orders them tail-first because Whisper
-truncates the prompt to its last 224 tokens.
-
-Output schema (versioned for backward compatibility):
-
-    schema=1: {"segments": {"0": [start, end, text], ...}}
-    schema=2: {"schema_version": 2,
-               "language": "en",
-               "language_probability": 0.99,
-               "segments": {
-                   "0": {
-                       "start": 0.0,
-                       "end": 8.0,
-                       "text": "And away we go ...",
-                       "avg_logprob": -0.18,        # segment-level avg
-                       "no_speech_prob": 0.01,
-                       "compression_ratio": 1.4,
-                       "temperature": 0.0,
-                       "words": [
-                           {"word": "And", "start": 0.0, "end": 0.2, "prob": 0.99},
-                           ...
-                       ]
-                   }, ...}}
-
-The orchestrator's loader handles both schemas. Schema-2 enables the
-SOTA refactor's confidence-gated GER and downstream confidence-aware
-event detection.
-"""
+The loader handles both schemas. Per-language defaults live in
+pipeline.config.ASR_MODELS."""
 
 from __future__ import annotations
 
@@ -56,12 +28,8 @@ WHISPER_OUTPUT_SCHEMA_VERSION = 2
 
 
 def _ordered_lineup_names(labels_path: Path) -> list[str]:
-    """Read Labels-caption.json and return [teams..., long_names..., short_names...].
-
-    Order matters because Whisper truncates prompts and hotwords at half
-    of max_length: highest-value tokens (player short_names) go LAST so
-    they survive truncation.
-    """
+    """[teams..., long_names..., short_names...] from Labels-caption.json.
+    short_names go LAST since Whisper truncates prompts at the back."""
     if not labels_path.exists():
         return []
     with open(labels_path, "r", encoding="utf-8") as f:
@@ -92,13 +60,8 @@ def _ordered_lineup_names(labels_path: Path) -> list[str]:
 
 
 def build_initial_prompt(labels_path: Path, max_names: int = 40) -> str:
-    """Build an initial_prompt biasing string from Labels-caption.json.
-
-    Whisper truncates the prompt to the *last* 224 tokens, so the highest-
-    value tokens (player short_names) go at the end. Used for first-window
-    stylistic conditioning; combine with ``build_hotwords_string`` for
-    per-window name biasing.
-    """
+    """initial_prompt for the first decode window only. Combine with
+    build_hotwords_string for biasing across the whole match."""
     deduped = _ordered_lineup_names(labels_path)
     if not deduped:
         return ""
@@ -106,14 +69,9 @@ def build_initial_prompt(labels_path: Path, max_names: int = 40) -> str:
 
 
 def build_hotwords_string(labels_path: Path, max_names: int = 40) -> str:
-    """Comma-separated lineup names for faster-whisper's ``hotwords`` arg.
-
-    Unlike ``initial_prompt`` (only consumed for the first decode window),
-    ``hotwords`` is prepended to the prompt of *every* window, so name
-    tokens stay biasable across the whole match. The string is plain
-    "Name1, Name2, Name3" — no header, no period — to maximise the share
-    of name tokens within the per-window truncation budget (max_length//2).
-    """
+    """Comma-separated names for faster-whisper's hotwords arg. Prepended to
+    every decode window, so player names stay biasable across the whole match.
+    Plain "Name1, Name2" — no header — maximises name tokens in the budget."""
     deduped = _ordered_lineup_names(labels_path)
     if not deduped:
         return ""
@@ -153,18 +111,8 @@ def transcribe(
     temperature: float = 0.0,
 ) -> Path:
     """Transcribe one audio file with faster-whisper and write Whisper JSON.
-
-    With ``word_timestamps=True`` (default), output uses schema 2 with per-word
-    probability and per-segment avg_logprob — required by the SOTA refactor's
-    confidence-gated GER (``pipeline/llm_corrector.py``).
-
-    ``initial_prompt`` is consumed by faster-whisper only for the FIRST decode
-    window, while ``hotwords`` is prepended to the prompt of every window —
-    use the latter to keep player-name tokens biasable across the full match.
-    Both are plain text; faster-whisper tokenises them internally. Token budget
-    is ~half of max_length per window, so the prompt builders order names
-    so the highest-value (short_names) survive truncation.
-    """
+    word_timestamps=True (default) emits schema-2 with per-word prob and
+    per-segment avg_logprob — required by Step L."""
     try:
         from faster_whisper import WhisperModel
     except ImportError as e:
@@ -206,7 +154,7 @@ def transcribe(
         no_speech_threshold=no_speech_threshold,  # 0.95 (vs default 0.6) keeps soft commentary
         log_prob_threshold=log_prob_threshold,    # None disables low-confidence drop
         compression_ratio_threshold=compression_ratio_threshold,
-        temperature=temperature,                  # 0.0 = greedy; non-zero gives diverse hypotheses for n-best building
+        temperature=temperature,                  # 0.0 = greedy
     )
 
     segments: dict[str, dict] = {}
