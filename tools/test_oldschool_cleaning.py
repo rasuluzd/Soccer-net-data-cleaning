@@ -124,7 +124,9 @@ def main() -> int:
                     continue
 
                 # 2. Fuzzy match against canonicals (single-word only, ≥4 chars)
-                if (len(stripped) >= 4 and stripped[0].isupper()
+                # Aggressive mode: also try lowercase tokens (Whisper sometimes
+                # outputs lowercase player names mid-sentence)
+                if (len(stripped) >= 4
                         and stripped.lower() not in {c.lower() for c in canonicals}):
                     best_canon = None
                     best_score = 0
