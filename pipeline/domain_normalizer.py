@@ -39,15 +39,6 @@ FOOTBALL_COMPOUNDS = {
         "hörn spark": "hörnspark",
         "straff spark": "straffspark",
     },
-    "de": {
-        "ab seits": "Abseits",
-        "halb zeit": "Halbzeit",
-        "tor wart": "Torwart",
-        "frei stoß": "Freistoß",
-        "eck ball": "Eckball",
-        "mittel feld": "Mittelfeld",
-        "nach spiel zeit": "Nachspielzeit",
-    },
 }
 
 # Filler words. Same set works across languages.

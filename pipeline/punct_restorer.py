@@ -186,8 +186,6 @@ class PunctuationRestorer:
                     words=seg.words,
                     avg_logprob=seg.avg_logprob,
                     no_speech_prob=seg.no_speech_prob,
-                    nbest=seg.nbest,
-                    speaker_id=seg.speaker_id,
                 ))
             else:
                 out.append(seg)

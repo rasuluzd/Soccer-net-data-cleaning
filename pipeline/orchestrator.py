@@ -267,7 +267,7 @@ def clean_match(
 
     # ── Stage timings summary ────────────────────────────────────────
     stage_timings["total_pipeline"] = round(sum(stage_timings.values()), 3)
-    print(f"\n  ── Per-stage timings (s) ──")
+    print(f"\n  -- Per-stage timings (s) --")
     for k, v in stage_timings.items():
         print(f"    {k:32s} {v:8.2f}")
 

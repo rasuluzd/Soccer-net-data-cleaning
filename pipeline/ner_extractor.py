@@ -89,7 +89,7 @@ def get_nlp(language: str = "en"):
 
 # ─── Heuristic Entity Detection ─────────────────────────────────────
 
-# Capitalised word (2+ chars) with Nordic/Germanic diacritics.
+# Capitalised word (2+ chars) with Nordic diacritics.
 CAPITALIZED_WORD = re.compile(
     r"\b([A-ZÅÄÖÆØ][a-zà-ÿåäöæøüß]+(?:['-][A-Za-zÅÄÖÆØà-ÿåäöæøüß]+)*)\b"
 )

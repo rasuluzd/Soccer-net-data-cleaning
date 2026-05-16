@@ -1,13 +1,19 @@
 """Language-aware Whisper transcription via faster-whisper.
 
-Output schema=2:
-  {"schema_version": 2, "language": "en", "language_probability": 0.99,
-   "segments": {"0": {"start", "end", "text", "avg_logprob",
-                      "no_speech_prob", "compression_ratio", "temperature",
-                      "words": [{"word", "start", "end", "prob"}, ...]}, ...}}
+Output format (simple list-based, no schema versioning):
+  {"segments": {"0": [start, end, text], "1": [start, end, text], ...}}
 
-The loader handles both schemas. Per-language defaults live in
-pipeline.config.ASR_MODELS."""
+This matches the SoccerNet-Echoes-style layout used by downstream tools
+that expect the simpler schema. Per-segment metadata (avg_logprob,
+no_speech_prob, etc.) and per-word probabilities are NOT emitted in this
+output format — if those are needed for downstream confidence-gated steps,
+use the schema-2 variant of this module instead.
+
+Decoder configuration matches the v3 baseline that produced the evaluated
+results: lenient filtering thresholds calibrated for stadium-audio (high
+no_speech_prob is the norm there), with name biasing handled via
+initial_prompt and hotwords from Labels-caption.json.
+"""
 
 from __future__ import annotations
 
@@ -22,9 +28,6 @@ from pipeline.config import (
     WHISPER_COMPUTE_TYPE_GPU,
     get_asr_model,
 )
-
-
-WHISPER_OUTPUT_SCHEMA_VERSION = 2
 
 
 def _ordered_lineup_names(labels_path: Path) -> list[str]:
@@ -106,13 +109,16 @@ def transcribe(
     no_speech_threshold: float = 0.95,
     log_prob_threshold: float | None = None,
     compression_ratio_threshold: float = 2.6,
-    word_timestamps: bool = True,
     condition_on_previous_text: bool = False,
     temperature: float = 0.0,
 ) -> Path:
-    """Transcribe one audio file with faster-whisper and write Whisper JSON.
-    word_timestamps=True (default) emits schema-2 with per-word prob and
-    per-segment avg_logprob — required by Step L."""
+    """Transcribe one audio file with faster-whisper and write a simple
+    list-based JSON: {"segments": {"0": [start, end, text], ...}}.
+
+    Decoder defaults match the v3 baseline (no_speech_threshold=0.95,
+    log_prob_threshold=None, vad_filter=False, condition_on_previous_text=False)
+    which is calibrated for stadium-audio characteristics.
+    """
     try:
         from faster_whisper import WhisperModel
     except ImportError as e:
@@ -149,47 +155,25 @@ def transcribe(
         initial_prompt=initial_prompt or None,
         hotwords=hotwords or None,
         vad_filter=vad_filter,
-        word_timestamps=word_timestamps,
+        word_timestamps=False,
         condition_on_previous_text=condition_on_previous_text,
-        no_speech_threshold=no_speech_threshold,  # 0.95 (vs default 0.6) keeps soft commentary
-        log_prob_threshold=log_prob_threshold,    # None disables low-confidence drop
+        no_speech_threshold=no_speech_threshold,
+        log_prob_threshold=log_prob_threshold,
         compression_ratio_threshold=compression_ratio_threshold,
-        temperature=temperature,                  # 0.0 = greedy
+        temperature=temperature,
     )
 
-    segments: dict[str, dict] = {}
-    for i, seg in enumerate(seg_iter):
+    segments: dict[str, list] = {}
+    kept = 0
+    for seg in seg_iter:
         text = (seg.text or "").strip()
         if not text:
             continue
-        seg_dict: dict = {
-            "start": float(seg.start),
-            "end": float(seg.end),
-            "text": text,
-            "avg_logprob": float(getattr(seg, "avg_logprob", 0.0) or 0.0),
-            "no_speech_prob": float(getattr(seg, "no_speech_prob", 0.0) or 0.0),
-            "compression_ratio": float(getattr(seg, "compression_ratio", 0.0) or 0.0),
-            "temperature": float(getattr(seg, "temperature", 0.0) or 0.0),
-        }
-        if word_timestamps and getattr(seg, "words", None):
-            seg_dict["words"] = [
-                {
-                    "word": w.word,
-                    "start": float(w.start),
-                    "end": float(w.end),
-                    "prob": float(w.probability),
-                }
-                for w in seg.words
-            ]
-        segments[str(i)] = seg_dict
+        segments[str(kept)] = [float(seg.start), float(seg.end), text]
+        kept += 1
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_data = {
-        "schema_version": WHISPER_OUTPUT_SCHEMA_VERSION,
-        "language": info.language,
-        "language_probability": float(info.language_probability),
-        "segments": segments,
-    }
+    output_data = {"segments": segments}
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=4, ensure_ascii=False)
     print(

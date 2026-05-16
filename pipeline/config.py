@@ -36,29 +36,6 @@ MAX_CONSECUTIVE_REPEATS = 2
 DUPLICATE_SIMILARITY_THRESHOLD = 95
 
 
-# ─── Legacy Tier 2 weights — only read by tests now ────────────────
-# Production entity correction goes through entity_corrector.py (TF-IDF +
-# MCQ judge). These weights are kept so the old test suite still imports.
-FUZZY_WEIGHT = 0.65
-PHONETIC_WEIGHT = 0.20
-CONTEXT_WEIGHT = 0.15
-
-
-def get_fuzzy_threshold(entity_text: str) -> int:
-    """Min combined score to accept a correction. Adaptive on length."""
-    length = len(entity_text)
-    if length <= 4:
-        return 48
-    elif length <= 8:
-        return 55
-    else:
-        return 55
-
-
-# Score at which a Tier 2 candidate is accepted without Tier 3 validation.
-TIER2_ACCEPT_THRESHOLD = 72
-
-
 # ─── NER ─────────────────────────────────────────────────────────────
 SPACY_MODEL = "en_core_web_sm"
 
@@ -71,26 +48,6 @@ NER_FUZZY_FLOOR = 75            # min fuzz.ratio to a gazetteer word
 NER_FUZZY_DICT_OVERRIDE = 90    # higher bar if the word is in the spell dict
 NER_FUZZY_MIN_LEN = 5           # 4-char tokens collide with too many real words
 
-# ─── Legacy Tier 3 context disambiguator — only read by tests ──────
-CONTEXT_MODEL_NAME = "all-MiniLM-L6-v2"
-CONTEXT_SIMILARITY_THRESHOLD = 0.50
-TIER3_VALIDATION_THRESHOLD = 0.55
-# Non-English uses a multilingual model with a wider score distribution.
-TIER3_VALIDATION_THRESHOLD_NON_ENGLISH = 0.45
-
-
-def get_tier3_validation_threshold(language: str = "en") -> float:
-    return (
-        TIER3_VALIDATION_THRESHOLD if language == "en"
-        else TIER3_VALIDATION_THRESHOLD_NON_ENGLISH
-    )
-
-
-# Min gap between top and second candidate cosine in legacy Tier 3.
-MIN_GAP = 0.08
-
-CONTEXT_WINDOW_SIZE = 2
-
 # ─── Elasticsearch / Temporal Chunking ──────────────────────────────
 ROLLING_WINDOW_SECONDS = 12.0
 ROLLING_WINDOW_OVERLAP_SECONDS = 4.0
@@ -102,7 +59,6 @@ ROLLING_WINDOW_OVERLAP_SECONDS = 4.0
 SPACY_MODELS = {
     "en": "en_core_web_sm",
     "sv": "sv_core_news_sm",
-    "de": "de_core_news_sm",
     "fr": "fr_core_news_sm",
     "es": "es_core_news_sm",
     "it": "it_core_news_sm",
@@ -111,27 +67,20 @@ SPACY_MODELS = {
     "default": "xx_ent_wiki_sm",
 }
 
-CONTEXT_MODELS = {
-    "en": "all-MiniLM-L6-v2",
-    "default": "paraphrase-multilingual-MiniLM-L12-v2",
-}
-
 # Per-language ASR model. faster-whisper accepts stock HF checkpoints
 # (auto-converted to CT2 on first load) and pre-converted CT2 repos.
-# KB-Whisper covers sv/no/da; primeline German fine-tune covers de.
+# KB-Whisper covers sv/no/da.
 ASR_MODELS = {
     "en": "Systran/faster-whisper-large-v3",
     "sv": "KBLab/kb-whisper-large",
     "no": "KBLab/kb-whisper-large",
     "da": "KBLab/kb-whisper-large",
-    "de": "primeline/whisper-large-v3-turbo-german",
     "default": "Systran/faster-whisper-large-v3",
 }
 
 # Decoding params used by faster-whisper. beam_size > 1 stabilises rare names.
 WHISPER_BEAM_SIZE = 5
 WHISPER_BEST_OF = 5
-WHISPER_NBEST_K = 1
 WHISPER_COMPUTE_TYPE_CPU = "int8"
 WHISPER_COMPUTE_TYPE_GPU = "float16"
 
@@ -144,7 +93,6 @@ def get_asr_model(lang: str = "en") -> str:
 ENTITY_LABEL_MAP = {
     "en": {"PERSON", "ORG", "GPE", "FAC"},
     "sv": {"PER", "ORG", "LOC", "MISC"},
-    "de": {"PER", "ORG", "LOC", "MISC"},
     "fr": {"PER", "ORG", "LOC", "MISC"},
     "es": {"PER", "ORG", "LOC", "MISC"},
     "it": {"PER", "ORG", "LOC", "MISC"},
@@ -157,7 +105,6 @@ ENTITY_LABEL_MAP = {
 LANGUAGE_FAMILIES = {
     "en": {"en", "sco", "cy"},
     "sv": {"sv", "no", "da"},
-    "de": {"de", "nl", "lb"},
     "fr": {"fr"},
     "es": {"es", "ca", "gl", "pt"},
     "it": {"it"},
@@ -181,45 +128,18 @@ def get_rejected_pos_tags(lang: str = "en") -> set[str]:
         return REJECTED_POS_TAGS
     return REJECTED_POS_TAGS_NON_ENGLISH
 
-# Word for "football" per language (used in legacy Tier 3 descriptions).
-FOOTBALL_WORDS = {
-    "en": "football",
-    "sv": "fotboll",
-    "de": "Fußball",
-    "fr": "football",
-    "es": "fútbol",
-    "it": "calcio",
-    "default": "football",
-}
-
-
 def get_spacy_model(lang: str = "en") -> str:
     return SPACY_MODELS.get(lang, SPACY_MODELS["default"])
-
-
-def get_context_model(lang: str = "en") -> str:
-    return CONTEXT_MODELS.get(lang, CONTEXT_MODELS["default"])
 
 
 def get_entity_labels(lang: str = "en") -> set[str]:
     return ENTITY_LABEL_MAP.get(lang, ENTITY_LABEL_MAP["default"])
 
 
-def get_scoring_weights(lang: str = "en") -> tuple[float, float, float]:
-    """Legacy weights (fuzzy, phonetic, context). Phonetic is English-only,
-    so non-English shifts the weight onto fuzzy."""
-    if lang == "en":
-        return (FUZZY_WEIGHT, PHONETIC_WEIGHT, CONTEXT_WEIGHT)
-    return (0.55, 0.30, 0.15)
-
-
-# ─── Stage Toggles (used for ablation runs) ─────────────────────────
+# ─── Stage Toggles ───────────────────────────────────────────────────
 
 DOMAIN_NORMALIZATION_ENABLED = True
 ENTITY_CORRECTION_ENABLED = True
-
-# Legacy flag, only checked by old tests now.
-TIER3_ENABLED = True
 
 # ─── Validation gates applied to every accepted correction ──────────
 # C1: corrected string must share at least this much char similarity with the original.
@@ -264,11 +184,6 @@ MLM_VETO_MODEL = "xlm-roberta-base"
 PUNCT_RESTORATION_ENABLED = True
 PUNCT_MODEL = "oliverguhr/fullstop-punctuation-multilang-large"
 PUNCT_PRESERVE_EXISTING = True        # only insert; never delete existing punct/casing
-
-# ─── Speaker diarization (off by default — slow on CPU) ────────────
-DIARIZATION_ENABLED = False
-DIARIZATION_MODEL = "pyannote/speaker-diarization-3.1"
-DIARIZATION_HF_TOKEN_ENV = "HUGGINGFACE_TOKEN"
 
 # ─── Stage E: TF-IDF + MCQ controls (entity_corrector.py) ──────────
 # Don't run MCQ on tokens shorter than this. Short tokens (Kane, Mann, Dante)

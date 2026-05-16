@@ -78,14 +78,14 @@ def extract_and_rebuild_entity(
     language: str = "en",
 ) -> str:
     """Swap the name in-place, keep punctuation/possessive wrapping.
-    For sv/de/no/da, re-attach a Germanic genitive -s if the original had one
+    For sv/no/da, re-attach a genitive -s if the original had one
     ("Guidettis boll" stays a genitive after correcting to "Guidetti")."""
     core, leading_punct, trailing_possessive, trailing_text, trailing_punct = (
         _split_entity_parts(original_text)
     )
     final_name = corrected_name
     if (
-        language in ("sv", "de", "no", "da")
+        language in ("sv", "no", "da")
         and core
         and len(core) >= 4
         and core.endswith("s")

@@ -12,20 +12,17 @@ from pipeline.config import ASR_INPUT_VARIANT, DATASET_ROOT
 class Segment:
     """One ASR transcript segment.
 
-    Schema-2 enrichments (words/avg_logprob/etc.) are None when the source
-    JSON is the older list-style schema-1. Stages degrade gracefully then."""
+    words/avg_logprob/no_speech_prob are None when reading list-style ASR JSON
+    (older format). Stages that need logprobs degrade gracefully when they're absent."""
     segment_id: str
     start_time: float
     end_time: float
     text: str
     half: int             # 1 or 2
     global_id: str = ""   # set when writing the cleaned output
-    # Schema-2 enrichments (None for schema-1).
     words: Optional[list[dict]] = None         # [{word, start, end, prob}, ...]
     avg_logprob: Optional[float] = None
     no_speech_prob: Optional[float] = None
-    nbest: Optional[list[str]] = None          # alternative beam hypotheses
-    speaker_id: Optional[str] = None           # set by diarizer.py
     # Indices entity_corrector marked as canonical names. Step L must not edit them.
     frozen_word_indices: Optional[list[int]] = None
 
@@ -44,14 +41,10 @@ class MatchData:
 def load_asr_json(filepath: Path, half: int) -> list[Segment]:
     """Parse one {half}_asr.json into Segments (time-sorted).
 
-    Schema-1 (list-style):
-      {"segments": {"0": [start, end, "text"], ...}}
-
-    Schema-2 (faster-whisper enriched):
-      {"schema_version": 2, "language": "en",
-       "segments": {"0": {"start": .., "end": .., "text": ..,
-                          "avg_logprob": .., "no_speech_prob": ..,
-                          "words": [...], "nbest": [...]} } }
+    Two formats are accepted:
+      List-style:  {"segments": {"0": [start, end, "text"], ...}}
+      Dict-style:  {"segments": {"0": {"start": .., "end": .., "text": ..,
+                                       "avg_logprob": .., "words": [...]} } }
     """
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -76,8 +69,6 @@ def load_asr_json(filepath: Path, half: int) -> list[Segment]:
                 words=values.get("words"),
                 avg_logprob=values.get("avg_logprob"),
                 no_speech_prob=values.get("no_speech_prob"),
-                nbest=values.get("nbest"),
-                speaker_id=values.get("speaker_id"),
             ))
 
     segments.sort(key=lambda s: (s.half, s.start_time))
